@@ -1,0 +1,403 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D741D82C1BE3E93F003B3B00 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D82B1BE3E93F003B3B00 /* AppDelegate.swift */; };
+		D741D82E1BE3E93F003B3B00 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D82D1BE3E93F003B3B00 /* Document.swift */; };
+		D741D8311BE3E93F003B3B00 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = D741D82F1BE3E93F003B3B00 /* Document.xib */; };
+		D741D8331BE3E93F003B3B00 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D741D8321BE3E93F003B3B00 /* Assets.xcassets */; };
+		D741D8361BE3E93F003B3B00 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = D741D8341BE3E93F003B3B00 /* MainMenu.xib */; };
+		D741D8411BE3E93F003B3B00 /* AIComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D8401BE3E93F003B3B00 /* AIComposerTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D741D83D1BE3E93F003B3B00 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D741D8201BE3E93E003B3B00 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D741D8271BE3E93F003B3B00;
+			remoteInfo = AIComposer;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		D741D8281BE3E93F003B3B00 /* AIComposer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AIComposer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D741D82B1BE3E93F003B3B00 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		D741D82D1BE3E93F003B3B00 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
+		D741D8301BE3E93F003B3B00 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Document.xib; sourceTree = "<group>"; };
+		D741D8321BE3E93F003B3B00 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D741D8351BE3E93F003B3B00 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		D741D8371BE3E93F003B3B00 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D741D83C1BE3E93F003B3B00 /* AIComposerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AIComposerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D741D8401BE3E93F003B3B00 /* AIComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIComposerTests.swift; sourceTree = "<group>"; };
+		D741D8421BE3E93F003B3B00 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D741D8251BE3E93F003B3B00 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D741D8391BE3E93F003B3B00 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D741D81F1BE3E93E003B3B00 = {
+			isa = PBXGroup;
+			children = (
+				D741D82A1BE3E93F003B3B00 /* AIComposer */,
+				D741D83F1BE3E93F003B3B00 /* AIComposerTests */,
+				D741D8291BE3E93F003B3B00 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D741D8291BE3E93F003B3B00 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D741D8281BE3E93F003B3B00 /* AIComposer.app */,
+				D741D83C1BE3E93F003B3B00 /* AIComposerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D741D82A1BE3E93F003B3B00 /* AIComposer */ = {
+			isa = PBXGroup;
+			children = (
+				D741D82B1BE3E93F003B3B00 /* AppDelegate.swift */,
+				D741D82D1BE3E93F003B3B00 /* Document.swift */,
+				D741D82F1BE3E93F003B3B00 /* Document.xib */,
+				D741D8321BE3E93F003B3B00 /* Assets.xcassets */,
+				D741D8341BE3E93F003B3B00 /* MainMenu.xib */,
+				D741D8371BE3E93F003B3B00 /* Info.plist */,
+			);
+			path = AIComposer;
+			sourceTree = "<group>";
+		};
+		D741D83F1BE3E93F003B3B00 /* AIComposerTests */ = {
+			isa = PBXGroup;
+			children = (
+				D741D8401BE3E93F003B3B00 /* AIComposerTests.swift */,
+				D741D8421BE3E93F003B3B00 /* Info.plist */,
+			);
+			path = AIComposerTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D741D8271BE3E93F003B3B00 /* AIComposer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D741D8451BE3E93F003B3B00 /* Build configuration list for PBXNativeTarget "AIComposer" */;
+			buildPhases = (
+				D741D8241BE3E93F003B3B00 /* Sources */,
+				D741D8251BE3E93F003B3B00 /* Frameworks */,
+				D741D8261BE3E93F003B3B00 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AIComposer;
+			productName = AIComposer;
+			productReference = D741D8281BE3E93F003B3B00 /* AIComposer.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D741D83B1BE3E93F003B3B00 /* AIComposerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D741D8481BE3E93F003B3B00 /* Build configuration list for PBXNativeTarget "AIComposerTests" */;
+			buildPhases = (
+				D741D8381BE3E93F003B3B00 /* Sources */,
+				D741D8391BE3E93F003B3B00 /* Frameworks */,
+				D741D83A1BE3E93F003B3B00 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D741D83E1BE3E93F003B3B00 /* PBXTargetDependency */,
+			);
+			name = AIComposerTests;
+			productName = AIComposerTests;
+			productReference = D741D83C1BE3E93F003B3B00 /* AIComposerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D741D8201BE3E93E003B3B00 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = "Jess Hendricks";
+				TargetAttributes = {
+					D741D8271BE3E93F003B3B00 = {
+						CreatedOnToolsVersion = 7.0;
+					};
+					D741D83B1BE3E93F003B3B00 = {
+						CreatedOnToolsVersion = 7.0;
+						TestTargetID = D741D8271BE3E93F003B3B00;
+					};
+				};
+			};
+			buildConfigurationList = D741D8231BE3E93E003B3B00 /* Build configuration list for PBXProject "AIComposer" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = D741D81F1BE3E93E003B3B00;
+			productRefGroup = D741D8291BE3E93F003B3B00 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D741D8271BE3E93F003B3B00 /* AIComposer */,
+				D741D83B1BE3E93F003B3B00 /* AIComposerTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D741D8261BE3E93F003B3B00 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D741D8331BE3E93F003B3B00 /* Assets.xcassets in Resources */,
+				D741D8311BE3E93F003B3B00 /* Document.xib in Resources */,
+				D741D8361BE3E93F003B3B00 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D741D83A1BE3E93F003B3B00 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D741D8241BE3E93F003B3B00 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D741D82E1BE3E93F003B3B00 /* Document.swift in Sources */,
+				D741D82C1BE3E93F003B3B00 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D741D8381BE3E93F003B3B00 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D741D8411BE3E93F003B3B00 /* AIComposerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D741D83E1BE3E93F003B3B00 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D741D8271BE3E93F003B3B00 /* AIComposer */;
+			targetProxy = D741D83D1BE3E93F003B3B00 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		D741D82F1BE3E93F003B3B00 /* Document.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D741D8301BE3E93F003B3B00 /* Base */,
+			);
+			name = Document.xib;
+			sourceTree = "<group>";
+		};
+		D741D8341BE3E93F003B3B00 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D741D8351BE3E93F003B3B00 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		D741D8431BE3E93F003B3B00 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		D741D8441BE3E93F003B3B00 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		D741D8461BE3E93F003B3B00 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = AIComposer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ExistentialMusic.AIComposer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		D741D8471BE3E93F003B3B00 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = AIComposer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ExistentialMusic.AIComposer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		D741D8491BE3E93F003B3B00 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = AIComposerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ExistentialMusic.AIComposerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AIComposer.app/Contents/MacOS/AIComposer";
+			};
+			name = Debug;
+		};
+		D741D84A1BE3E93F003B3B00 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = AIComposerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ExistentialMusic.AIComposerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AIComposer.app/Contents/MacOS/AIComposer";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D741D8231BE3E93E003B3B00 /* Build configuration list for PBXProject "AIComposer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D741D8431BE3E93F003B3B00 /* Debug */,
+				D741D8441BE3E93F003B3B00 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D741D8451BE3E93F003B3B00 /* Build configuration list for PBXNativeTarget "AIComposer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D741D8461BE3E93F003B3B00 /* Debug */,
+				D741D8471BE3E93F003B3B00 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		D741D8481BE3E93F003B3B00 /* Build configuration list for PBXNativeTarget "AIComposerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D741D8491BE3E93F003B3B00 /* Debug */,
+				D741D84A1BE3E93F003B3B00 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D741D8201BE3E93E003B3B00 /* Project object */;
+}
