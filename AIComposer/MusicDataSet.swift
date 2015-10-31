@@ -64,7 +64,7 @@ class MusicDataSet: NSObject, NSCoding {
         var currentBeat: UInt16 = 1
         var nextSnippet: MusicSnippet!
         
-        //  Calculate the length of the phrase
+        //  Calculate the length of the phrase... May need later
         var phraseLength = 0
         //  Calculates the number of beats. If four, possibly divide the snippet into groups of two?
         var numberOfBeats = 0
@@ -92,6 +92,8 @@ class MusicDataSet: NSObject, NSCoding {
             //  If the nextNote is in a NEW measure, add the last snippet (that is now complete) to the main array
             //  and start a NEW snippet, putting the nextNote into it.
             } else if currentBar != nextNote.barBeatTime.bar {
+                phraseLength++
+                
                 //  Add the complete snippet to the array after transposing everything to the bottom octave.
                 if nextSnippet != nil {
                     nextSnippet.zeroTransposeMusicSnippet()

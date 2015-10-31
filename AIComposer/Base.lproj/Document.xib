@@ -26,7 +26,7 @@
                         <rect key="frame" x="-7" y="-10" width="814" height="614"/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
-                            <tabViewItem label="Learn Melodic Snippets" identifier="1" id="cdN-bM-XA3">
+                            <tabViewItem label="Melodic Input" identifier="1" id="cdN-bM-XA3">
                                 <view key="view" id="BCA-6L-ton">
                                     <rect key="frame" x="10" y="33" width="794" height="568"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -99,13 +99,13 @@
                                     </constraints>
                                 </view>
                             </tabViewItem>
-                            <tabViewItem label="Learn Chord Progressions" identifier="2" id="RIR-e2-621">
+                            <tabViewItem label="Chord Progression Input" identifier="2" id="RIR-e2-621">
                                 <view key="view" id="h9r-ge-mNO">
                                     <rect key="frame" x="10" y="33" width="794" height="568"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 </view>
                             </tabViewItem>
-                            <tabViewItem label="Compose Music" identifier="" id="bt2-44-I7h">
+                            <tabViewItem label="Composer" identifier="" id="bt2-44-I7h">
                                 <view key="view" id="1IW-wM-sBE">
                                     <rect key="frame" x="10" y="33" width="794" height="568"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
