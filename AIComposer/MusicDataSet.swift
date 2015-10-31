@@ -61,12 +61,24 @@ class MusicDataSet: NSObject, NSCoding {
     private func distributeMeasures(musicNoteEvents: [MusicNote]) {
         //  Initialize the variables for the starting measure and MusicSnippet array
         var currentBar:Int32  = 1
+        var currentBeat: UInt16 = 1
         var nextSnippet: MusicSnippet!
+        
+        //  Calculate the length of the phrase
+        var phraseLength = 0
+        //  Calculates the number of beats. If four, possibly divide the snippet into groups of two?
+        var numberOfBeats = 0
+        for nextNote in musicNoteEvents {
+            if Int(nextNote.barBeatTime.beat) > numberOfBeats {
+                numberOfBeats = Int(nextNote.barBeatTime.beat)
+            } else if numberOfBeats < Int(nextNote.barBeatTime.beat) {
+                break
+            }
+        }
         
         //  Iterate through all of the MIDI Notes
         for index in 0..<musicNoteEvents.count {
             let nextNote = musicNoteEvents[index]
-            
             //  If nextNote is the last note, add it to the snippet
             if index == musicNoteEvents.count - 1 {
                 nextSnippet.addMusicNote(nextNote)

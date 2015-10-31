@@ -68,6 +68,7 @@ class Document: NSDocument {
     }
     
     @IBAction func loadMIDIFile(sender: AnyObject) {
+        self.textOutputView.string = "Loading more MIDI Data..."
         let myFileDialog: NSOpenPanel = NSOpenPanel()
         myFileDialog.runModal()
         
