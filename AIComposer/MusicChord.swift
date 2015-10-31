@@ -163,6 +163,10 @@ class MusicChord: NSObject {
         return nil
     }
     
+    private func getWeightOfChord(notes: [MusicNote], fullChordNotes: [Int]) -> Float32 {
+        return 0.0
+    }
+    
     /*
     *   Iterates through the list of possible chords and chooses the most frequently occurring chord.
     */
