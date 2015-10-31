@@ -13,6 +13,16 @@
 		D741D8331BE3E93F003B3B00 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D741D8321BE3E93F003B3B00 /* Assets.xcassets */; };
 		D741D8361BE3E93F003B3B00 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = D741D8341BE3E93F003B3B00 /* MainMenu.xib */; };
 		D741D8411BE3E93F003B3B00 /* AIComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D8401BE3E93F003B3B00 /* AIComposerTests.swift */; };
+		D741D8501BE3E966003B3B00 /* MIDIFileParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D84B1BE3E966003B3B00 /* MIDIFileParser.swift */; settings = {ASSET_TAGS = (); }; };
+		D741D8511BE3E966003B3B00 /* MIDIFileParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D84B1BE3E966003B3B00 /* MIDIFileParser.swift */; settings = {ASSET_TAGS = (); }; };
+		D741D8521BE3E966003B3B00 /* MusicNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D84C1BE3E966003B3B00 /* MusicNote.swift */; settings = {ASSET_TAGS = (); }; };
+		D741D8531BE3E966003B3B00 /* MusicNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D84C1BE3E966003B3B00 /* MusicNote.swift */; settings = {ASSET_TAGS = (); }; };
+		D741D8541BE3E966003B3B00 /* MusicChord.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D84D1BE3E966003B3B00 /* MusicChord.swift */; settings = {ASSET_TAGS = (); }; };
+		D741D8551BE3E966003B3B00 /* MusicChord.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D84D1BE3E966003B3B00 /* MusicChord.swift */; settings = {ASSET_TAGS = (); }; };
+		D741D8561BE3E966003B3B00 /* MusicSnippet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D84E1BE3E966003B3B00 /* MusicSnippet.swift */; settings = {ASSET_TAGS = (); }; };
+		D741D8571BE3E966003B3B00 /* MusicSnippet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D84E1BE3E966003B3B00 /* MusicSnippet.swift */; settings = {ASSET_TAGS = (); }; };
+		D741D8581BE3E966003B3B00 /* MusicDataSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D84F1BE3E966003B3B00 /* MusicDataSet.swift */; settings = {ASSET_TAGS = (); }; };
+		D741D8591BE3E966003B3B00 /* MusicDataSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D84F1BE3E966003B3B00 /* MusicDataSet.swift */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +46,11 @@
 		D741D83C1BE3E93F003B3B00 /* AIComposerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AIComposerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D741D8401BE3E93F003B3B00 /* AIComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIComposerTests.swift; sourceTree = "<group>"; };
 		D741D8421BE3E93F003B3B00 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D741D84B1BE3E966003B3B00 /* MIDIFileParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIFileParser.swift; sourceTree = "<group>"; };
+		D741D84C1BE3E966003B3B00 /* MusicNote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicNote.swift; sourceTree = "<group>"; };
+		D741D84D1BE3E966003B3B00 /* MusicChord.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicChord.swift; sourceTree = "<group>"; };
+		D741D84E1BE3E966003B3B00 /* MusicSnippet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicSnippet.swift; sourceTree = "<group>"; };
+		D741D84F1BE3E966003B3B00 /* MusicDataSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicDataSet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +94,11 @@
 			children = (
 				D741D82B1BE3E93F003B3B00 /* AppDelegate.swift */,
 				D741D82D1BE3E93F003B3B00 /* Document.swift */,
+				D741D84B1BE3E966003B3B00 /* MIDIFileParser.swift */,
+				D741D84C1BE3E966003B3B00 /* MusicNote.swift */,
+				D741D84D1BE3E966003B3B00 /* MusicChord.swift */,
+				D741D84E1BE3E966003B3B00 /* MusicSnippet.swift */,
+				D741D84F1BE3E966003B3B00 /* MusicDataSet.swift */,
 				D741D82F1BE3E93F003B3B00 /* Document.xib */,
 				D741D8321BE3E93F003B3B00 /* Assets.xcassets */,
 				D741D8341BE3E93F003B3B00 /* MainMenu.xib */,
@@ -196,8 +216,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D741D8581BE3E966003B3B00 /* MusicDataSet.swift in Sources */,
 				D741D82E1BE3E93F003B3B00 /* Document.swift in Sources */,
+				D741D8521BE3E966003B3B00 /* MusicNote.swift in Sources */,
+				D741D8501BE3E966003B3B00 /* MIDIFileParser.swift in Sources */,
+				D741D8541BE3E966003B3B00 /* MusicChord.swift in Sources */,
 				D741D82C1BE3E93F003B3B00 /* AppDelegate.swift in Sources */,
+				D741D8561BE3E966003B3B00 /* MusicSnippet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -205,7 +230,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D741D8591BE3E966003B3B00 /* MusicDataSet.swift in Sources */,
+				D741D8571BE3E966003B3B00 /* MusicSnippet.swift in Sources */,
+				D741D8551BE3E966003B3B00 /* MusicChord.swift in Sources */,
 				D741D8411BE3E93F003B3B00 /* AIComposerTests.swift in Sources */,
+				D741D8531BE3E966003B3B00 /* MusicNote.swift in Sources */,
+				D741D8511BE3E966003B3B00 /* MIDIFileParser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
