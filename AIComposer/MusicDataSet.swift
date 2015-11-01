@@ -51,6 +51,52 @@ class MusicDataSet: NSObject, NSCoding {
         self.distributeMeasures(newMIDIData.midiNoteEvents)
     }
     
+    /*
+    *   Deletes all music snippets from the data structure
+    */
+    func clearAllData() {
+        self.musicSnippets.removeAll()
+    }
+    
+    func createMIDIFileFromDataSet(filePathString: String) {
+        let newSeq = self.getMusicSequenceFromData()
+        self.midiFileParser.createMIDIFile(filePathString, sequence: newSeq)
+    }
+    
+    /*
+    *   Roughly converts all of the MusicSnippets into a midi file.
+    */
+    private func getMusicSequenceFromData() -> MusicSequence {
+        var newSeq = MusicSequence()
+        NewMusicSequence(&newSeq)
+        MusicSequenceSetSequenceType(newSeq, MusicSequenceType.Beats)
+        var tempoTrack = MusicTrack()
+        MusicSequenceGetTempoTrack(newSeq, &tempoTrack)
+        MusicTrackNewExtendedTempoEvent(tempoTrack, 0, 120)
+        var musicTrack = MusicTrack()
+        MusicSequenceNewTrack(newSeq, &musicTrack)
+        var currentTimeStamp:MusicTimeStamp = 0
+        var previousTimeStamp: MusicTimeStamp = 0
+        var previousDuration: Float32 = 0
+        for nextMusicSnippet in self.musicSnippets {
+            for nextMusicEvent in nextMusicSnippet.musicNoteEvents {
+                if nextMusicEvent.timeStamp > currentTimeStamp {
+                    currentTimeStamp = previousTimeStamp.advancedBy(Double(previousDuration))
+                }
+                let tStamp = nextMusicEvent.timeStamp.advancedBy(currentTimeStamp)
+                var midiNoteMessage = MIDINoteMessage()
+                midiNoteMessage.channel = nextMusicEvent.midiNoteMess.channel
+                midiNoteMessage.duration = nextMusicEvent.midiNoteMess.duration
+                midiNoteMessage.note = nextMusicEvent.midiNoteMess.note
+                midiNoteMessage.releaseVelocity = nextMusicEvent.midiNoteMess.releaseVelocity
+                midiNoteMessage.velocity = nextMusicEvent.midiNoteMess.velocity
+                MusicTrackNewMIDINoteEvent(musicTrack, tStamp, &midiNoteMessage)
+                previousDuration = midiNoteMessage.duration
+                previousTimeStamp = tStamp
+            }
+        }
+        return newSeq
+    }
 
     /**
     *   Iterates through the track and separates each measure into a musical snippet

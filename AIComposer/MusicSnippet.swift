@@ -9,15 +9,19 @@
 //
 
 import Cocoa
+import CoreMIDI
+import AudioToolbox
 
 class MusicSnippet: NSObject, NSCoding {
     
     private var musicChord = MusicChord.sharedInstance
     
-    private var musicNoteEvents: [MusicNote]!
-    var count = 0
+    internal private(set) var musicNoteEvents: [MusicNote]!
+    internal private(set) var transposedNoteEvents: [MusicNote]!
+    internal private(set) var count = 0
     internal private(set) var numberOfOccurences = 1
     
+    internal private(set) var chordWithProbablity: [(chordName:String, prob:Float)]!    //  IDEA: Have a set of a couple chords instead of just one.
     internal private(set) var chordNameString: String!
     internal private(set) var chordNotes: [Int]!
     internal private(set) var transposedChordNameString: String!
@@ -26,11 +30,13 @@ class MusicSnippet: NSObject, NSCoding {
     
     override init() {
         self.musicNoteEvents = [MusicNote]()
+        self.transposedNoteEvents = [MusicNote]()
         self.count = self.musicNoteEvents.count
     }
     
     required init(coder aDecoder: NSCoder)  {
         self.musicNoteEvents = aDecoder.decodeObjectForKey("MusicNoteEvents") as! [MusicNote]
+        self.transposedNoteEvents = aDecoder.decodeObjectForKey("Transposed Music Note Events") as! [MusicNote]
         self.count = aDecoder.decodeIntegerForKey("Count")
         self.numberOfOccurences = aDecoder.decodeIntegerForKey("NumberOfOccurences")
         self.chordNameString = aDecoder.decodeObjectForKey("ChordNameString") as! String
@@ -42,6 +48,7 @@ class MusicSnippet: NSObject, NSCoding {
     
     func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(self.musicNoteEvents, forKey: "MusicNoteEvents")
+        aCoder.encodeObject(self.transposedNoteEvents, forKey: "Transposed Music Note Events")
         aCoder.encodeInteger(self.count, forKey: "Count")
         aCoder.encodeInteger(self.numberOfOccurences, forKey: "NumberOfOccurences")
         aCoder.encodeObject(self.chordNameString, forKey: "ChordNameString")
@@ -52,7 +59,16 @@ class MusicSnippet: NSObject, NSCoding {
     }
     
     func addMusicNote(newMusicNote: MusicNote) {
+        //  I create a new MIDINoteMessage because I think it is a C pointer, and we need a separate value for transposed notes
+        let newMIDIMess = MIDINoteMessage(
+            channel: newMusicNote.midiNoteMess.channel,
+            note: newMusicNote.midiNoteMess.note,
+            velocity: newMusicNote.midiNoteMess.velocity,
+            releaseVelocity: newMusicNote.midiNoteMess.releaseVelocity,
+            duration: newMusicNote.midiNoteMess.duration)
+        let newTransposedNote = MusicNote(noteMessage: newMIDIMess, barBeatTime: newMusicNote.barBeatTime, timeStamp: newMusicNote.timeStamp)
         self.musicNoteEvents.append(newMusicNote)
+        self.transposedNoteEvents.append(newTransposedNote)
         count++
     }
     
@@ -68,12 +84,12 @@ class MusicSnippet: NSObject, NSCoding {
     func zeroTransposeMusicSnippet() {
         //  1: Take each note number mod12 to get it in the bottom octave.
         
-        for nextNote in self.musicNoteEvents {
+        for nextNote in self.transposedNoteEvents {
             nextNote.midiNoteMess.note = nextNote.midiNoteMess.note%12
         }
         
         //  2: Analyze what chord would best suit the snippet.
-        let chord = musicChord.analyzeChordFromNotes(self.musicNoteEvents)
+        let chord = musicChord.analyzeChordFromNotes(self.transposedNoteEvents)
         self.chordNameString = chord.chordNameString
         self.chordNotes = chord.chordNotes
         self.transposeOffset = chord.transposeOffset
@@ -96,8 +112,8 @@ class MusicSnippet: NSObject, NSCoding {
         if let musSnippet = object as? MusicSnippet {
             if musSnippet.count == self.count {
                 for index in 0..<self.count {
-                    let nextNote1 = self.musicNoteEvents[index]
-                    let nextNote2 = musSnippet.musicNoteEvents[index]
+                    let nextNote1 = self.transposedNoteEvents[index]
+                    let nextNote2 = musSnippet.transposedNoteEvents[index]
                     if nextNote1 != nextNote2 {
                         return false
                     }

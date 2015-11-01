@@ -6,6 +6,8 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document" customModule="AIComposer" customModuleProvider="target">
             <connections>
+                <outlet property="clearDataButton" destination="czb-i3-6jU" id="ifM-hk-iaD"/>
+                <outlet property="exportMIDIbutton" destination="HDh-Dd-k40" id="FNh-wz-vRd"/>
                 <outlet property="textOutputView" destination="BPA-hM-14K" id="uaw-5k-dsw"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
             </connections>
@@ -32,19 +34,19 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rlC-as-TY0">
-                                            <rect key="frame" x="17" y="17" width="760" height="519"/>
+                                            <rect key="frame" x="17" y="46" width="760" height="490"/>
                                             <clipView key="contentView" id="Rnn-VQ-2av">
-                                                <rect key="frame" x="1" y="1" width="758" height="517"/>
+                                                <rect key="frame" x="1" y="1" width="758" height="488"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textView editable="NO" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="BPA-hM-14K">
-                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="517"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="488"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="758" height="517"/>
+                                                        <size key="minSize" width="758" height="488"/>
                                                         <size key="maxSize" width="771" height="10000000"/>
                                                         <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <size key="minSize" width="758" height="517"/>
+                                                        <size key="minSize" width="758" height="488"/>
                                                         <size key="maxSize" width="771" height="10000000"/>
                                                     </textView>
                                                 </subviews>
@@ -55,7 +57,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="9Kk-nO-pTc">
-                                                <rect key="frame" x="743" y="1" width="16" height="517"/>
+                                                <rect key="frame" x="743" y="1" width="16" height="488"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                         </scrollView>
@@ -74,6 +76,9 @@
                                             <buttonCell key="cell" type="push" title="Clear Data" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="czb-i3-6jU">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
+                                                <connections>
+                                                    <action selector="clearAllMidiData:" target="-2" id="lZ1-Mu-bKy"/>
+                                                </connections>
                                             </buttonCell>
                                         </button>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kyJ-h2-VfS">
@@ -84,16 +89,28 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HDh-Dd-k40">
+                                            <rect key="frame" x="636" y="10" width="147" height="32"/>
+                                            <buttonCell key="cell" type="push" title="Export MIDI file..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6Wn-Y0-r7P">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="exportMIDIFile:" target="-2" id="UYU-XL-Wp7"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="SWC-2P-K1L" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="3" id="14U-q8-I0P"/>
                                         <constraint firstAttribute="trailing" secondItem="rlC-as-TY0" secondAttribute="trailing" constant="17" id="2Sp-6R-RGV"/>
                                         <constraint firstItem="lp4-fq-klJ" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="3" id="2fI-bb-ETA"/>
+                                        <constraint firstAttribute="trailing" secondItem="HDh-Dd-k40" secondAttribute="trailing" constant="17" id="6kZ-ko-thx"/>
                                         <constraint firstAttribute="trailing" secondItem="SWC-2P-K1L" secondAttribute="trailing" constant="154" id="B8M-6d-G6a"/>
+                                        <constraint firstAttribute="bottom" secondItem="HDh-Dd-k40" secondAttribute="bottom" constant="17" id="Gfo-fi-pZA"/>
                                         <constraint firstItem="kyJ-h2-VfS" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="18" id="KSy-0b-k5h"/>
                                         <constraint firstItem="kyJ-h2-VfS" firstAttribute="leading" secondItem="BCA-6L-ton" secondAttribute="leading" constant="17" id="Lyj-Gy-ree"/>
                                         <constraint firstAttribute="trailing" secondItem="lp4-fq-klJ" secondAttribute="trailing" constant="17" id="PWs-lC-B5W"/>
-                                        <constraint firstAttribute="bottom" secondItem="rlC-as-TY0" secondAttribute="bottom" constant="17" id="c8L-3I-ZXg"/>
+                                        <constraint firstAttribute="bottom" secondItem="rlC-as-TY0" secondAttribute="bottom" constant="46" id="c8L-3I-ZXg"/>
                                         <constraint firstItem="rlC-as-TY0" firstAttribute="leading" secondItem="BCA-6L-ton" secondAttribute="leading" constant="17" id="v50-zY-w8Z"/>
                                         <constraint firstItem="rlC-as-TY0" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="32" id="zGG-Uu-4lv"/>
                                     </constraints>

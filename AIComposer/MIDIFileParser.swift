@@ -37,6 +37,15 @@ class MIDIFileParser: NSObject {
         return (tempoTrackData.musicTrack, midiNoteEvents, tempoTrackData.timeRes)
     }
     
+    func createMIDIFile(var filePathString: String, sequence: MusicSequence) {
+        if filePathString.rangeOfString(".mid") == nil {
+            filePathString = filePathString + ".mid"
+        }
+        let midiFileURL = NSURL(fileURLWithPath: filePathString)
+        
+        MusicSequenceFileCreate(sequence, midiFileURL, MusicSequenceFileTypeID.MIDIType, MusicSequenceFileFlags.EraseFile, 0)
+    }
+    
     private func parseTempoTrack(sequence: MusicSequence) -> (musicTrack:MusicTrack, timeRes: UInt32) {
         
         // Get the Tempo Track
@@ -115,7 +124,8 @@ class MIDIFileParser: NSObject {
                         velocity: noteMessage.memory.velocity,
                         releaseVelocity: noteMessage.memory.releaseVelocity,
                         duration: noteMessage.memory.duration),
-                    barBeatTime: barBeatTime)
+                    barBeatTime: barBeatTime,
+                    timeStamp: timestamp)
                 notesForTrack.append(note)
             }
             MusicEventIteratorNextEvent(iterator);

@@ -16,10 +16,12 @@ class MusicNote: NSObject, NSCoding {
     
     var midiNoteMess: MIDINoteMessage!
     var barBeatTime: CABarBeatTime!
+    var timeStamp: MusicTimeStamp!
     
-    init(noteMessage: MIDINoteMessage, barBeatTime: CABarBeatTime) {
+    init(noteMessage: MIDINoteMessage, barBeatTime: CABarBeatTime, timeStamp: MusicTimeStamp) {
         self.midiNoteMess = noteMessage
         self.barBeatTime = barBeatTime
+        self.timeStamp = timeStamp
     }
     
     required init(coder aDecoder: NSCoder)  {
@@ -36,8 +38,8 @@ class MusicNote: NSObject, NSCoding {
         let velocity = UInt8(aDecoder.decodeIntegerForKey("Velocity"))
         let releaseVelocity = UInt8(aDecoder.decodeIntegerForKey("Release Velocity"))
         let duration = Float32(aDecoder.decodeFloatForKey("Duration"))
-        
         self.midiNoteMess = MIDINoteMessage(channel: channel, note: noteNumber, velocity: velocity, releaseVelocity: releaseVelocity, duration: duration)
+        self.timeStamp = MusicTimeStamp(aDecoder.decodeDoubleForKey("Time Stamp"))
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
@@ -64,6 +66,8 @@ class MusicNote: NSObject, NSCoding {
         aCoder.encodeInteger(velocity, forKey: "Velocity")
         aCoder.encodeInteger(releaseVelocity, forKey: "Release Velocity")
         aCoder.encodeFloat(duration, forKey: "Duration")
+        let tStamp: Double = Double(_bits: self.timeStamp.value)
+        aCoder.encodeDouble(tStamp, forKey: "Time Stamp")
     }
     
     override var description: String {
@@ -76,7 +80,7 @@ class MusicNote: NSObject, NSCoding {
         let velocity = self.midiNoteMess.velocity
         let releaseVelocity = self.midiNoteMess.releaseVelocity
         let duration = self.midiNoteMess.duration
-        return ("Note - measure: \(bar) beat: \(beat), sub-beat: \(subbeat), channel: \(channel), note: \(noteNumber), velocity: \(velocity), released velocity: \(releaseVelocity), duration: \(duration)")
+        return ("Note -time stamp: \(self.timeStamp) measure: \(bar) beat: \(beat), sub-beat: \(subbeat), channel: \(channel), note: \(noteNumber), velocity: \(velocity), released velocity: \(releaseVelocity), duration: \(duration)")
     }
     
     override var hash: Int {
