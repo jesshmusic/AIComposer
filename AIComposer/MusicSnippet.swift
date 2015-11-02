@@ -21,7 +21,7 @@ class MusicSnippet: NSObject, NSCoding {
     internal private(set) var count = 0
     internal private(set) var numberOfOccurences = 1
     
-    internal private(set) var chordWithProbablity: [(chordName:String, prob:Float)]!    //  IDEA: Have a set of a couple chords instead of just one.
+//    internal private(set) var chordWithProbablity: [(chordName:String, prob:Float)]!    //  IDEA: Have a set of a couple chords instead of just one.
     internal private(set) var chordNameString: String!
     internal private(set) var chordNotes: [Int]!
     internal private(set) var transposedChordNameString: String!
@@ -80,12 +80,17 @@ class MusicSnippet: NSObject, NSCoding {
     *   This will set each musical snippet to a transposition that can be easily used with any chord.
     *   Example: If the snippet is over an Eb chord, it will transpose it to a version over a C chord in
     *   in the bottom octave (0-11)
+    *   Additionally, this will set all time stamps to start on zero
     */
     func zeroTransposeMusicSnippet() {
         //  1: Take each note number mod12 to get it in the bottom octave.
-        
+        var timeStampOffset = MusicTimeStamp(0.0)
         for nextNote in self.transposedNoteEvents {
+            nextNote.timeStamp = nextNote.timeStamp - timeStampOffset
             nextNote.midiNoteMess.note = nextNote.midiNoteMess.note%12
+            if nextNote.barBeatTime.bar > 1 {
+                
+            }
         }
         
         //  2: Analyze what chord would best suit the snippet.

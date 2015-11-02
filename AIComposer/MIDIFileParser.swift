@@ -16,14 +16,14 @@ private let MIDIFileParserInstance = MIDIFileParser()
 
 class MIDIFileParser: NSObject {
     
-//    var timeResolution: UInt32!
+    //    var timeResolution: UInt32!
     
     class var sharedInstance:MIDIFileParser {
         return MIDIFileParserInstance
     }
     
     
-    func loadMIDIFile(filePathString: String) -> (tempoTrack: MusicTrack, midiNoteEvents: [MusicNote], timeResolution: UInt32) {
+    func loadMIDIFile(filePathString: String) -> (tempoTrack: MusicTrack, midiNoteEvents: [MusicNote], timeResolution: UInt32, timeSigEvents: [(numbeats: UInt8, timeStamp: MusicTimeStamp)]) {
         // Load the MIDI File
         var sequence = MusicSequence()
         NewMusicSequence(&sequence)
@@ -34,7 +34,7 @@ class MIDIFileParser: NSObject {
         let tempoTrackData = parseTempoTrack(sequence)
         let midiNoteEvents = parseMIDIEventTracks(sequence, timeResolution: tempoTrackData.timeRes)
         
-        return (tempoTrackData.musicTrack, midiNoteEvents, tempoTrackData.timeRes)
+        return (tempoTrackData.musicTrack, midiNoteEvents, tempoTrackData.timeRes, tempoTrackData.timeSigEvents)
     }
     
     func createMIDIFile(var filePathString: String, sequence: MusicSequence) {
@@ -46,7 +46,7 @@ class MIDIFileParser: NSObject {
         MusicSequenceFileCreate(sequence, midiFileURL, MusicSequenceFileTypeID.MIDIType, MusicSequenceFileFlags.EraseFile, 0)
     }
     
-    private func parseTempoTrack(sequence: MusicSequence) -> (musicTrack:MusicTrack, timeRes: UInt32) {
+    private func parseTempoTrack(sequence: MusicSequence) -> (musicTrack:MusicTrack, timeRes: UInt32, timeSigEvents: [(numbeats: UInt8, timeStamp: MusicTimeStamp)]) {
         
         // Get the Tempo Track
         var tempoTrack = MusicTrack()
@@ -65,20 +65,32 @@ class MIDIFileParser: NSObject {
         
         // Run the loop
         MusicEventIteratorHasCurrentEvent(iterator, &hasNext);
+        var timeSigEvents = [(numbeats: UInt8, timeStamp: MusicTimeStamp)]()
         while (hasNext) {
             MusicEventIteratorGetEventInfo(iterator,
                 &timestamp,
                 &eventType,
                 &eventData,
                 &eventDataSize);
-            
+            if eventType == kMusicEventType_Meta {
+                let eventMetaData = UnsafePointer<MIDIMetaEvent>(eventData)
+                let midiMessage = eventMetaData.memory
+                let data1 = midiMessage.data
+                
+//                let midiMessage: MIDIMetaEvent = UnsafePointer<MIDIMetaEvent>(eventData).memory
+                print("\n---------------------------------\nMeta event found\n\tdata length: \(midiMessage.dataLength)\n\tdata: \(midiMessage.data)\n\ttype: \(midiMessage.metaEventType)\n\tdata1: \(data1)")
+                
+                if midiMessage.metaEventType == 0x58 {
+                    timeSigEvents.append((midiMessage.data, timestamp))
+                }
+            }
             // Process each event here
-//            print("Event found! type: \(eventType)\n");
-            
+        //            print("Event found! type: \(eventType)\n");
             MusicEventIteratorNextEvent(iterator);
             MusicEventIteratorHasCurrentEvent(iterator, &hasNext);
         }
-        return (tempoTrack, timeResolution)
+        print("TEMPO TRACK DATA\n\ttimeStamp: \(timestamp)\n\teventType: \(eventType)\n")
+        return (tempoTrack, timeResolution, timeSigEvents)
     }
     
     private func determineTimeResolutionWithTempoTrack(tempoTrack: MusicTrack) -> UInt32 {
@@ -93,8 +105,8 @@ class MIDIFileParser: NSObject {
             &timeResolution,
             &propertyLength);
         
-//        print("propertyLength: \(propertyLength)")
-//        print("timeResolution: \(timeResolution)")
+        print("propertyLength: \(propertyLength)")
+        print("timeResolution: \(timeResolution)")
         
         return timeResolution
     }

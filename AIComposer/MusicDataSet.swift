@@ -48,7 +48,8 @@ class MusicDataSet: NSObject, NSCoding {
     */
     func addNewMIDIFile(filePathString: String) {
         let newMIDIData = self.midiFileParser.loadMIDIFile(filePathString)
-        self.distributeMeasures(newMIDIData.midiNoteEvents)
+        
+        self.distributeMeasures(newMIDIData.midiNoteEvents, timeSigEvents: newMIDIData.timeSigEvents)
     }
     
     /*
@@ -81,7 +82,7 @@ class MusicDataSet: NSObject, NSCoding {
         for nextMusicSnippet in self.musicSnippets {
             for nextMusicEvent in nextMusicSnippet.musicNoteEvents {
                 if nextMusicEvent.timeStamp > currentTimeStamp {
-                    currentTimeStamp = previousTimeStamp.advancedBy(Double(previousDuration))
+                    currentTimeStamp = previousTimeStamp + MusicTimeStamp(previousDuration)
                 }
                 let tStamp = nextMusicEvent.timeStamp.advancedBy(currentTimeStamp)
                 var midiNoteMessage = MIDINoteMessage()
@@ -97,34 +98,27 @@ class MusicDataSet: NSObject, NSCoding {
         }
         return newSeq
     }
-
+    
     /**
     *   Iterates through the track and separates each measure into a musical snippet
     *   This can be augmented with more complexity in the future?
     *   Not complete. Needs to put all of this in stores for the document and into a Markov chain format.
     */
     
-    private func distributeMeasures(musicNoteEvents: [MusicNote]) {
+    private func distributeMeasures(musicNoteEvents: [MusicNote], timeSigEvents: [(numbeats: UInt8, timeStamp: MusicTimeStamp)]) {
         //  Initialize the variables for the starting measure and MusicSnippet array
         var currentBar:Int32  = 1
-        var currentBeat: UInt16 = 1
         var nextSnippet: MusicSnippet!
         
         //  Calculate the length of the phrase... May need later
         var phraseLength = 0
-        //  Calculates the number of beats. If four, possibly divide the snippet into groups of two?
-        var numberOfBeats = 0
-        for nextNote in musicNoteEvents {
-            if Int(nextNote.barBeatTime.beat) > numberOfBeats {
-                numberOfBeats = Int(nextNote.barBeatTime.beat)
-            } else if numberOfBeats < Int(nextNote.barBeatTime.beat) {
-                break
-            }
+        for timeSigEvent in timeSigEvents {
+            print("Distributing events, number of beats: \(timeSigEvent.numbeats), timeStamp: \(timeSigEvent.timeStamp)")
         }
-        
         //  Iterate through all of the MIDI Notes
         for index in 0..<musicNoteEvents.count {
             let nextNote = musicNoteEvents[index]
+            nextNote.timeStamp = nextNote.timeStamp - self.getTimeStampOffset(timeSigEvents, noteEvent: nextNote)
             //  If nextNote is the last note, add it to the snippet
             if index == musicNoteEvents.count - 1 {
                 nextSnippet.addMusicNote(nextNote)
@@ -134,9 +128,9 @@ class MusicDataSet: NSObject, NSCoding {
                 } else {
                     self.musicSnippets.append(nextSnippet)
                 }
-            
-            //  If the nextNote is in a NEW measure, add the last snippet (that is now complete) to the main array
-            //  and start a NEW snippet, putting the nextNote into it.
+                
+                //  If the nextNote is in a NEW measure, add the last snippet (that is now complete) to the main array
+                //  and start a NEW snippet, putting the nextNote into it.
             } else if currentBar != nextNote.barBeatTime.bar {
                 phraseLength++
                 
@@ -151,13 +145,13 @@ class MusicDataSet: NSObject, NSCoding {
                     nextSnippet = MusicSnippet()
                     nextSnippet.addMusicNote(nextNote)
                     currentBar = nextNote.barBeatTime.bar
-                //  If there is no current snippet, initialize one. (This may be a fringe case)
+                    //  If there is no current snippet, initialize one. (This may be a fringe case)
                 } else {
                     nextSnippet = MusicSnippet()
                     nextSnippet.addMusicNote(nextNote)
                     currentBar = nextNote.barBeatTime.bar
                 }
-            //  The nextNote is still in the current measure, so add it to the snippet.
+                //  The nextNote is still in the current measure, so add it to the snippet.
             } else {
                 if nextSnippet != nil  {
                     nextSnippet.addMusicNote(nextNote)
@@ -167,6 +161,30 @@ class MusicDataSet: NSObject, NSCoding {
                 }
             }
         }
+    }
+    
+    //  So each snippet starts at time 0.0, we need a method to find the offset
+    private func getTimeStampOffset(timeSigEvents:[(numbeats: UInt8, timeStamp: MusicTimeStamp)], noteEvent: MusicNote) -> MusicTimeStamp {
+        var musicTimeStamp = MusicTimeStamp()
+        var numBeats:Double = 0
+        if timeSigEvents.count == 1 {
+            numBeats = Double(timeSigEvents[0].numbeats)
+        } else {
+            for i in 1..<timeSigEvents.count {
+                if noteEvent.timeStamp >= timeSigEvents[i - 1].timeStamp && noteEvent.timeStamp < timeSigEvents[i].timeStamp {
+                    numBeats = Double(timeSigEvents[i - 1].numbeats)
+                    break
+                } else {
+                    numBeats = Double(timeSigEvents[i].numbeats)
+                }
+            }
+        }
+        if Double(numBeats) % 3.0 == 0 {
+            numBeats = numBeats / 2
+        }
+        musicTimeStamp = noteEvent.timeStamp - (Double(noteEvent.timeStamp) % Double(numBeats))
+//        print("Changing note time stamp: \(noteEvent.timeStamp) - \(Double(noteEvent.timeStamp)) % \(numBeats) = \(musicTimeStamp)")
+        return musicTimeStamp
     }
     
     //  Same as 'toString()' in Java
