@@ -52,8 +52,8 @@ class MusicDataSet: NSObject, NSCoding {
             let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
             musicNotes.append(note)
         }
-        self.createNewMusicSnippet(musicNotes)
-//        self.distributeMeasures(musicNotes, timeSigEvents: newMIDIData.timeSigEvents)
+//        self.createNewMusicSnippet(musicNotes)
+        self.distributeMeasures(musicNotes, timeSigEvents: newMIDIData.timeSigEvents)
     }
     
     /*
