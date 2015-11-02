@@ -30,7 +30,7 @@ class MIDIFileParser: NSObject {
                                                                 barBeatTime: CABarBeatTime,
                                                                 timeStamp: MusicTimeStamp)],
                                                     timeResolution: UInt32,
-                                                    timeSigEvents: [(numbeats: UInt8, timeStamp: MusicTimeStamp)])
+                                                    timeSigEvents: [(numbeats: UInt8, lengthOfBeat: UInt8, timeStamp: MusicTimeStamp)])
     {
         // Load the MIDI File
         var sequence = MusicSequence()
@@ -61,7 +61,7 @@ class MIDIFileParser: NSObject {
         sequence: MusicSequence
         ) -> (musicTrack:MusicTrack,
         timeRes: UInt32,
-        timeSigEvents: [(numbeats: UInt8, timeStamp: MusicTimeStamp)])
+        timeSigEvents: [(numbeats: UInt8, lengthOfBeat: UInt8, timeStamp: MusicTimeStamp)])
     {
         
         // Get the Tempo Track
@@ -78,32 +78,30 @@ class MIDIFileParser: NSObject {
         var eventType: MusicEventType = 0
         var eventDataSize: UInt32 = 0
         var eventData: UnsafePointer<Void> = nil
+        CAShow(UnsafeMutablePointer<MusicSequence>(sequence))
         
         // Run the loop
         MusicEventIteratorHasCurrentEvent(iterator, &hasNext);
-        var timeSigEvents = [(numbeats: UInt8, timeStamp: MusicTimeStamp)]()
+        var timeSigEvents = [(numbeats: UInt8, lengthOfBeat: UInt8, timeStamp: MusicTimeStamp)]()
         while (hasNext) {
-            MusicEventIteratorGetEventInfo(iterator,
-                &timestamp,
-                &eventType,
-                &eventData,
-                &eventDataSize);
+            MusicEventIteratorGetEventInfo(iterator, &timestamp, &eventType, &eventData, &eventDataSize);
             if eventType == kMusicEventType_Meta {
+                let eventMetaBytes = UnsafePointer<MIDIRawData>(eventData)
+                let eventDataString = String(eventMetaBytes.memory.data, radix: 16)
                 let eventMetaData = UnsafePointer<MIDIMetaEvent>(eventData)
                 let midiMessage = eventMetaData.memory
-                let data1 = midiMessage.data
-                
-//                let midiMessage: MIDIMetaEvent = UnsafePointer<MIDIMetaEvent>(eventData).memory
-                print("\n---------------------------------\nMeta event found\n\tdata length: \(midiMessage.dataLength)\n\tdata: \(midiMessage.data)\n\ttype: \(midiMessage.metaEventType)\n\tdata1: \(data1)")
+                let beats = eventMetaData.memory.data
+                let beatLength = eventMetaData.memory.data
                 
                 if midiMessage.metaEventType == 0x58 {
-                    timeSigEvents.append((midiMessage.data, timestamp))
+                    print("\n---------------------------------\nMeta event found\n\tdata length: \(midiMessage.dataLength)\n\ttype: \(midiMessage.metaEventType)\n\tbeats: \(beats)\n\tlength of beats: \(beatLength)")
+                    print("Raw event data: \(eventDataString)")
+                    timeSigEvents.append((midiMessage.data, beatLength, timestamp))
                 }
             }
             MusicEventIteratorNextEvent(iterator);
             MusicEventIteratorHasCurrentEvent(iterator, &hasNext);
         }
-        print("TEMPO TRACK DATA\n\ttimeStamp: \(timestamp)\n\teventType: \(eventType)\n")
         return (tempoTrack, timeResolution, timeSigEvents)
     }
     
@@ -112,16 +110,11 @@ class MIDIFileParser: NSObject {
     {
         var timeResolution:UInt32  = 0
         var propertyLength:UInt32  = 0
-        var trackLength:Double = 0
-        var trackLengthPropertyLength: UInt32 = 0
         
-        MusicTrackGetProperty(tempoTrack, kSequenceTrackProperty_TrackLength, &trackLength, &trackLengthPropertyLength)
         MusicTrackGetProperty(tempoTrack,kSequenceTrackProperty_TimeResolution, &timeResolution, &propertyLength);
         
         print("propertyLength: \(propertyLength)")
         print("timeResolution: \(timeResolution)")
-        print("trackLength: \(trackLength)")
-        print("trackLengthPropertyLength: \(trackLengthPropertyLength)")
         
         return timeResolution
     }
@@ -141,6 +134,7 @@ class MIDIFileParser: NSObject {
         var eventData: UnsafePointer<Void> = nil
         
         MusicEventIteratorHasCurrentEvent(iterator, &hasNext)
+        print(MusicSequenceGetInfoDictionary(sequence))
         
         var notesForTrack = [(midiNoteMessage: MIDINoteMessage,
             barBeatTime: CABarBeatTime,

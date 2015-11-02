@@ -109,7 +109,7 @@ class MusicDataSet: NSObject, NSCoding {
     *   Not complete. Needs to put all of this in stores for the document and into a Markov chain format.
     */
     
-    private func distributeMeasures(musicNoteEvents: [MusicNote], timeSigEvents: [(numbeats: UInt8, timeStamp: MusicTimeStamp)]) {
+    private func distributeMeasures(musicNoteEvents: [MusicNote], timeSigEvents: [(numbeats: UInt8, lengthOfBeat: UInt8, timeStamp: MusicTimeStamp)]) {
         //  Initialize the variables for the starting measure and MusicSnippet array
         var currentBar:Int32  = 1
         var nextSnippet: MusicSnippet!
@@ -168,7 +168,7 @@ class MusicDataSet: NSObject, NSCoding {
     }
     
     //  So each snippet starts at time 0.0, we need a method to find the offset
-    private func getTimeStampOffset(timeSigEvents:[(numbeats: UInt8, timeStamp: MusicTimeStamp)], noteEvent: MusicNote) -> MusicTimeStamp {
+    private func getTimeStampOffset(timeSigEvents:[(numbeats: UInt8, lengthOfBeat: UInt8, timeStamp: MusicTimeStamp)], noteEvent: MusicNote) -> MusicTimeStamp {
         var musicTimeStamp = MusicTimeStamp()
         var numBeats:Double = 0
         if timeSigEvents.count == 1 {
