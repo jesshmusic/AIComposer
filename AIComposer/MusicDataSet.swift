@@ -48,8 +48,12 @@ class MusicDataSet: NSObject, NSCoding {
     */
     func addNewMIDIFile(filePathString: String) {
         let newMIDIData = self.midiFileParser.loadMIDIFile(filePathString)
-        
-        self.distributeMeasures(newMIDIData.midiNoteEvents, timeSigEvents: newMIDIData.timeSigEvents)
+        var musicNotes = [MusicNote]()
+        for nextEvent in newMIDIData.midiNotes {
+            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
+            musicNotes.append(note)
+        }
+        self.distributeMeasures(musicNotes, timeSigEvents: newMIDIData.timeSigEvents)
     }
     
     /*
