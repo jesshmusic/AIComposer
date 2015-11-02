@@ -7,16 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D72C463C1BE511F5000E12B4 /* 2x4 Sample.mid in Resources */ = {isa = PBXBuildFile; fileRef = D72C46381BE511F5000E12B4 /* 2x4 Sample.mid */; settings = {ASSET_TAGS = (); }; };
-		D72C463D1BE511F5000E12B4 /* 2x4 Sample.mid in Resources */ = {isa = PBXBuildFile; fileRef = D72C46381BE511F5000E12B4 /* 2x4 Sample.mid */; settings = {ASSET_TAGS = (); }; };
 		D72C463E1BE511F5000E12B4 /* 32MbGMStereo.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = D72C46391BE511F5000E12B4 /* 32MbGMStereo.sf2 */; settings = {ASSET_TAGS = (); }; };
 		D72C463F1BE511F5000E12B4 /* 32MbGMStereo.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = D72C46391BE511F5000E12B4 /* 32MbGMStereo.sf2 */; settings = {ASSET_TAGS = (); }; };
-		D72C46401BE511F5000E12B4 /* EightnoteFigure.mid in Resources */ = {isa = PBXBuildFile; fileRef = D72C463A1BE511F5000E12B4 /* EightnoteFigure.mid */; settings = {ASSET_TAGS = (); }; };
-		D72C46411BE511F5000E12B4 /* EightnoteFigure.mid in Resources */ = {isa = PBXBuildFile; fileRef = D72C463A1BE511F5000E12B4 /* EightnoteFigure.mid */; settings = {ASSET_TAGS = (); }; };
-		D72C46421BE511F5000E12B4 /* Melody-Bach.mid in Resources */ = {isa = PBXBuildFile; fileRef = D72C463B1BE511F5000E12B4 /* Melody-Bach.mid */; settings = {ASSET_TAGS = (); }; };
-		D72C46431BE511F5000E12B4 /* Melody-Bach.mid in Resources */ = {isa = PBXBuildFile; fileRef = D72C463B1BE511F5000E12B4 /* Melody-Bach.mid */; settings = {ASSET_TAGS = (); }; };
-		D72C46451BE53736000E12B4 /* EightnoteFigure2.mid in Resources */ = {isa = PBXBuildFile; fileRef = D72C46441BE53735000E12B4 /* EightnoteFigure2.mid */; settings = {ASSET_TAGS = (); }; };
-		D72C46461BE53736000E12B4 /* EightnoteFigure2.mid in Resources */ = {isa = PBXBuildFile; fileRef = D72C46441BE53735000E12B4 /* EightnoteFigure2.mid */; settings = {ASSET_TAGS = (); }; };
 		D741D82C1BE3E93F003B3B00 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D82B1BE3E93F003B3B00 /* AppDelegate.swift */; };
 		D741D82E1BE3E93F003B3B00 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D82D1BE3E93F003B3B00 /* Document.swift */; };
 		D741D8311BE3E93F003B3B00 /* Document.xib in Resources */ = {isa = PBXBuildFile; fileRef = D741D82F1BE3E93F003B3B00 /* Document.xib */; };
@@ -46,11 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D72C46381BE511F5000E12B4 /* 2x4 Sample.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "2x4 Sample.mid"; sourceTree = "<group>"; };
 		D72C46391BE511F5000E12B4 /* 32MbGMStereo.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 32MbGMStereo.sf2; sourceTree = "<group>"; };
-		D72C463A1BE511F5000E12B4 /* EightnoteFigure.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = EightnoteFigure.mid; sourceTree = "<group>"; };
-		D72C463B1BE511F5000E12B4 /* Melody-Bach.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Melody-Bach.mid"; sourceTree = "<group>"; };
-		D72C46441BE53735000E12B4 /* EightnoteFigure2.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = EightnoteFigure2.mid; sourceTree = "<group>"; };
 		D741D8281BE3E93F003B3B00 /* AIComposer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AIComposer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D741D82B1BE3E93F003B3B00 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D741D82D1BE3E93F003B3B00 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
@@ -89,11 +77,7 @@
 		D741D81F1BE3E93E003B3B00 = {
 			isa = PBXGroup;
 			children = (
-				D72C46381BE511F5000E12B4 /* 2x4 Sample.mid */,
 				D72C46391BE511F5000E12B4 /* 32MbGMStereo.sf2 */,
-				D72C463A1BE511F5000E12B4 /* EightnoteFigure.mid */,
-				D72C46441BE53735000E12B4 /* EightnoteFigure2.mid */,
-				D72C463B1BE511F5000E12B4 /* Melody-Bach.mid */,
 				D741D82A1BE3E93F003B3B00 /* AIComposer */,
 				D741D83F1BE3E93F003B3B00 /* AIComposerTests */,
 				D741D8291BE3E93F003B3B00 /* Products */,
@@ -218,12 +202,8 @@
 			files = (
 				D741D8331BE3E93F003B3B00 /* Assets.xcassets in Resources */,
 				D741D8311BE3E93F003B3B00 /* Document.xib in Resources */,
-				D72C46401BE511F5000E12B4 /* EightnoteFigure.mid in Resources */,
 				D72C463E1BE511F5000E12B4 /* 32MbGMStereo.sf2 in Resources */,
-				D72C46421BE511F5000E12B4 /* Melody-Bach.mid in Resources */,
-				D72C463C1BE511F5000E12B4 /* 2x4 Sample.mid in Resources */,
 				D741D8361BE3E93F003B3B00 /* MainMenu.xib in Resources */,
-				D72C46451BE53736000E12B4 /* EightnoteFigure2.mid in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -231,11 +211,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D72C46431BE511F5000E12B4 /* Melody-Bach.mid in Resources */,
-				D72C46461BE53736000E12B4 /* EightnoteFigure2.mid in Resources */,
-				D72C463D1BE511F5000E12B4 /* 2x4 Sample.mid in Resources */,
 				D72C463F1BE511F5000E12B4 /* 32MbGMStereo.sf2 in Resources */,
-				D72C46411BE511F5000E12B4 /* EightnoteFigure.mid in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

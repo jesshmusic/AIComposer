@@ -43,8 +43,7 @@ class MusicDataSet: NSObject, NSCoding {
     
     /*
     *   Calls the MIDIFileParser to load a MIDI file.
-    *   For now, its is best if the MIDI file has only one track.
-    *   Gets all of the necessary data from the MIDI file and divides it into MusicSnippets
+    *   For now, its is best if the MIDI file has only a short snippet, or musical idea.
     */
     func addNewMIDIFile(filePathString: String) {
         let newMIDIData = self.midiFileParser.loadMIDIFile(filePathString)
@@ -53,7 +52,21 @@ class MusicDataSet: NSObject, NSCoding {
             let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
             musicNotes.append(note)
         }
-        self.distributeMeasures(musicNotes, timeSigEvents: newMIDIData.timeSigEvents)
+        self.createNewMusicSnippet(musicNotes)
+//        self.distributeMeasures(musicNotes, timeSigEvents: newMIDIData.timeSigEvents)
+    }
+    
+    /*
+    *   Creates a music snippet from a small MIDI file consisting of a single musical idea.
+    */
+    
+    private func createNewMusicSnippet(musicNotes: [MusicNote]) {
+        let newMusicSnippet = MusicSnippet()
+        for nextNote in musicNotes {
+            newMusicSnippet.addMusicNote(nextNote)
+        }
+        newMusicSnippet.zeroTransposeMusicSnippet()
+        self.musicSnippets.append(newMusicSnippet)
     }
     
     /*
