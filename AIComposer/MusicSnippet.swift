@@ -84,13 +84,14 @@ class MusicSnippet: NSObject, NSCoding {
     */
     func zeroTransposeMusicSnippet() {
         //  1: Take each note number mod12 to get it in the bottom octave.
-        var timeStampOffset = MusicTimeStamp(0.0)
+        let firstTimeStamp = self.transposedNoteEvents[0].timeStamp
+        let timeStampOffset = firstTimeStamp - (firstTimeStamp % 1.0)
+        for i in 0..<self.musicNoteEvents.count {
+            self.musicNoteEvents[i].timeStamp = self.musicNoteEvents[i].timeStamp - timeStampOffset
+            self.transposedNoteEvents[i].timeStamp = self.transposedNoteEvents[i].timeStamp - timeStampOffset
+        }
         for nextNote in self.transposedNoteEvents {
-            nextNote.timeStamp = nextNote.timeStamp - timeStampOffset
             nextNote.midiNoteMess.note = nextNote.midiNoteMess.note%12
-            if nextNote.barBeatTime.bar > 1 {
-                
-            }
         }
         
         //  2: Analyze what chord would best suit the snippet.
