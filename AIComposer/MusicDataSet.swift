@@ -54,7 +54,6 @@ class MusicDataSet: NSObject, NSCoding {
             musicNotes.append(note)
         }
         self.generateSnippetsFromMusicNotes(musicNotes, eventMarkers: eventMarkers)
-        //        self.distributeMeasures(musicNotes, timeSigEvents: newMIDIData.timeSigEvents)
     }
     
     /*
@@ -141,30 +140,6 @@ class MusicDataSet: NSObject, NSCoding {
             }
         }
         return newSeq
-    }
-    
-    //  So each snippet starts at time 0.0, we need a method to find the offset
-    private func getTimeStampOffset(timeSigEvents:[(numbeats: UInt8, lengthOfBeat: UInt8, timeStamp: MusicTimeStamp)], noteEvent: MusicNote) -> MusicTimeStamp {
-        var musicTimeStamp = MusicTimeStamp()
-        var numBeats:Double = 0
-        if timeSigEvents.count == 1 {
-            numBeats = Double(timeSigEvents[0].numbeats)
-        } else {
-            for i in 1..<timeSigEvents.count {
-                if noteEvent.timeStamp >= timeSigEvents[i - 1].timeStamp && noteEvent.timeStamp < timeSigEvents[i].timeStamp {
-                    numBeats = Double(timeSigEvents[i - 1].numbeats)
-                    break
-                } else {
-                    numBeats = Double(timeSigEvents[i].numbeats)
-                }
-            }
-        }
-        if Double(numBeats) % 3.0 == 0 {
-            numBeats = numBeats / 2
-        }
-        musicTimeStamp = noteEvent.timeStamp - (Double(noteEvent.timeStamp) % Double(numBeats))
-        //        print("Changing note time stamp: \(noteEvent.timeStamp) - \(Double(noteEvent.timeStamp)) % \(numBeats) = \(musicTimeStamp)")
-        return musicTimeStamp
     }
     
     //  Same as 'toString()' in Java
