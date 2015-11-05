@@ -12,6 +12,7 @@ import Cocoa
 import CoreMIDI
 import AudioToolbox
 
+
 class MusicSnippet: NSObject, NSCoding {
     
     private var musicChord = MusicChord.sharedInstance
@@ -23,6 +24,7 @@ class MusicSnippet: NSObject, NSCoding {
     
 //    internal private(set) var chordWithProbablity: [(chordName:String, prob:Float)]!    //  IDEA: Have a set of a couple chords instead of just one.
     internal private(set) var chordNameString: String!
+    internal private(set) var possibleChords: [(chordName:String, weight: Float)]!
     internal private(set) var chordNotes: [Int]!
     internal private(set) var transposedChordNameString: String!
     internal private(set) var transposedChordNotes: [Int]!
@@ -44,6 +46,7 @@ class MusicSnippet: NSObject, NSCoding {
         self.transposedChordNameString = aDecoder.decodeObjectForKey("TransposedChordNameString") as! String
         self.transposedChordNotes = aDecoder.decodeObjectForKey("TransposedChordNotes") as! [Int]
         self.transposeOffset = aDecoder.decodeIntegerForKey("TransposeOffset")
+        self.possibleChords = musicChord.generatePossibleChordNames(self.transposedNoteEvents)
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
@@ -95,10 +98,13 @@ class MusicSnippet: NSObject, NSCoding {
         }
         
         //  2: Analyze what chord would best suit the snippet.
+        self.possibleChords = musicChord.generatePossibleChordNames(self.transposedNoteEvents)
         let chord = musicChord.analyzeChordFromNotes(self.transposedNoteEvents)
         self.chordNameString = chord.chordNameString
         self.chordNotes = chord.chordNotes
         self.transposeOffset = chord.transposeOffset
+        
+        //  TODO: Get all of the likely chords and a weight. (All weights should total to 1.0)
         
         //  3: Based on the chord, transpose it again to be a version of C (C, Cm, Cdim, C+, etc.)
         let transposedChord = musicChord.getTransposedChord(chord.chordNameString, chordNotes: chord.chordNotes, transposeOffset: chord.transposeOffset)

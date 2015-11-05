@@ -37,8 +37,6 @@ class MusicDataSet: NSObject, NSCoding {
         self.musicSnippets = aDecoder.decodeObjectForKey("MusicSnippets") as! [MusicSnippet]
         if aDecoder.decodeObjectForKey("Dataset Name") != nil {
             self.dataSetName = aDecoder.decodeObjectForKey("Dataset Name") as! String
-        } else {
-//            self.dataSetName = "Click to edit..."
         }
         
         midiFileParser = MIDIFileParser.sharedInstance

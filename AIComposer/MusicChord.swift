@@ -113,8 +113,9 @@ class MusicChord: NSObject {
     *   If that is too hard, we can just come up with an algorithm to pick the chord
     *   based on weigths (likely duration of notes)
     */
-    private func generatePossibleChordNames(notes: [MusicNote]) -> [(chordName:String, weight: Float)] {
+    func generatePossibleChordNames(notes: [MusicNote]) -> [(chordName:String, weight: Float)] {
         var noteArray = [Int]()
+        var totalDurationOfAllNotes: Float = 0.0
         for note in notes {
             noteArray.append(Int(note.midiNoteMess.note))
         }
@@ -123,50 +124,50 @@ class MusicChord: NSObject {
             return [(chords[noteArray]!, 1.0)]
         }
         
-        var returnChordWithWeight = [(chordName:String, weight: Float)]()
+        var returnChords = [(chordName:String, weight: Float)]()
         //  Check to see if any chords are in the noteNumbers array, if so add them to an array for choosing
 //        let noteNumberSet:Set = Set(notes)
         var foundFullChord = false
         for i in 0..<12 {
             let majorChord:Set = [i, (i+4)%12, (i+7)%12]
-            if let newChord = getChordSubset(notes, chordSet: majorChord, fullChordNotes: [i, (i+4)%12, (i+7)%12].sort()) {
-                returnChordWithWeight.append(newChord)
+            if let newChord = getChordSubset(notes, chordSet: majorChord, fullChordNotes: [i, (i+4)%12, (i+7)%12].sort(), totalDuration: totalDurationOfAllNotes) {
+                returnChords = self.addPossibleChord(newChord.chordName, weight: newChord.weight, possibleChords: returnChords)
                 foundFullChord = true
             }
             
             let minorChord:Set = [i, (i+3)%12, (i+7)%12]
-            if let newChord = getChordSubset(notes, chordSet: minorChord, fullChordNotes: [i, (i+3)%12, (i+7)%12].sort()) {
-                returnChordWithWeight.append(newChord)
+            if let newChord = getChordSubset(notes, chordSet: minorChord, fullChordNotes: [i, (i+3)%12, (i+7)%12].sort(), totalDuration: totalDurationOfAllNotes) {
+                returnChords = self.addPossibleChord(newChord.chordName, weight: newChord.weight, possibleChords: returnChords)
                 foundFullChord = true
             }
             
             let dimChord:Set = [i, (i+3)%12, (i+6)%12]
-            if let newChord = getChordSubset(notes, chordSet: dimChord, fullChordNotes: [i, (i+3)%12, (i+6)%12].sort()) {
-                returnChordWithWeight.append(newChord)
+            if let newChord = getChordSubset(notes, chordSet: dimChord, fullChordNotes: [i, (i+3)%12, (i+6)%12].sort(), totalDuration: totalDurationOfAllNotes) {
+                returnChords = self.addPossibleChord(newChord.chordName, weight: newChord.weight, possibleChords: returnChords)
                 foundFullChord = true
             }
             
             let augChord:Set = [i, (i+4)%12, (i+8)%12]
-            if let newChord = getChordSubset(notes, chordSet: augChord, fullChordNotes: [i, (i+4)%12, (i+8)%12].sort()) {
-                returnChordWithWeight.append(newChord)
+            if let newChord = getChordSubset(notes, chordSet: augChord, fullChordNotes: [i, (i+4)%12, (i+8)%12].sort(), totalDuration: totalDurationOfAllNotes) {
+                returnChords = self.addPossibleChord(newChord.chordName, weight: newChord.weight, possibleChords: returnChords)
                 foundFullChord = true
             }
             
             let dom7Chord:Set = [i, (i+4)%12, (i+7)%12, (i+10)%12]
-            if let newChord = getChordSubset(notes, chordSet: dom7Chord, fullChordNotes: [i, (i+4)%12, (i+7)%12].sort()) {
-                returnChordWithWeight.append(newChord)
+            if let newChord = getChordSubset(notes, chordSet: dom7Chord, fullChordNotes: [i, (i+4)%12, (i+7)%12].sort(), totalDuration: totalDurationOfAllNotes) {
+                returnChords = self.addPossibleChord(newChord.chordName, weight: newChord.weight, possibleChords: returnChords)
                 foundFullChord = true
             }
             
             let major7Chord:Set = [i, (i+4)%12, (i+7)%12, (i+11)%12]
-            if let newChord = getChordSubset(notes, chordSet: major7Chord, fullChordNotes: [i, (i+4)%12, (i+7)%12].sort()) {
-                returnChordWithWeight.append(newChord)
+            if let newChord = getChordSubset(notes, chordSet: major7Chord, fullChordNotes: [i, (i+4)%12, (i+7)%12].sort(), totalDuration: totalDurationOfAllNotes) {
+                returnChords = self.addPossibleChord(newChord.chordName, weight: newChord.weight, possibleChords: returnChords)
                 foundFullChord = true
             }
             
             let minor7Chord:Set = [i, (i+3)%12, (i+7)%12, (i+10)%12]
-            if let newChord = getChordSubset(notes, chordSet: minor7Chord, fullChordNotes: [i, (i+3)%12, (i+7)%12].sort()) {
-                returnChordWithWeight.append(newChord)
+            if let newChord = getChordSubset(notes, chordSet: minor7Chord, fullChordNotes: [i, (i+3)%12, (i+7)%12].sort(), totalDuration: totalDurationOfAllNotes) {
+                returnChords = self.addPossibleChord(newChord.chordName, weight: newChord.weight, possibleChords: returnChords)
                 foundFullChord = true
             }
             
@@ -178,28 +179,51 @@ class MusicChord: NSObject {
             for i in 0..<12 {
                 //  If no full chord has been found, it will search for partial chords
                 let majorChordFourth:Set = [i, (i+5)%12]
-                if let newChord = getChordSubset(notes, chordSet: majorChordFourth, fullChordNotes: [i, (i+5)%12, (i+9)%12].sort()) {
-                    returnChordWithWeight.append(newChord)
+                if let newChord = getChordSubset(notes, chordSet: majorChordFourth, fullChordNotes: [i, (i+5)%12, (i+9)%12].sort(), totalDuration: totalDurationOfAllNotes) {
+                    returnChords = self.addPossibleChord(newChord.chordName, weight: newChord.weight, possibleChords: returnChords)
                 }
                 let majorChordFifth:Set = [i, (i+7)%12]
-                if let newChord = getChordSubset(notes, chordSet: majorChordFifth, fullChordNotes: [i, (i+4)%12, (i+7)%12].sort()) {
-                    returnChordWithWeight.append(newChord)
+                if let newChord = getChordSubset(notes, chordSet: majorChordFifth, fullChordNotes: [i, (i+4)%12, (i+7)%12].sort(), totalDuration: totalDurationOfAllNotes) {
+                    returnChords = self.addPossibleChord(newChord.chordName, weight: newChord.weight, possibleChords: returnChords)
                 }
                 
                 let majorChordThird:Set = [i, (i+4)%12]
-                if let newChord = getChordSubset(notes, chordSet: majorChordThird, fullChordNotes: [i, (i+4)%12, (i+7)%12].sort()) {
-                    returnChordWithWeight.append(newChord)
+                if let newChord = getChordSubset(notes, chordSet: majorChordThird, fullChordNotes: [i, (i+4)%12, (i+7)%12].sort(), totalDuration: totalDurationOfAllNotes) {
+                    returnChords = self.addPossibleChord(newChord.chordName, weight: newChord.weight, possibleChords: returnChords)
                 }
                 
                 let minorChordThird:Set = [i, (i+3)%12]
-                if let newChord = getChordSubset(notes, chordSet: minorChordThird, fullChordNotes: [i, (i+3)%12, (i+7)%12].sort()) {
-                    returnChordWithWeight.append(newChord)
+                if let newChord = getChordSubset(notes, chordSet: minorChordThird, fullChordNotes: [i, (i+3)%12, (i+7)%12].sort(), totalDuration: totalDurationOfAllNotes) {
+                    returnChords = self.addPossibleChord(newChord.chordName, weight: newChord.weight, possibleChords: returnChords)
                 }
             }
         }
-        return returnChordWithWeight
+        
+        //  Get total weights
+        for returnChord in returnChords {
+            totalDurationOfAllNotes = totalDurationOfAllNotes + returnChord.weight
+        }
+        for i in 0..<returnChords.count {
+            returnChords[i].weight = returnChords[i].weight / totalDurationOfAllNotes
+        }
+        //  Set weights to 0.0 - 1.0
+        return returnChords
     }
-    private func getChordSubset(noteArray: [MusicNote], chordSet: Set<Int>, fullChordNotes: [Int]) -> (chordName:String, weight: Float)? {
+    
+    //  Check if chord was already found
+    private func addPossibleChord(name: String, weight: Float, var possibleChords: [(chordName:String, weight: Float)]) -> [(chordName:String, weight: Float)] {
+        for var possibleChord in possibleChords {
+            if possibleChord.chordName == name {
+                possibleChord.weight = possibleChord.weight + weight
+                return possibleChords
+            }
+        }
+        possibleChords.append((chordName: name, weight: weight))
+        return possibleChords
+    }
+    
+    
+    private func getChordSubset(noteArray: [MusicNote], chordSet: Set<Int>, fullChordNotes: [Int], totalDuration: Float) -> (chordName:String, weight: Float)? {
         var weight: Float = 0.0
         var chordName: String = ""
         var noteNumberSet: Set = Set<Int>()
@@ -219,6 +243,7 @@ class MusicChord: NSObject {
                     }
                 }
             }
+//            weight = weight / totalDuration
             return (chordName, weight)
         }
         return nil
