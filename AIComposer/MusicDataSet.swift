@@ -21,6 +21,7 @@ class MusicDataSet: NSObject, NSCoding {
     //  This will hold an array (for now) of transposable music ideas generated
     //  from music notes that occur in the same measure and channel
     var musicSnippets: [MusicSnippet]!
+    var dataSetName: String!
     
     /*
     *   Initializes the data structure.
@@ -28,17 +29,25 @@ class MusicDataSet: NSObject, NSCoding {
     override init() {
         midiFileParser = MIDIFileParser.sharedInstance
         self.musicSnippets = [MusicSnippet]()
+//        self.dataSetName = "Click to edit..."
         super.init()
     }
     
     required init(coder aDecoder: NSCoder) {
         self.musicSnippets = aDecoder.decodeObjectForKey("MusicSnippets") as! [MusicSnippet]
+        if aDecoder.decodeObjectForKey("Dataset Name") != nil {
+            self.dataSetName = aDecoder.decodeObjectForKey("Dataset Name") as! String
+        } else {
+//            self.dataSetName = "Click to edit..."
+        }
+        
         midiFileParser = MIDIFileParser.sharedInstance
         super.init()
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(self.musicSnippets, forKey: "MusicSnippets")
+        aCoder.encodeObject(self.dataSetName, forKey: "Dataset Name")
     }
     
     /*
@@ -144,8 +153,8 @@ class MusicDataSet: NSObject, NSCoding {
     
     //  Same as 'toString()' in Java
     func getDataString() -> String {
-        var descriptString = "Music Data Set"
-        descriptString = descriptString + "\nSnippets: \n"
+        var descriptString = "Music Data Set: \(self.dataSetName)"
+        descriptString = descriptString + "\nSnippets:(\(self.musicSnippets.count)) \n"
         for nextSnippet in self.musicSnippets {
             descriptString = descriptString + "\(nextSnippet.toString)\n"
         }

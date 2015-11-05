@@ -11,14 +11,23 @@ import XCTest
 
 class AIComposerTests: XCTestCase {
     
+    var testDataSet: MusicDataSet!
+    
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
+        self.testDataSet = MusicDataSet()
     }
     
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
+    }
+    
+    func testFileImport() {
+        self.testDataSet.addNewMIDIFile("Bach-Sample-WithCC20.mid")
+        print(self.testDataSet.getDataString())
+        XCTAssertEqual(self.testDataSet.musicSnippets.count, 5, "Oops")
     }
     
     func testExample() {

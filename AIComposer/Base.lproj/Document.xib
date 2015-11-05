@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="14F1021" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9059" systemVersion="14F1021" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="Document" customModule="AIComposer" customModuleProvider="target">
@@ -18,7 +18,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="689" y="557" width="800" height="600"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <value key="minSize" type="size" width="640" height="480"/>
             <view key="contentView" id="gIp-Ho-8D9">
                 <rect key="frame" x="0.0" y="0.0" width="800" height="600"/>
@@ -99,6 +99,24 @@
                                                 <action selector="exportMIDIFile:" target="-2" id="UYU-XL-Wp7"/>
                                             </connections>
                                         </button>
+                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="I0r-2m-WZl">
+                                            <rect key="frame" x="255" y="548" width="285" height="19"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="281" id="uBF-po-G3C"/>
+                                            </constraints>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" state="on" alignment="center" placeholderString="Dataset name" id="7Pb-r4-lTf">
+                                                <font key="font" size="16" name=".HelveticaNeueDeskInterface-Bold"/>
+                                                <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                            <connections>
+                                                <binding destination="-2" name="value" keyPath="self.musicDataSet.dataSetName" id="XZP-7D-jHg">
+                                                    <dictionary key="options">
+                                                        <string key="NSNullPlaceholder">Click to enter name...</string>
+                                                    </dictionary>
+                                                </binding>
+                                            </connections>
+                                        </textField>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="SWC-2P-K1L" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="3" id="14U-q8-I0P"/>
@@ -107,10 +125,12 @@
                                         <constraint firstAttribute="trailing" secondItem="HDh-Dd-k40" secondAttribute="trailing" constant="17" id="6kZ-ko-thx"/>
                                         <constraint firstAttribute="trailing" secondItem="SWC-2P-K1L" secondAttribute="trailing" constant="154" id="B8M-6d-G6a"/>
                                         <constraint firstAttribute="bottom" secondItem="HDh-Dd-k40" secondAttribute="bottom" constant="17" id="Gfo-fi-pZA"/>
+                                        <constraint firstItem="I0r-2m-WZl" firstAttribute="centerX" secondItem="BCA-6L-ton" secondAttribute="centerX" id="Gxb-bH-uUk"/>
                                         <constraint firstItem="kyJ-h2-VfS" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="18" id="KSy-0b-k5h"/>
                                         <constraint firstItem="kyJ-h2-VfS" firstAttribute="leading" secondItem="BCA-6L-ton" secondAttribute="leading" constant="17" id="Lyj-Gy-ree"/>
                                         <constraint firstAttribute="trailing" secondItem="lp4-fq-klJ" secondAttribute="trailing" constant="17" id="PWs-lC-B5W"/>
                                         <constraint firstAttribute="bottom" secondItem="rlC-as-TY0" secondAttribute="bottom" constant="46" id="c8L-3I-ZXg"/>
+                                        <constraint firstItem="I0r-2m-WZl" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="1" id="lcw-vD-QAb"/>
                                         <constraint firstItem="rlC-as-TY0" firstAttribute="leading" secondItem="BCA-6L-ton" secondAttribute="leading" constant="17" id="v50-zY-w8Z"/>
                                         <constraint firstItem="rlC-as-TY0" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="32" id="zGG-Uu-4lv"/>
                                     </constraints>
@@ -143,5 +163,6 @@
             </connections>
             <point key="canvasLocation" x="288" y="483"/>
         </window>
+        <userDefaultsController representsSharedInstance="YES" id="dD0-x7-5ha"/>
     </objects>
 </document>
