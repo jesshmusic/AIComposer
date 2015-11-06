@@ -153,9 +153,9 @@ class MusicSnippet: NSObject, NSCoding {
         returnString = returnString + "\tNotes and Durations:\n\t\t"
         let sortedNoteNumberSet = noteNumberSet.sort({$0.0 < $1.0})
         for nextNoteNumDur in sortedNoteNumberSet {
-            returnString = returnString + "[\(nextNoteNumDur.0): \(nextNoteNumDur.1)]   "
+            returnString = returnString + "\(nextNoteNumDur.0): \(nextNoteNumDur.1)]   "
         }
-        returnString = returnString + "\n\tChord: \(self.chordNameString)\tTranspose offset: \(self.transposeOffset)\n"
+        returnString = returnString + "\n\tPossible Chords: \(self.possibleChords)\tTranspose offset: \(self.transposeOffset)\n"
         returnString = returnString + "\n\tTransposed Chord: \(self.transposedChordNameString)\n"
         return returnString
     }

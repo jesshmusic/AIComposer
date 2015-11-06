@@ -67,9 +67,6 @@ class MIDIFileParser: NSObject {
         
         MusicTrackGetProperty(tempoTrack,kSequenceTrackProperty_TimeResolution, &timeResolution, &propertyLength);
         
-//        print("propertyLength: \(propertyLength)")
-//        print("timeResolution: \(timeResolution)")
-        
         return timeResolution
     }
     
@@ -101,7 +98,6 @@ class MIDIFileParser: NSObject {
                 notesForTrack.append((noteMessage, barBeatTime, timestamp))
             } else if eventType == kMusicEventType_MIDIChannelMessage {
                 let channelMessage = UnsafePointer<MIDIChannelMessage>(eventData)
-//                print("Control change received: \(channelMessage.memory.status), data1: \(channelMessage.memory.data1), data2: \(channelMessage.memory.data2)")
                 if channelMessage.memory.data1 == 20 {
                     eventMarkers.append(timestamp)
                 }
@@ -121,7 +117,6 @@ class MIDIFileParser: NSObject {
     {
         var trackCount: UInt32 = 0
         MusicSequenceGetTrackCount(sequence, &trackCount)
-//        print("Parsing \(trackCount) tracks.")
         var notes = [(midiNoteMessage: MIDINoteMessage,
             barBeatTime: CABarBeatTime,
             timeStamp: MusicTimeStamp)]()

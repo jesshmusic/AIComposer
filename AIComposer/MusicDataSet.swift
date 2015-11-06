@@ -21,6 +21,7 @@ class MusicDataSet: NSObject, NSCoding {
     //  This will hold an array (for now) of transposable music ideas generated
     //  from music notes that occur in the same measure and channel
     var musicSnippets: [MusicSnippet]!
+    var chordProgressions: [MusicChordProgression]!
     var dataSetName: String!
     
     /*
@@ -29,7 +30,19 @@ class MusicDataSet: NSObject, NSCoding {
     override init() {
         midiFileParser = MIDIFileParser.sharedInstance
         self.musicSnippets = [MusicSnippet]()
-//        self.dataSetName = "Click to edit..."
+        
+        // For testing:
+        self.chordProgressions = [MusicChordProgression]()
+        let testProg = MusicChordProgression()
+        testProg.addChord("C")
+        testProg.addChord("Dm")
+        testProg.addChord("G")
+        testProg.addChord("Am")
+        testProg.addChord("D")
+        testProg.addChord("Em")
+        testProg.addChord("F")
+        testProg.addChord("G7")
+        self.chordProgressions.append(testProg)
         super.init()
     }
     
@@ -37,6 +50,11 @@ class MusicDataSet: NSObject, NSCoding {
         self.musicSnippets = aDecoder.decodeObjectForKey("MusicSnippets") as! [MusicSnippet]
         if aDecoder.decodeObjectForKey("Dataset Name") != nil {
             self.dataSetName = aDecoder.decodeObjectForKey("Dataset Name") as! String
+        }
+        if aDecoder.decodeObjectForKey("Chord Progressions") != nil {
+            self.chordProgressions = aDecoder.decodeObjectForKey("Chord Progressions") as! [MusicChordProgression]
+        } else {
+            self.chordProgressions = [MusicChordProgression]()
         }
         
         midiFileParser = MIDIFileParser.sharedInstance
@@ -46,6 +64,7 @@ class MusicDataSet: NSObject, NSCoding {
     func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(self.musicSnippets, forKey: "MusicSnippets")
         aCoder.encodeObject(self.dataSetName, forKey: "Dataset Name")
+        aCoder.encodeObject(self.chordProgressions, forKey: "Chord Progressions")
     }
     
     /*

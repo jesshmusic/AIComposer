@@ -29,6 +29,14 @@
 		D74F2EAC1BEA58DB00F62DA6 /* Bach-Melody-WithCC20.mid in Resources */ = {isa = PBXBuildFile; fileRef = D74F2EA91BEA58DB00F62DA6 /* Bach-Melody-WithCC20.mid */; };
 		D74F2EAD1BEA58DB00F62DA6 /* Sample Melody With CC20 Markers.mid in Resources */ = {isa = PBXBuildFile; fileRef = D74F2EAA1BEA58DB00F62DA6 /* Sample Melody With CC20 Markers.mid */; };
 		D74F2EAE1BEA58DB00F62DA6 /* Sample Melody With CC20 Markers.mid in Resources */ = {isa = PBXBuildFile; fileRef = D74F2EAA1BEA58DB00F62DA6 /* Sample Melody With CC20 Markers.mid */; };
+		D7A1E73D1BED08D6002F0B4A /* SwiftGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A1E73C1BED08D6002F0B4A /* SwiftGraph.swift */; };
+		D7A1E73E1BED08D6002F0B4A /* SwiftGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A1E73C1BED08D6002F0B4A /* SwiftGraph.swift */; };
+		D7A1E7401BED08EE002F0B4A /* MusicDataConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A1E73F1BED08EE002F0B4A /* MusicDataConstants.swift */; };
+		D7A1E7411BED08EE002F0B4A /* MusicDataConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A1E73F1BED08EE002F0B4A /* MusicDataConstants.swift */; };
+		D7A1E7431BED16EC002F0B4A /* MusicChordProgression.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A1E7421BED16EC002F0B4A /* MusicChordProgression.swift */; };
+		D7A1E7441BED16EC002F0B4A /* MusicChordProgression.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A1E7421BED16EC002F0B4A /* MusicChordProgression.swift */; };
+		D7A1E7461BED4F8B002F0B4A /* ChordProgressionCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A1E7451BED4F8B002F0B4A /* ChordProgressionCellView.swift */; };
+		D7A1E7471BED4F8B002F0B4A /* ChordProgressionCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A1E7451BED4F8B002F0B4A /* ChordProgressionCellView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +68,10 @@
 		D741D84F1BE3E966003B3B00 /* MusicDataSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicDataSet.swift; sourceTree = "<group>"; };
 		D74F2EA91BEA58DB00F62DA6 /* Bach-Melody-WithCC20.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Bach-Melody-WithCC20.mid"; sourceTree = "<group>"; };
 		D74F2EAA1BEA58DB00F62DA6 /* Sample Melody With CC20 Markers.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Sample Melody With CC20 Markers.mid"; sourceTree = "<group>"; };
+		D7A1E73C1BED08D6002F0B4A /* SwiftGraph.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftGraph.swift; sourceTree = "<group>"; };
+		D7A1E73F1BED08EE002F0B4A /* MusicDataConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicDataConstants.swift; sourceTree = "<group>"; };
+		D7A1E7421BED16EC002F0B4A /* MusicChordProgression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MusicChordProgression.swift; sourceTree = "<group>"; };
+		D7A1E7451BED4F8B002F0B4A /* ChordProgressionCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChordProgressionCellView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,11 +118,15 @@
 			children = (
 				D741D82B1BE3E93F003B3B00 /* AppDelegate.swift */,
 				D741D82D1BE3E93F003B3B00 /* Document.swift */,
+				D7A1E7451BED4F8B002F0B4A /* ChordProgressionCellView.swift */,
 				D741D84B1BE3E966003B3B00 /* MIDIFileParser.swift */,
 				D741D84C1BE3E966003B3B00 /* MusicNote.swift */,
 				D741D84D1BE3E966003B3B00 /* MusicChord.swift */,
+				D7A1E7421BED16EC002F0B4A /* MusicChordProgression.swift */,
 				D741D84E1BE3E966003B3B00 /* MusicSnippet.swift */,
 				D741D84F1BE3E966003B3B00 /* MusicDataSet.swift */,
+				D7A1E73C1BED08D6002F0B4A /* SwiftGraph.swift */,
+				D7A1E73F1BED08EE002F0B4A /* MusicDataConstants.swift */,
 				D741D82F1BE3E93F003B3B00 /* Document.xib */,
 				D741D8321BE3E93F003B3B00 /* Assets.xcassets */,
 				D741D8341BE3E93F003B3B00 /* MainMenu.xib */,
@@ -236,7 +252,11 @@
 			files = (
 				D741D8581BE3E966003B3B00 /* MusicDataSet.swift in Sources */,
 				D741D82E1BE3E93F003B3B00 /* Document.swift in Sources */,
+				D7A1E7461BED4F8B002F0B4A /* ChordProgressionCellView.swift in Sources */,
+				D7A1E7431BED16EC002F0B4A /* MusicChordProgression.swift in Sources */,
+				D7A1E73D1BED08D6002F0B4A /* SwiftGraph.swift in Sources */,
 				D741D8521BE3E966003B3B00 /* MusicNote.swift in Sources */,
+				D7A1E7401BED08EE002F0B4A /* MusicDataConstants.swift in Sources */,
 				D741D8501BE3E966003B3B00 /* MIDIFileParser.swift in Sources */,
 				D741D8541BE3E966003B3B00 /* MusicChord.swift in Sources */,
 				D741D82C1BE3E93F003B3B00 /* AppDelegate.swift in Sources */,
@@ -248,9 +268,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D7A1E7441BED16EC002F0B4A /* MusicChordProgression.swift in Sources */,
 				D741D8591BE3E966003B3B00 /* MusicDataSet.swift in Sources */,
 				D741D8571BE3E966003B3B00 /* MusicSnippet.swift in Sources */,
+				D7A1E7471BED4F8B002F0B4A /* ChordProgressionCellView.swift in Sources */,
 				D741D8551BE3E966003B3B00 /* MusicChord.swift in Sources */,
+				D7A1E7411BED08EE002F0B4A /* MusicDataConstants.swift in Sources */,
+				D7A1E73E1BED08D6002F0B4A /* SwiftGraph.swift in Sources */,
 				D741D8411BE3E93F003B3B00 /* AIComposerTests.swift in Sources */,
 				D741D8531BE3E966003B3B00 /* MusicNote.swift in Sources */,
 				D741D8511BE3E966003B3B00 /* MIDIFileParser.swift in Sources */,

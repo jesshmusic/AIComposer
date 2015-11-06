@@ -17,6 +17,7 @@ class Document: NSDocument {
     @IBOutlet weak var clearDataButton: NSButtonCell!
     @IBOutlet weak var exportMIDIbutton: NSButton!
     
+    @IBOutlet weak var chordProgressionTableView: NSTableView!
     
     override init() {
         super.init()
@@ -122,5 +123,27 @@ class Document: NSDocument {
             self.musicDataSet.createMIDIFileFromDataSet(path!)
         }
     }
+}
+
+extension Document: NSTableViewDataSource {
+    func numberOfRowsInTableView(tableView: NSTableView) -> Int {
+        return self.musicDataSet.chordProgressions.count
+    }
+    
+    func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView?
+    {
+        let cellView = tableView.makeViewWithIdentifier(tableColumn!.identifier, owner: self) as! ChordProgressionCellView
+        //        if tableColumn!.identifier == "ChordProgression" {
+        let nextProgression = self.musicDataSet.chordProgressions[row]
+        cellView.chordInfoTextField!.stringValue = "Progression (\(nextProgression.chords.count) chords):"
+        cellView.chordProgressionTextField!.stringValue = nextProgression.description
+        //            return cellView
+        //        }
+        return cellView
+    }
+}
+
+extension Document: NSTableViewDelegate {
+    
 }
 
