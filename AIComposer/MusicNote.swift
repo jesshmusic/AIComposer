@@ -81,6 +81,16 @@ class MusicNote: NSObject, NSCoding {
         return ("Note: time stamp: \(self.timeStamp) measure: \(bar) beat: \(beat), sub-beat: \(subbeat), channel: \(channel), note: \(self.noteForMIDINumber(noteNumber))-\(noteNumber), velocity: \(velocity), duration: \(duration)")
     }
     
+    var dataString: String {
+        let bar = self.barBeatTime.bar
+        let beat = self.barBeatTime.beat
+        let subbeat = self.barBeatTime.subbeat
+        let noteNumber = self.midiNoteMess.note
+        let velocity = self.midiNoteMess.velocity
+        let duration = self.midiNoteMess.duration
+        return "\(self.noteForMIDINumber(noteNumber))-\(noteNumber): \(bar):\(beat):\(subbeat) - velocity: \(velocity) - duration: \(duration)"
+    }
+    
     override var hash: Int {
         return (Int(self.midiNoteMess.channel) + Int(self.midiNoteMess.note) + Int(self.midiNoteMess.velocity)).hashValue
     }

@@ -17,6 +17,7 @@ class Document: NSDocument {
     @IBOutlet weak var clearDataButton: NSButtonCell!
     @IBOutlet weak var exportMIDIbutton: NSButton!
     
+    @IBOutlet weak var musicSnippetTableView: NSTableView!
     @IBOutlet weak var chordProgressionTableView: NSTableView!
     
     override init() {
@@ -86,6 +87,7 @@ class Document: NSDocument {
                 self.musicDataSet!.parseMusicSnippetsFromMIDIFile(path!)
                 self.clearDataButton.enabled = true
                 self.exportMIDIbutton.enabled = true
+                self.musicSnippetTableView.reloadData()
                 self.textOutputView.string = self.musicDataSet!.getDataString()
             } else if sender.tag() == 1 {
                 self.musicDataSet!.parseChordProgressionsFromMIDIFile(path!)
@@ -149,20 +151,44 @@ class Document: NSDocument {
 
 
 extension Document: NSTableViewDataSource {
+    
+    
     func numberOfRowsInTableView(tableView: NSTableView) -> Int {
-        return self.musicDataSet.chordProgressions.count
+        if self.musicDataSet != nil {
+            if tableView == self.chordProgressionTableView {
+                return self.musicDataSet.chordProgressions.count
+            }
+            
+            if tableView == self.musicSnippetTableView {
+                return self.musicDataSet.musicSnippets.count
+            }
+        }
+        
+        return 1
     }
     
     func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView?
     {
-        let cellView = tableView.makeViewWithIdentifier(tableColumn!.identifier, owner: self) as! ChordProgressionCellView
-        //        if tableColumn!.identifier == "ChordProgression" {
-        let nextProgression = self.musicDataSet.chordProgressions[row]
-        cellView.chordInfoTextField!.stringValue = "Progression (\(nextProgression.chords.count) chords):"
-        cellView.chordProgressionTextField!.stringValue = nextProgression.description
-        //            return cellView
-        //        }
-        return cellView
+        if self.musicDataSet != nil {
+            if tableView == self.chordProgressionTableView {
+                let cellView = tableView.makeViewWithIdentifier(tableColumn!.identifier, owner: self) as! ChordProgressionCellView
+                let nextProgression = self.musicDataSet.chordProgressions[row]
+                cellView.chordInfoTextField!.stringValue = "Progression (\(nextProgression.chords.count) chords):"
+                cellView.chordProgressionTextField!.stringValue = nextProgression.description
+                return cellView
+            } else {
+                if !self.musicDataSet.musicSnippets.isEmpty {
+                    let cellView = tableView.makeViewWithIdentifier(tableColumn!.identifier, owner: self) as! MusicSnippetCellView
+                    let nextSnippet = self.musicDataSet.musicSnippets[row]
+                    cellView.musicSnippetInfo.stringValue = nextSnippet.infoString
+                    cellView.musicSnippetData.stringValue = nextSnippet.dataString
+                    return cellView
+                }
+                return nil
+                
+            }
+        }
+        return nil
     }
 }
 

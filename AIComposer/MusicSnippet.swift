@@ -136,4 +136,27 @@ class MusicSnippet: NSObject, NSCoding {
         returnString = returnString + "\n\tPossible Chords: \(self.possibleChords)\n"
         return returnString
     }
+    
+    var infoString: String {
+        var retString = "Notes: \(self.musicNoteEvents.count),  "
+        retString = retString + "Possible Chords: \n"
+        for chord in self.possibleChords {
+            retString = retString + "\(chord.chordName): \(chord.weight)  "
+        }
+        return retString
+    }
+    
+    var dataString: String {
+        var returnString = ""
+        var noteNumberSet = [UInt8: Float32]()
+        for nextNote in self.musicNoteEvents {
+            if noteNumberSet[nextNote.midiNoteMess.note] != nil {
+                noteNumberSet[nextNote.midiNoteMess.note] = noteNumberSet[nextNote.midiNoteMess.note]! + nextNote.midiNoteMess.duration
+            } else {
+                noteNumberSet[nextNote.midiNoteMess.note] = nextNote.midiNoteMess.duration
+            }
+            returnString = returnString + "\t\(nextNote.dataString)\n"
+        }
+        return returnString
+    }
 }
