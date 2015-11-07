@@ -82,12 +82,16 @@ class Document: NSDocument {
         // Make sure that a path was chosen
         if (path != nil) {
             //  Add the contents of the file to the MusicDataSet
-            self.musicDataSet!.addNewMIDIFile(path!)
-            self.clearDataButton.enabled = true
-            self.exportMIDIbutton.enabled = true
-            self.textOutputView.string = self.musicDataSet!.getDataString()
+            if sender.tag() == 0 {
+                self.musicDataSet!.parseMusicSnippetsFromMIDIFile(path!)
+                self.clearDataButton.enabled = true
+                self.exportMIDIbutton.enabled = true
+                self.textOutputView.string = self.musicDataSet!.getDataString()
+            } else if sender.tag() == 1 {
+                self.musicDataSet!.parseChordProgressionsFromMIDIFile(path!)
+                self.chordProgressionTableView.reloadData()
+            }
         }
-        //        print(self.musicDataSet.description)
     }
     
     @IBAction func clearAllMidiData(sender: AnyObject) {
@@ -113,6 +117,17 @@ class Document: NSDocument {
         }
     }
     
+    /*
+    *   returns the chord progression at the selected row.
+    */
+    func selectedChordProgression() -> MusicChordProgression? {
+        let selectedRow = self.chordProgressionTableView.selectedRow
+        if selectedRow >= 0 && selectedRow < self.musicDataSet.chordProgressions.count {
+            return self.musicDataSet.chordProgressions[selectedRow]
+        }
+        return nil
+    }
+    
     
     @IBAction func exportMIDIFile(sender: AnyObject) {
         let myFileDialog: NSSavePanel = NSSavePanel()
@@ -123,7 +138,15 @@ class Document: NSDocument {
             self.musicDataSet.createMIDIFileFromDataSet(path!)
         }
     }
+    
+    @IBAction func deleteProgression(sender: AnyObject) {
+        if let _ = self.selectedChordProgression() {
+            self.musicDataSet.chordProgressions.removeAtIndex(self.chordProgressionTableView.selectedRow)
+            self.chordProgressionTableView.removeRowsAtIndexes(NSIndexSet(index: self.chordProgressionTableView.selectedRow), withAnimation: NSTableViewAnimationOptions.SlideRight)
+        }
+    }
 }
+
 
 extension Document: NSTableViewDataSource {
     func numberOfRowsInTableView(tableView: NSTableView) -> Int {

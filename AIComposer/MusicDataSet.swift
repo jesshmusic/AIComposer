@@ -22,7 +22,6 @@ class MusicDataSet: NSObject, NSCoding {
     //  from music notes that occur in the same measure and channel
     var musicSnippets: [MusicSnippet]!
     var chordProgressions: [MusicChordProgression]!
-    var dataSetName: String!
     
     /*
     *   Initializes the data structure.
@@ -33,24 +32,11 @@ class MusicDataSet: NSObject, NSCoding {
         
         // For testing:
         self.chordProgressions = [MusicChordProgression]()
-        let testProg = MusicChordProgression()
-        testProg.addChord("C")
-        testProg.addChord("Dm")
-        testProg.addChord("G")
-        testProg.addChord("Am")
-        testProg.addChord("D")
-        testProg.addChord("Em")
-        testProg.addChord("F")
-        testProg.addChord("G7")
-        self.chordProgressions.append(testProg)
         super.init()
     }
     
     required init(coder aDecoder: NSCoder) {
         self.musicSnippets = aDecoder.decodeObjectForKey("MusicSnippets") as! [MusicSnippet]
-        if aDecoder.decodeObjectForKey("Dataset Name") != nil {
-            self.dataSetName = aDecoder.decodeObjectForKey("Dataset Name") as! String
-        }
         if aDecoder.decodeObjectForKey("Chord Progressions") != nil {
             self.chordProgressions = aDecoder.decodeObjectForKey("Chord Progressions") as! [MusicChordProgression]
         } else {
@@ -63,7 +49,6 @@ class MusicDataSet: NSObject, NSCoding {
     
     func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(self.musicSnippets, forKey: "MusicSnippets")
-        aCoder.encodeObject(self.dataSetName, forKey: "Dataset Name")
         aCoder.encodeObject(self.chordProgressions, forKey: "Chord Progressions")
     }
     
@@ -71,7 +56,7 @@ class MusicDataSet: NSObject, NSCoding {
     *   Calls the MIDIFileParser to load a MIDI file.
     *   For now, its is best if the MIDI file has only a short snippet, or musical idea.
     */
-    func addNewMIDIFile(filePathString: String) {
+    func parseMusicSnippetsFromMIDIFile(filePathString: String) {
         let newMIDIData = self.midiFileParser.loadMIDIFile(filePathString)
         var musicNotes = [MusicNote]()
         let eventMarkers = newMIDIData.eventMarkers
@@ -79,46 +64,126 @@ class MusicDataSet: NSObject, NSCoding {
             let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
             musicNotes.append(note)
         }
-        self.generateSnippetsFromMusicNotes(musicNotes, eventMarkers: eventMarkers)
+        self.musicSnippets.appendContentsOf(self.generateSnippetsFromMusicNotes(musicNotes, eventMarkers: eventMarkers))
     }
     
     /*
-    *   Generates MusicSnippets from an array of MusicNotes. Event markers (CC20) delineate where to separate snippets.
+    *   Calls the MIDIFileParser to load a MIDI file.
+    *   For now, its is best if the MIDI file has only a short snippet, or musical idea.
+    */
+    func parseChordProgressionsFromMIDIFile(filePathString: String) {
+        let newMIDIData = self.midiFileParser.loadMIDIFile(filePathString)
+        var musicNotes = [MusicNote]()
+        let eventMarkers = newMIDIData.eventMarkers
+        for nextEvent in newMIDIData.midiNotes {
+            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
+            musicNotes.append(note)
+        }
+        self.chordProgressions.appendContentsOf(self.generateProgressionsFromMusicNotes(musicNotes, eventMarkers: eventMarkers))
+    }
+    
+    /*
+    *   Returns generated MusicSnippets from an array of MusicNotes. Event markers (CC20) delineate where to separate snippets.
     *   If there are no event markers, then it will divide based on number of beats.
     */
-    
-    private func generateSnippetsFromMusicNotes(musicNotes: [MusicNote], numberOfBeats: UInt8? = 4, eventMarkers: [MusicTimeStamp]) {
+    private func generateSnippetsFromMusicNotes(musicNotes: [MusicNote], eventMarkers: [MusicTimeStamp]) -> [MusicSnippet] {
+        var musSnippets = [MusicSnippet]()
         if !musicNotes.isEmpty {
             var nextSnippet: MusicSnippet!
-            var nextNote = musicNotes[0]
-            var noteIndex = 0
-            for eventMarker in eventMarkers {
-                nextSnippet = MusicSnippet()
-                if noteIndex < musicNotes.count {
-                    while nextNote.timeStamp < eventMarker {
-                        nextSnippet.addMusicNote(nextNote)
-                        noteIndex++
-                        if musicNotes.count == noteIndex {
-                            break
-                        } else {
-                            nextNote = musicNotes[noteIndex]
+            if eventMarkers.count > 0 {
+                var nextNote = musicNotes[0]
+                var noteIndex = 0
+                for eventMarker in eventMarkers {
+                    nextSnippet = MusicSnippet()
+                    if noteIndex < musicNotes.count {
+                        while nextNote.timeStamp < eventMarker {
+                            nextSnippet.addMusicNote(nextNote)
+                            noteIndex++
+                            if musicNotes.count == noteIndex {
+                                break
+                            } else {
+                                nextNote = musicNotes[noteIndex]
+                            }
                         }
+                        nextSnippet.zeroTransposeMusicSnippet()
+                        musSnippets.append(nextSnippet)
+                    } else {
+                        break
                     }
-                    self.addMusicSnippet(nextSnippet)
-                } else {
-                    break
+                }
+            } else {
+                var previousBeat = 0
+                nextSnippet = MusicSnippet()
+                for note in musicNotes {
+                    if previousBeat <= Int(note.barBeatTime.beat) {
+                        nextSnippet.addMusicNote(note)
+                    } else {
+                        nextSnippet.zeroTransposeMusicSnippet()
+                        musSnippets.append(nextSnippet)
+                        nextSnippet = MusicSnippet()
+                        nextSnippet.addMusicNote(note)
+                    }
+                    previousBeat = Int(note.barBeatTime.beat)
                 }
             }
         }
+        return musSnippets
     }
     
-    
     /*
-    *   Sets the time stamps to start at 0 and adds the music snippet to the array
+    *   Returns chord progressions from an array of MusicNotes.
+    *   Event markers (CC20) delineate where phrases end.
+    *   Event markers are required.
     */
-    private func addMusicSnippet(musicSnippet: MusicSnippet) {
-        musicSnippet.zeroTransposeMusicSnippet()
-        self.musicSnippets.append(musicSnippet)
+    private func generateProgressionsFromMusicNotes(musicNotes: [MusicNote], eventMarkers: [MusicTimeStamp]) -> [MusicChordProgression] {
+        var chordProgs = [MusicChordProgression]()
+        if !musicNotes.isEmpty {
+            var nextSnippet: MusicSnippet!
+            if eventMarkers.count > 0 {
+                var nextNote = musicNotes[0]
+                var noteIndex = 0
+                var timeStamp = 0.0
+                for event in eventMarkers {
+                    let chordProg = MusicChordProgression()
+                    timeStamp = Double(nextNote.timeStamp)
+                    if noteIndex < musicNotes.count {
+                        while nextNote.timeStamp < event {
+                            nextSnippet = MusicSnippet()
+                            while abs(nextNote.timeStamp - timeStamp) < 0.05 {
+                                nextSnippet.addMusicNote(nextNote)
+                                noteIndex++
+                                if musicNotes.count <= noteIndex {
+                                    break
+                                } else {
+                                    nextNote = musicNotes[noteIndex]
+                                }
+                            }
+                            timeStamp = nextNote.timeStamp
+                            if nextSnippet.count > 0 {
+                                nextSnippet.zeroTransposeMusicSnippet()
+                                if nextSnippet.possibleChords.count == 1 {
+                                    chordProg.addChord(nextSnippet.possibleChords[0].chordName)
+                                } else if nextSnippet.possibleChords.count > 1 {
+                                    var bestChordWeight = nextSnippet.possibleChords[0].weight
+                                    var bestChord = nextSnippet.possibleChords[0].chordName
+                                    for chord in nextSnippet.possibleChords {
+                                        if chord.weight > bestChordWeight {
+                                            bestChordWeight = chord.weight
+                                            bestChord = chord.chordName
+                                        }
+                                    }
+                                    chordProg.addChord(bestChord)
+                                } else {
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    chordProgs.append(chordProg)
+                }
+            }
+        }
+        return chordProgs
     }
     
     /*
@@ -126,6 +191,7 @@ class MusicDataSet: NSObject, NSCoding {
     */
     func clearAllData() {
         self.musicSnippets.removeAll()
+        self.chordProgressions.removeAll()
     }
     
     func createMIDIFileFromDataSet(filePathString: String) {
@@ -170,7 +236,7 @@ class MusicDataSet: NSObject, NSCoding {
     
     //  Same as 'toString()' in Java
     func getDataString() -> String {
-        var descriptString = "Music Data Set: \(self.dataSetName)"
+        var descriptString = "Music Data Set: "
         descriptString = descriptString + "\nSnippets:(\(self.musicSnippets.count)) \n"
         for nextSnippet in self.musicSnippets {
             descriptString = descriptString + "\(nextSnippet.toString)\n"

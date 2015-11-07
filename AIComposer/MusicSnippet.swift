@@ -21,14 +21,7 @@ class MusicSnippet: NSObject, NSCoding {
     internal private(set) var transposedNoteEvents: [MusicNote]!
     internal private(set) var count = 0
     internal private(set) var numberOfOccurences = 1
-    
-//    internal private(set) var chordWithProbablity: [(chordName:String, prob:Float)]!    //  IDEA: Have a set of a couple chords instead of just one.
-    internal private(set) var chordNameString: String!
     internal private(set) var possibleChords: [(chordName:String, weight: Float)]!
-    internal private(set) var chordNotes: [Int]!
-    internal private(set) var transposedChordNameString: String!
-    internal private(set) var transposedChordNotes: [Int]!
-    internal private(set) var transposeOffset = 0
     
     override init() {
         self.musicNoteEvents = [MusicNote]()
@@ -41,11 +34,6 @@ class MusicSnippet: NSObject, NSCoding {
         self.transposedNoteEvents = aDecoder.decodeObjectForKey("Transposed Music Note Events") as! [MusicNote]
         self.count = aDecoder.decodeIntegerForKey("Count")
         self.numberOfOccurences = aDecoder.decodeIntegerForKey("NumberOfOccurences")
-        self.chordNameString = aDecoder.decodeObjectForKey("ChordNameString") as! String
-        self.chordNotes = aDecoder.decodeObjectForKey("ChordNotes") as! [Int]
-        self.transposedChordNameString = aDecoder.decodeObjectForKey("TransposedChordNameString") as! String
-        self.transposedChordNotes = aDecoder.decodeObjectForKey("TransposedChordNotes") as! [Int]
-        self.transposeOffset = aDecoder.decodeIntegerForKey("TransposeOffset")
         self.possibleChords = musicChord.generatePossibleChordNames(self.transposedNoteEvents)
     }
     
@@ -54,11 +42,6 @@ class MusicSnippet: NSObject, NSCoding {
         aCoder.encodeObject(self.transposedNoteEvents, forKey: "Transposed Music Note Events")
         aCoder.encodeInteger(self.count, forKey: "Count")
         aCoder.encodeInteger(self.numberOfOccurences, forKey: "NumberOfOccurences")
-        aCoder.encodeObject(self.chordNameString, forKey: "ChordNameString")
-        aCoder.encodeObject(self.chordNotes, forKey: "ChordNotes")
-        aCoder.encodeObject(self.transposedChordNameString, forKey: "TransposedChordNameString")
-        aCoder.encodeObject(self.transposedChordNotes, forKey: "TransposedChordNotes")
-        aCoder.encodeInteger(self.transposeOffset, forKey: "TransposeOffset")
     }
     
     func addMusicNote(newMusicNote: MusicNote) {
@@ -97,20 +80,12 @@ class MusicSnippet: NSObject, NSCoding {
             nextNote.midiNoteMess.note = nextNote.midiNoteMess.note%12
         }
         
-        //  2: Analyze what chord would best suit the snippet.
+        //  2: Get a weighted set of all of the possible chords this melody could be associated with.
         self.possibleChords = musicChord.generatePossibleChordNames(self.transposedNoteEvents)
-        let chord = musicChord.analyzeChordFromNotes(self.transposedNoteEvents)
-        self.chordNameString = chord.chordNameString
-        self.chordNotes = chord.chordNotes
-        self.transposeOffset = chord.transposeOffset
-        
-        //  TODO: Get all of the likely chords and a weight. (All weights should total to 1.0)
-        
-        //  3: Based on the chord, transpose it again to be a version of C (C, Cm, Cdim, C+, etc.)
-        let transposedChord = musicChord.getTransposedChord(chord.chordNameString, chordNotes: chord.chordNotes, transposeOffset: chord.transposeOffset)
-        self.transposedChordNameString = transposedChord.chordNameString
-        self.transposedChordNotes = transposedChord.chordNotes
     }
+    
+    
+    //  -----  Override functions for hashing   ------
     
     override var hashValue: Int {
         var hashInt:UInt8 = 0
@@ -139,6 +114,9 @@ class MusicSnippet: NSObject, NSCoding {
         return true
     }
     
+    //  ------------------------------------------------
+    
+    //  Returns a string description of the snippet
     var toString: String {
         var returnString = "Music Snippet:\n\tNumber Of Occurences: \(self.numberOfOccurences)\n\t--------------------------------\n"
         var noteNumberSet = [UInt8: Float32]()
@@ -155,8 +133,7 @@ class MusicSnippet: NSObject, NSCoding {
         for nextNoteNumDur in sortedNoteNumberSet {
             returnString = returnString + "\(nextNoteNumDur.0): \(nextNoteNumDur.1)]   "
         }
-        returnString = returnString + "\n\tPossible Chords: \(self.possibleChords)\tTranspose offset: \(self.transposeOffset)\n"
-        returnString = returnString + "\n\tTransposed Chord: \(self.transposedChordNameString)\n"
+        returnString = returnString + "\n\tPossible Chords: \(self.possibleChords)\n"
         return returnString
     }
 }
