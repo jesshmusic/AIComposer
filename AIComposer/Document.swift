@@ -13,7 +13,6 @@ class Document: NSDocument {
     var currentLoadedFile: String!
     var musicDataSet: MusicDataSet!
     
-    @IBOutlet var textOutputView: NSTextView!
     @IBOutlet weak var clearDataButton: NSButtonCell!
     @IBOutlet weak var exportMIDIbutton: NSButton!
     
@@ -29,7 +28,8 @@ class Document: NSDocument {
         super.windowControllerDidLoadNib(aController)
         // Add any code here that needs to be executed once the windowController has loaded the document's window.
         if self.musicDataSet != nil {
-            self.textOutputView.string = self.musicDataSet!.getDataString()
+//            self.textOutputView.string = self.musicDataSet!.getDataString()
+            self.musicSnippetTableView.reloadData()
         } else {
             self.musicDataSet = MusicDataSet()
             self.clearDataButton.enabled = false
@@ -88,7 +88,6 @@ class Document: NSDocument {
                 self.clearDataButton.enabled = true
                 self.exportMIDIbutton.enabled = true
                 self.musicSnippetTableView.reloadData()
-                self.textOutputView.string = self.musicDataSet!.getDataString()
             } else if sender.tag() == 1 {
                 self.musicDataSet!.parseChordProgressionsFromMIDIFile(path!)
                 self.chordProgressionTableView.reloadData()
@@ -110,7 +109,7 @@ class Document: NSDocument {
         case NSAlertSecondButtonReturn:
             if self.musicDataSet?.musicSnippets.count != 0 {
                 self.musicDataSet!.clearAllData()
-                self.textOutputView.string = "All MIDI data deleted."
+                self.musicSnippetTableView.reloadData()
                 self.clearDataButton.enabled = false
                 self.exportMIDIbutton.enabled = false
             }
@@ -182,6 +181,7 @@ extension Document: NSTableViewDataSource {
                     let nextSnippet = self.musicDataSet.musicSnippets[row]
                     cellView.musicSnippetInfo.stringValue = nextSnippet.infoString
                     cellView.musicSnippetData.stringValue = nextSnippet.dataString
+                    cellView.musicSnippetMIDIDrawView.drawMIDINotes(nextSnippet.musicNoteEvents)
                     return cellView
                 }
                 return nil

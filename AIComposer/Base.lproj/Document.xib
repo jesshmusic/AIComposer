@@ -10,7 +10,6 @@
                 <outlet property="clearDataButton" destination="czb-i3-6jU" id="ifM-hk-iaD"/>
                 <outlet property="exportMIDIbutton" destination="HDh-Dd-k40" id="FNh-wz-vRd"/>
                 <outlet property="musicSnippetTableView" destination="XNs-wq-orN" id="fzb-JS-fA3"/>
-                <outlet property="textOutputView" destination="BPA-hM-14K" id="uaw-5k-dsw"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
             </connections>
         </customObject>
@@ -35,34 +34,6 @@
                                     <rect key="frame" x="10" y="33" width="794" height="568"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rlC-as-TY0">
-                                            <rect key="frame" x="17" y="46" width="760" height="143"/>
-                                            <clipView key="contentView" id="Rnn-VQ-2av">
-                                                <rect key="frame" x="1" y="1" width="758" height="141"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                <subviews>
-                                                    <textView editable="NO" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="BPA-hM-14K">
-                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="141"/>
-                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="758" height="141"/>
-                                                        <size key="maxSize" width="771" height="10000000"/>
-                                                        <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <size key="minSize" width="758" height="141"/>
-                                                        <size key="maxSize" width="771" height="10000000"/>
-                                                    </textView>
-                                                </subviews>
-                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            </clipView>
-                                            <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="2h1-uN-OIK">
-                                                <rect key="frame" x="-100" y="-100" width="87" height="18"/>
-                                                <autoresizingMask key="autoresizingMask"/>
-                                            </scroller>
-                                            <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="9Kk-nO-pTc">
-                                                <rect key="frame" x="743" y="1" width="16" height="141"/>
-                                                <autoresizingMask key="autoresizingMask"/>
-                                            </scroller>
-                                        </scrollView>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="lp4-fq-klJ">
                                             <rect key="frame" x="646" y="537" width="137" height="32"/>
                                             <buttonCell key="cell" type="push" title="Load MIDI file..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4fk-vU-XHj">
@@ -93,14 +64,14 @@
                                                 <action selector="exportMIDIFile:" target="-2" id="UYU-XL-Wp7"/>
                                             </connections>
                                         </button>
-                                        <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="152" horizontalPageScroll="10" verticalLineScroll="152" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7AA-as-JK8">
-                                            <rect key="frame" x="17" y="197" width="760" height="341"/>
-                                            <clipView key="contentView" ambiguous="YES" id="sg4-nF-lb3">
-                                                <rect key="frame" x="1" y="17" width="758" height="323"/>
+                                        <scrollView autohidesScrollers="YES" horizontalLineScroll="202" horizontalPageScroll="10" verticalLineScroll="202" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7AA-as-JK8">
+                                            <rect key="frame" x="17" y="44" width="760" height="494"/>
+                                            <clipView key="contentView" id="sg4-nF-lb3">
+                                                <rect key="frame" x="1" y="17" width="758" height="476"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="150" rowSizeStyle="automatic" headerView="UDN-bk-jsA" viewBased="YES" id="XNs-wq-orN">
-                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="323"/>
+                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="200" rowSizeStyle="automatic" headerView="UDN-bk-jsA" viewBased="YES" id="XNs-wq-orN">
+                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="476"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -121,14 +92,14 @@
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 <prototypeCellViews>
                                                                     <tableCellView id="Na2-QA-g4y" customClass="MusicSnippetCellView" customModule="AIComposer" customModuleProvider="target">
-                                                                        <rect key="frame" x="1" y="1" width="755" height="150"/>
+                                                                        <rect key="frame" x="1" y="1" width="755" height="200"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <subviews>
                                                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Lhf-Vt-Tfj">
-                                                                                <rect key="frame" x="1" y="107" width="378" height="40"/>
+                                                                                <rect key="frame" x="1" y="139" width="378" height="58"/>
                                                                                 <constraints>
                                                                                     <constraint firstAttribute="width" constant="374" id="IfC-Y1-NxR"/>
-                                                                                    <constraint firstAttribute="height" constant="40" id="Xpz-hf-tzr"/>
+                                                                                    <constraint firstAttribute="height" constant="58" id="Xpz-hf-tzr"/>
                                                                                 </constraints>
                                                                                 <textFieldCell key="cell" controlSize="small" sendsActionOnEndEditing="YES" placeholderString="Info" id="i9r-5p-wsB">
                                                                                     <font key="font" size="11" name=".HelveticaNeueDeskInterface-Bold"/>
@@ -136,17 +107,10 @@
                                                                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                                 </textFieldCell>
                                                                             </textField>
-                                                                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="KRW-XE-IQm" customClass="MIDIDrawView" customModule="AIComposer" customModuleProvider="target">
-                                                                                <rect key="frame" x="3" y="3" width="374" height="96"/>
-                                                                                <constraints>
-                                                                                    <constraint firstAttribute="height" constant="96" id="GUl-Gp-CGc"/>
-                                                                                    <constraint firstAttribute="width" constant="374" id="OBc-cD-52n"/>
-                                                                                </constraints>
-                                                                            </customView>
                                                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="IMb-qe-UXM">
-                                                                                <rect key="frame" x="383" y="3" width="371" height="144"/>
+                                                                                <rect key="frame" x="383" y="3" width="371" height="194"/>
                                                                                 <constraints>
-                                                                                    <constraint firstAttribute="height" constant="144" id="1zV-nt-8eD"/>
+                                                                                    <constraint firstAttribute="height" constant="194" id="1zV-nt-8eD"/>
                                                                                 </constraints>
                                                                                 <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="Music Snippet Data" id="cuE-vD-JcJ">
                                                                                     <font key="font" size="9" name=".HelveticaNeueDeskInterface-Regular"/>
@@ -154,6 +118,13 @@
                                                                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                                 </textFieldCell>
                                                                             </textField>
+                                                                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="KRW-XE-IQm" customClass="MIDIDrawView" customModule="AIComposer" customModuleProvider="target">
+                                                                                <rect key="frame" x="3" y="3" width="374" height="128"/>
+                                                                                <constraints>
+                                                                                    <constraint firstAttribute="height" constant="128" id="GUl-Gp-CGc"/>
+                                                                                    <constraint firstAttribute="width" constant="374" id="OBc-cD-52n"/>
+                                                                                </constraints>
+                                                                            </customView>
                                                                         </subviews>
                                                                         <constraints>
                                                                             <constraint firstItem="IMb-qe-UXM" firstAttribute="top" secondItem="Na2-QA-g4y" secondAttribute="top" constant="3" id="Dxd-2d-ifU"/>
@@ -163,7 +134,7 @@
                                                                             <constraint firstItem="KRW-XE-IQm" firstAttribute="leading" secondItem="Na2-QA-g4y" secondAttribute="leading" constant="3" id="WuM-ld-vhK"/>
                                                                             <constraint firstAttribute="bottom" secondItem="IMb-qe-UXM" secondAttribute="bottom" constant="3" id="Xmh-cn-Vx7"/>
                                                                             <constraint firstAttribute="trailing" secondItem="IMb-qe-UXM" secondAttribute="trailing" constant="3" id="sf4-hy-obT"/>
-                                                                            <constraint firstItem="KRW-XE-IQm" firstAttribute="top" secondItem="Na2-QA-g4y" secondAttribute="top" constant="51" id="x9b-tm-YZ6"/>
+                                                                            <constraint firstItem="KRW-XE-IQm" firstAttribute="top" secondItem="Na2-QA-g4y" secondAttribute="top" constant="69" id="x9b-tm-YZ6"/>
                                                                         </constraints>
                                                                         <connections>
                                                                             <outlet property="musicSnippetData" destination="IMb-qe-UXM" id="axf-Rz-lQC"/>
@@ -183,7 +154,7 @@
                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </clipView>
                                             <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="FQX-bZ-cqW">
-                                                <rect key="frame" x="1" y="324" width="758" height="16"/>
+                                                <rect key="frame" x="1" y="1" width="0.0" height="16"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="4HO-d3-KyB">
@@ -198,15 +169,15 @@
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="SWC-2P-K1L" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="3" id="14U-q8-I0P"/>
-                                        <constraint firstAttribute="trailing" secondItem="rlC-as-TY0" secondAttribute="trailing" constant="17" id="2Sp-6R-RGV"/>
                                         <constraint firstItem="lp4-fq-klJ" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="3" id="2fI-bb-ETA"/>
                                         <constraint firstAttribute="trailing" secondItem="HDh-Dd-k40" secondAttribute="trailing" constant="17" id="6kZ-ko-thx"/>
                                         <constraint firstAttribute="trailing" secondItem="SWC-2P-K1L" secondAttribute="trailing" constant="154" id="B8M-6d-G6a"/>
                                         <constraint firstAttribute="bottom" secondItem="HDh-Dd-k40" secondAttribute="bottom" constant="17" id="Gfo-fi-pZA"/>
                                         <constraint firstAttribute="trailing" secondItem="lp4-fq-klJ" secondAttribute="trailing" constant="17" id="PWs-lC-B5W"/>
-                                        <constraint firstAttribute="bottom" secondItem="rlC-as-TY0" secondAttribute="bottom" constant="46" id="c8L-3I-ZXg"/>
-                                        <constraint firstItem="rlC-as-TY0" firstAttribute="leading" secondItem="BCA-6L-ton" secondAttribute="leading" constant="17" id="v50-zY-w8Z"/>
-                                        <constraint firstItem="rlC-as-TY0" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="379" id="zGG-Uu-4lv"/>
+                                        <constraint firstAttribute="bottom" secondItem="7AA-as-JK8" secondAttribute="bottom" constant="44" id="Za9-Yy-m7u"/>
+                                        <constraint firstAttribute="trailing" secondItem="7AA-as-JK8" secondAttribute="trailing" constant="17" id="ak3-KM-XNP"/>
+                                        <constraint firstItem="7AA-as-JK8" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="30" id="qaH-LQ-Uj8"/>
+                                        <constraint firstItem="7AA-as-JK8" firstAttribute="leading" secondItem="BCA-6L-ton" secondAttribute="leading" constant="17" id="zIv-Bb-kLc"/>
                                     </constraints>
                                 </view>
                             </tabViewItem>
@@ -222,7 +193,7 @@
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="30" rowSizeStyle="automatic" headerView="xkB-Gq-uYo" viewBased="YES" id="yPM-Ek-Q1w">
-                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="480"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="0.0"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
