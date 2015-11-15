@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D70F71D41BF673BC007CD716 /* ComposerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D098161BF62D2700256B9C /* ComposerController.swift */; };
 		D72C463E1BE511F5000E12B4 /* 32MbGMStereo.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = D72C46391BE511F5000E12B4 /* 32MbGMStereo.sf2 */; };
 		D72C463F1BE511F5000E12B4 /* 32MbGMStereo.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = D72C46391BE511F5000E12B4 /* 32MbGMStereo.sf2 */; };
 		D741D82C1BE3E93F003B3B00 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D82B1BE3E93F003B3B00 /* AppDelegate.swift */; };
@@ -45,6 +46,7 @@
 		D7A1E7501BEE8DB8002F0B4A /* ProgressionSet1.mid in Resources */ = {isa = PBXBuildFile; fileRef = D7A1E74E1BEE8DB8002F0B4A /* ProgressionSet1.mid */; };
 		D7A1E7521BEE8DBF002F0B4A /* TestDataSet1.aicomp in Resources */ = {isa = PBXBuildFile; fileRef = D7A1E7511BEE8DBF002F0B4A /* TestDataSet1.aicomp */; };
 		D7A1E7531BEE8DBF002F0B4A /* TestDataSet1.aicomp in Resources */ = {isa = PBXBuildFile; fileRef = D7A1E7511BEE8DBF002F0B4A /* TestDataSet1.aicomp */; };
+		D7D098171BF62D2700256B9C /* ComposerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D098161BF62D2700256B9C /* ComposerController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +86,7 @@
 		D7A1E74B1BEE7E3C002F0B4A /* MIDIDrawView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIDrawView.swift; sourceTree = "<group>"; };
 		D7A1E74E1BEE8DB8002F0B4A /* ProgressionSet1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = ProgressionSet1.mid; sourceTree = "<group>"; };
 		D7A1E7511BEE8DBF002F0B4A /* TestDataSet1.aicomp */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = TestDataSet1.aicomp; sourceTree = "<group>"; };
+		D7D098161BF62D2700256B9C /* ComposerController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComposerController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +141,7 @@
 				D741D84B1BE3E966003B3B00 /* MIDIFileParser.swift */,
 				D741D84C1BE3E966003B3B00 /* MusicNote.swift */,
 				D741D84D1BE3E966003B3B00 /* MusicChord.swift */,
+				D7D098161BF62D2700256B9C /* ComposerController.swift */,
 				D7A1E7421BED16EC002F0B4A /* MusicChordProgression.swift */,
 				D741D84E1BE3E966003B3B00 /* MusicSnippet.swift */,
 				D741D84F1BE3E966003B3B00 /* MusicDataSet.swift */,
@@ -283,6 +287,7 @@
 				D741D8541BE3E966003B3B00 /* MusicChord.swift in Sources */,
 				D741D82C1BE3E93F003B3B00 /* AppDelegate.swift in Sources */,
 				D741D8561BE3E966003B3B00 /* MusicSnippet.swift in Sources */,
+				D7D098171BF62D2700256B9C /* ComposerController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -291,6 +296,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D7A1E7441BED16EC002F0B4A /* MusicChordProgression.swift in Sources */,
+				D70F71D41BF673BC007CD716 /* ComposerController.swift in Sources */,
 				D741D8591BE3E966003B3B00 /* MusicDataSet.swift in Sources */,
 				D741D8571BE3E966003B3B00 /* MusicSnippet.swift in Sources */,
 				D7A1E7471BED4F8B002F0B4A /* ChordProgressionCellView.swift in Sources */,
