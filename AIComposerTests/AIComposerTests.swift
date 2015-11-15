@@ -245,14 +245,56 @@ class AIComposerTests: XCTestCase {
     }
     
     func testRetrograde() {
-        let inversionNotes = composerController.getChromaticInversion(self.testMusicNotes, pivotNoteNumber: 60)
+        let inversionNotes = composerController.getRetrograde(self.testMusicNotes)
         XCTAssertEqual(inversionNotes.count, 5)
         if inversionNotes.count == 5 {
-            XCTAssertEqual(inversionNotes[0].midiNoteMess.note, UInt8(60))
-            XCTAssertEqual(inversionNotes[1].midiNoteMess.note, UInt8(57))
-            XCTAssertEqual(inversionNotes[2].midiNoteMess.note, UInt8(55))
-            XCTAssertEqual(inversionNotes[3].midiNoteMess.note, UInt8(54))
-            XCTAssertEqual(inversionNotes[4].midiNoteMess.note, UInt8(53))
+            XCTAssertEqual(inversionNotes[0].midiNoteMess.note, self.testMusicNotes[4].midiNoteMess.note)
+            XCTAssertEqual(inversionNotes[1].midiNoteMess.note, self.testMusicNotes[3].midiNoteMess.note)
+            XCTAssertEqual(inversionNotes[2].midiNoteMess.note, self.testMusicNotes[2].midiNoteMess.note)
+            XCTAssertEqual(inversionNotes[3].midiNoteMess.note, self.testMusicNotes[2].midiNoteMess.note)
+            XCTAssertEqual(inversionNotes[4].midiNoteMess.note, self.testMusicNotes[1].midiNoteMess.note)
+            
+            XCTAssertEqual(inversionNotes[0].timeStamp, self.testMusicNotes[4].timeStamp)
+            XCTAssertEqual(inversionNotes[1].timeStamp, self.testMusicNotes[3].timeStamp)
+            XCTAssertEqual(inversionNotes[2].timeStamp, self.testMusicNotes[2].timeStamp)
+            XCTAssertEqual(inversionNotes[3].timeStamp, self.testMusicNotes[1].timeStamp)
+            XCTAssertEqual(inversionNotes[4].timeStamp, self.testMusicNotes[0].timeStamp)
+        }
+    }
+    
+    func testMelodicRetrograde() {
+        let inversionNotes = composerController.getRhythmicRetrograde(self.testMusicNotes)
+        XCTAssertEqual(inversionNotes.count, 5)
+        if inversionNotes.count == 5 {
+            XCTAssertEqual(inversionNotes[0].midiNoteMess.note, self.testMusicNotes[4].midiNoteMess.note)
+            XCTAssertEqual(inversionNotes[1].midiNoteMess.note, self.testMusicNotes[3].midiNoteMess.note)
+            XCTAssertEqual(inversionNotes[2].midiNoteMess.note, self.testMusicNotes[2].midiNoteMess.note)
+            XCTAssertEqual(inversionNotes[3].midiNoteMess.note, self.testMusicNotes[2].midiNoteMess.note)
+            XCTAssertEqual(inversionNotes[4].midiNoteMess.note, self.testMusicNotes[1].midiNoteMess.note)
+            
+            XCTAssertEqual(inversionNotes[0].timeStamp, self.testMusicNotes[0].timeStamp)
+            XCTAssertEqual(inversionNotes[1].timeStamp, self.testMusicNotes[1].timeStamp)
+            XCTAssertEqual(inversionNotes[2].timeStamp, self.testMusicNotes[2].timeStamp)
+            XCTAssertEqual(inversionNotes[3].timeStamp, self.testMusicNotes[3].timeStamp)
+            XCTAssertEqual(inversionNotes[4].timeStamp, self.testMusicNotes[4].timeStamp)
+        }
+    }
+    
+    func testRhythmicRetrograde() {
+        let inversionNotes = composerController.getRhythmicRetrograde(self.testMusicNotes)
+        XCTAssertEqual(inversionNotes.count, 5)
+        if inversionNotes.count == 5 {
+            XCTAssertEqual(inversionNotes[0].midiNoteMess.note, self.testMusicNotes[0].midiNoteMess.note)
+            XCTAssertEqual(inversionNotes[1].midiNoteMess.note, self.testMusicNotes[1].midiNoteMess.note)
+            XCTAssertEqual(inversionNotes[2].midiNoteMess.note, self.testMusicNotes[2].midiNoteMess.note)
+            XCTAssertEqual(inversionNotes[3].midiNoteMess.note, self.testMusicNotes[3].midiNoteMess.note)
+            XCTAssertEqual(inversionNotes[4].midiNoteMess.note, self.testMusicNotes[4].midiNoteMess.note)
+            
+            XCTAssertEqual(inversionNotes[0].timeStamp, self.testMusicNotes[4].timeStamp)
+            XCTAssertEqual(inversionNotes[1].timeStamp, self.testMusicNotes[3].timeStamp)
+            XCTAssertEqual(inversionNotes[2].timeStamp, self.testMusicNotes[2].timeStamp)
+            XCTAssertEqual(inversionNotes[3].timeStamp, self.testMusicNotes[1].timeStamp)
+            XCTAssertEqual(inversionNotes[4].timeStamp, self.testMusicNotes[0].timeStamp)
         }
     }
     

@@ -137,7 +137,7 @@ class ComposerController: NSObject {
     func modulateNotesToChord(notes: [MusicNote], chordName: String) -> [MusicNote] {
         var returnNotes = [MusicNote]()
         //  TODO: Implement Modulate Notes to Chord
-        return returnNotes
+        return notes
     }
     
     /**
@@ -151,7 +151,7 @@ class ComposerController: NSObject {
     func getChromaticInversion(notes: [MusicNote], pivotNoteNumber: UInt8) -> [MusicNote] {
         var returnNotes = [MusicNote]()
         //  TODO: Implement Chromatic Inversion
-        return returnNotes
+        return notes
     }
     
     /**
@@ -165,7 +165,7 @@ class ComposerController: NSObject {
     func getDiatonicInversion(notes: [MusicNote], pivotNoteNumber: UInt8) -> [MusicNote] {
         var returnNotes = [MusicNote]()
         //  TODO: Implement Diatonic Inversion
-        return returnNotes
+        return notes
     }
     
     /**
@@ -179,7 +179,7 @@ class ComposerController: NSObject {
     func getRetrograde(notes: [MusicNote]) -> [MusicNote] {
         var returnNotes = [MusicNote]()
         //  TODO: Implement Retrograde
-        return returnNotes
+        return notes
     }
     
     /**
@@ -192,7 +192,7 @@ class ComposerController: NSObject {
     func getMelodicRetrograde(notes: [MusicNote]) -> [MusicNote] {
         var returnNotes = [MusicNote]()
         //  TODO: Implement retrograde notes
-        return returnNotes
+        return notes
     }
     
     /**
@@ -205,7 +205,7 @@ class ComposerController: NSObject {
     func getRhythmicRetrograde(notes: [MusicNote]) -> [MusicNote] {
         var returnNotes = [MusicNote]()
         //  TODO: Implement retrograde rhythms
-        return returnNotes
+        return notes
     }
     
     /**
@@ -257,7 +257,7 @@ class ComposerController: NSObject {
     func createDynamicLine(notes: [MusicNote], startIndex: Int, endIndex: Int, startVelocity: UInt8, endVelocity: UInt8) -> [MusicNote] {
         var returnNotes = [MusicNote]()
         //  TODO: Implement dynamic lines
-        return returnNotes
+        return notes
     }
     
     /**
@@ -273,7 +273,7 @@ class ComposerController: NSObject {
     func applyArticulation(notes: [MusicNote], startIndex: Int, endIndex: Int, articulation: Articulation) -> [MusicNote] {
         var returnNotes = [MusicNote]()
         //  TODO: Implement apply articulations
-        return returnNotes
+        return notes
     }
     
     /**
