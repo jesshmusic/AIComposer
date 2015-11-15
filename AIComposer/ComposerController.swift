@@ -126,19 +126,6 @@ class ComposerController: NSObject {
         return MusicNote(noteMessage: newMIDINote, barBeatTime: note.barBeatTime, timeStamp: note.timeStamp)
     }
     
-    /**
-    Returns a set of notes modulated to match a Chord
-
-    - Parameters:
-     - notes
-     - chordName
-    - Returns: A set of notes modulated to fit in a chord.
-    */
-    func modulateNotesToChord(notes: [MusicNote], chordName: String) -> [MusicNote] {
-        var returnNotes = [MusicNote]()
-        //  TODO: Implement Modulate Notes to Chord
-        return notes
-    }
     
     /**
     Invert a set of notes chromatically around a pivot note
@@ -219,8 +206,9 @@ class ComposerController: NSObject {
      */
     func getFragment(notes: [MusicNote], startIndex: Int, endIndex: Int) -> [MusicNote] {
         var returnNotes = [MusicNote]()
-        if endIndex >= notes.count - 1 && startIndex < endIndex {
+        if endIndex <= notes.count - 1 && startIndex < endIndex {
             for i in startIndex...endIndex {
+                //  TODO: set timeStamp and bar/beat to start at the beginning.
                 returnNotes.append(notes[i])
             }
         }

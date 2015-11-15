@@ -38,13 +38,13 @@ class AIComposerTests: XCTestCase {
         )
         testMusicNotes.append(
             MusicNote(
-                noteMessage: MIDINoteMessage(channel: 1, note: 64, velocity: 64, releaseVelocity: 0, duration: 1.0),
+                noteMessage: MIDINoteMessage(channel: 1, note: 64, velocity: 64, releaseVelocity: 0, duration: 0.5),
                 barBeatTime: CABarBeatTime(bar: 1, beat: 2, subbeat: 0, subbeatDivisor: 0, reserved: 0),
                 timeStamp: MusicTimeStamp(1.0))
         )
         testMusicNotes.append(
             MusicNote(
-                noteMessage: MIDINoteMessage(channel: 1, note: 65, velocity: 64, releaseVelocity: 0, duration: 1.0),
+                noteMessage: MIDINoteMessage(channel: 1, note: 65, velocity: 64, releaseVelocity: 0, duration: 0.5),
                 barBeatTime: CABarBeatTime(bar: 1, beat: 2, subbeat: 3, subbeatDivisor: 0, reserved: 0),
                 timeStamp: MusicTimeStamp(1.5))
         )
@@ -296,6 +296,39 @@ class AIComposerTests: XCTestCase {
             XCTAssertEqual(inversionNotes[3].timeStamp, self.testMusicNotes[1].timeStamp)
             XCTAssertEqual(inversionNotes[4].timeStamp, self.testMusicNotes[0].timeStamp)
         }
+    }
+    
+    func testGetFragment() {
+        let frag1 = composerController.getFragment(self.testMusicNotes, startIndex: 1, endIndex: 3)
+        XCTAssertEqual(frag1[0].midiNoteMess.note, self.testMusicNotes[1].midiNoteMess.note)
+        XCTAssertEqual(frag1[1].midiNoteMess.note, self.testMusicNotes[2].midiNoteMess.note)
+        XCTAssertEqual(frag1[2].midiNoteMess.note, self.testMusicNotes[3].midiNoteMess.note)
+        XCTAssertEqual(frag1[0].timeStamp, MusicTimeStamp(0.0))
+        XCTAssertEqual(frag1[1].timeStamp, MusicTimeStamp(0.5))
+        XCTAssertEqual(frag1[2].timeStamp, MusicTimeStamp(1.0))
+    }
+    
+    func testMergeNotePassages() {
+        //  TODO: Figure out a test for this.
+    }
+    
+    func testCrescendo() {
+        let dynamics:[UInt8] = [40, 50, 60, 70, 80]
+        let crescPassage = composerController.createDynamicLine(self.testMusicNotes, startIndex: 0, endIndex: self.testMusicNotes.count - 1, startVelocity: 40, endVelocity: 80)
+        XCTAssertEqual(crescPassage[0].midiNoteMess.velocity, dynamics[0])
+        XCTAssertEqual(crescPassage[1].midiNoteMess.velocity, dynamics[1])
+        XCTAssertEqual(crescPassage[2].midiNoteMess.velocity, dynamics[2])
+        XCTAssertEqual(crescPassage[3].midiNoteMess.velocity, dynamics[3])
+        XCTAssertEqual(crescPassage[4].midiNoteMess.velocity, dynamics[4])
+    }
+    
+    func testApplyArticulation() {
+        let staccPassage = composerController.applyArticulation(self.testMusicNotes, startIndex: 2, endIndex: 3, articulation: Articulation.Staccato)
+        XCTAssertEqual(staccPassage[2].midiNoteMess.duration, Float32(0.25))
+        XCTAssertEqual(staccPassage[3].midiNoteMess.duration, Float32(0.25))
+        let accentPassage = composerController.applyArticulation(self.testMusicNotes, startIndex: 2, endIndex: 3, articulation: Articulation.Accent)
+        XCTAssertGreaterThan(accentPassage[2].midiNoteMess.velocity, self.testMusicNotes[2].midiNoteMess.velocity)
+        XCTAssertGreaterThan(accentPassage[3].midiNoteMess.velocity, self.testMusicNotes[3].midiNoteMess.velocity)
     }
     
     func testPerformanceExample() {
