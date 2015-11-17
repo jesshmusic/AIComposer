@@ -22,6 +22,7 @@ class MusicSnippet: NSObject, NSCoding {
     internal private(set) var count = 0
     internal private(set) var numberOfOccurences = 1
     internal private(set) var possibleChords: [(chordName:String, weight: Float)]!
+    internal private(set) var endTime: MusicTimeStamp = 0.0
     
     override init() {
         self.musicNoteEvents = [MusicNote]()
@@ -35,6 +36,8 @@ class MusicSnippet: NSObject, NSCoding {
         self.count = aDecoder.decodeIntegerForKey("Count")
         self.numberOfOccurences = aDecoder.decodeIntegerForKey("NumberOfOccurences")
         self.possibleChords = musicChord.generatePossibleChordNames(self.transposedNoteEvents)
+        super.init()
+        self.calculateEndTime()
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
@@ -62,6 +65,15 @@ class MusicSnippet: NSObject, NSCoding {
         self.numberOfOccurences++
     }
     
+    private func calculateEndTime() {
+        for note in self.musicNoteEvents {
+            self.endTime = self.endTime + MusicTimeStamp(note.midiNoteMess.duration)
+        }
+        if self.musicNoteEvents[0].timeStamp != 0.0 {
+            self.endTime = self.endTime + self.musicNoteEvents[0].timeStamp
+        }
+    }
+    
     /*
     *   This will set each musical snippet to a transposition that can be easily used with any chord.
     *   Example: If the snippet is over an Eb chord, it will transpose it to a version over a C chord in
@@ -79,7 +91,7 @@ class MusicSnippet: NSObject, NSCoding {
         for nextNote in self.transposedNoteEvents {
             nextNote.midiNoteMess.note = nextNote.midiNoteMess.note%12
         }
-        
+        self.calculateEndTime()
         //  2: Get a weighted set of all of the possible chords this melody could be associated with.
         self.possibleChords = musicChord.generatePossibleChordNames(self.transposedNoteEvents)
     }

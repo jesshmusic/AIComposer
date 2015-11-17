@@ -95,21 +95,21 @@ class AIComposerTests: XCTestCase {
         XCTAssertEqual(testTransNotes1, transNotes1, "Transposed Note numbers are not equal")
         XCTAssertEqual(testTimeStamps1, timeStamps1, "Time stamps are not equal")
         XCTAssertEqual(testChords1[0].chordName, chords1[0].chordName, "Possible chord names are not equal")
-        //        XCTAssertEqual(testChords1[0].weight, chords1[0].weight, "Possible chord weights are not equal")
+        XCTAssertLessThan(abs(testChords1[0].weight - chords1[0].weight), 0.00001)
         XCTAssertEqual(testChords1[1].chordName, chords1[1].chordName, "Possible chord names are not equal")
-        //        XCTAssertEqual(testChords1[1].weight, chords1[1].weight, "Possible chord weights are not equal")
+        XCTAssertLessThan(abs(testChords1[1].weight - chords1[1].weight), 0.00001)
         XCTAssertEqual(testChords1[2].chordName, chords1[2].chordName, "Possible chord names are not equal")
-        //        XCTAssertEqual(testChords1[2].weight, chords1[2].weight, "Possible chord weights are not equal")
+        XCTAssertLessThan(abs(testChords1[2].weight - chords1[2].weight), 0.00001)
         
         let testSnippet2 = self.testDataSet.musicSnippets[7]
         var testNotes2 = [Int]()
         var testTransNotes2 = [Int]()
         var testTimeStamps2 = [Double]()
-        //        var testChords2 = testSnippet2.possibleChords
+        var testChords2 = testSnippet2.possibleChords
         let notes2 = [72, 71, 69, 67, 66, 69, 67, 71]
         let transNotes2 = [0, 11, 9, 7, 6, 9, 7, 11]
         let timeStamps2 = [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75]
-        //        let chords2 = [(chordName:"F#dim", weight: Float(1.0))]
+        let chords2 = [(chordName:"D7", weight: Float(0.181818)), (chordName:"F#dim", weight: Float(0.363636))]
         
         for nextNote in testSnippet2.musicNoteEvents {
             testNotes2.append(Int(nextNote.midiNoteMess.note))
@@ -122,8 +122,21 @@ class AIComposerTests: XCTestCase {
         XCTAssertEqual(testNotes2, notes2, "Note numbers are not equal")
         XCTAssertEqual(testTransNotes2, transNotes2, "Transposed Note numbers are not equal")
         XCTAssertEqual(testTimeStamps2, timeStamps2, "Time stamps are not equal")
-        //        XCTAssertEqual(testChords2[0].chordName, chords2[0].chordName, "Possible chord names are not equal")
-        //        XCTAssertEqual(testChords2[0].weight, chords2[0].weight, "Possible chord weights are not equal")
+        XCTAssertEqual(testChords2[0].chordName, chords2[0].chordName, "Possible chord names are not equal")
+        XCTAssertLessThan(abs(testChords2[0].weight - chords2[0].weight), 0.00001)
+        XCTAssertEqual(testChords2[1].chordName, chords2[1].chordName, "Possible chord names are not equal")
+        XCTAssertLessThan(abs(testChords2[1].weight - chords2[1].weight), 0.00001)
+    }
+    
+    func testMusicSnippetEndCalc() {
+        let snippet1 = self.testDataSet.musicSnippets[0]
+        XCTAssertEqual(snippet1.endTime, 2.0)
+        let snippet2 = self.testDataSet.musicSnippets[1]
+        XCTAssertEqual(snippet2.endTime, 2.0)
+        let snippet3 = self.testDataSet.musicSnippets[12]
+        XCTAssertEqual(snippet3.endTime, 2.5)
+        let snippet4 = self.testDataSet.musicSnippets[19]
+        XCTAssertEqual(snippet4.endTime, 2.25)
     }
     
     
@@ -263,20 +276,20 @@ class AIComposerTests: XCTestCase {
     }
     
     func testMelodicRetrograde() {
-        let inversionNotes = composerController.getRhythmicRetrograde(self.testMusicNotes)
-        XCTAssertEqual(inversionNotes.count, 5)
-        if inversionNotes.count == 5 {
-            XCTAssertEqual(inversionNotes[0].midiNoteMess.note, self.testMusicNotes[4].midiNoteMess.note)
-            XCTAssertEqual(inversionNotes[1].midiNoteMess.note, self.testMusicNotes[3].midiNoteMess.note)
-            XCTAssertEqual(inversionNotes[2].midiNoteMess.note, self.testMusicNotes[2].midiNoteMess.note)
-            XCTAssertEqual(inversionNotes[3].midiNoteMess.note, self.testMusicNotes[2].midiNoteMess.note)
-            XCTAssertEqual(inversionNotes[4].midiNoteMess.note, self.testMusicNotes[1].midiNoteMess.note)
+        let retrogradeNotes = composerController.getRhythmicRetrograde(self.testMusicNotes)
+        XCTAssertEqual(retrogradeNotes.count, 5)
+        if retrogradeNotes.count == 5 {
+            XCTAssertEqual(retrogradeNotes[0].midiNoteMess.note, self.testMusicNotes[4].midiNoteMess.note)
+            XCTAssertEqual(retrogradeNotes[1].midiNoteMess.note, self.testMusicNotes[3].midiNoteMess.note)
+            XCTAssertEqual(retrogradeNotes[2].midiNoteMess.note, self.testMusicNotes[2].midiNoteMess.note)
+            XCTAssertEqual(retrogradeNotes[3].midiNoteMess.note, self.testMusicNotes[2].midiNoteMess.note)
+            XCTAssertEqual(retrogradeNotes[4].midiNoteMess.note, self.testMusicNotes[1].midiNoteMess.note)
             
-            XCTAssertEqual(inversionNotes[0].timeStamp, self.testMusicNotes[0].timeStamp)
-            XCTAssertEqual(inversionNotes[1].timeStamp, self.testMusicNotes[1].timeStamp)
-            XCTAssertEqual(inversionNotes[2].timeStamp, self.testMusicNotes[2].timeStamp)
-            XCTAssertEqual(inversionNotes[3].timeStamp, self.testMusicNotes[3].timeStamp)
-            XCTAssertEqual(inversionNotes[4].timeStamp, self.testMusicNotes[4].timeStamp)
+            XCTAssertEqual(retrogradeNotes[0].timeStamp, self.testMusicNotes[0].timeStamp)
+            XCTAssertEqual(retrogradeNotes[1].timeStamp, self.testMusicNotes[1].timeStamp)
+            XCTAssertEqual(retrogradeNotes[2].timeStamp, self.testMusicNotes[2].timeStamp)
+            XCTAssertEqual(retrogradeNotes[3].timeStamp, self.testMusicNotes[3].timeStamp)
+            XCTAssertEqual(retrogradeNotes[4].timeStamp, self.testMusicNotes[4].timeStamp)
         }
     }
     
@@ -306,10 +319,42 @@ class AIComposerTests: XCTestCase {
         XCTAssertEqual(frag1[0].timeStamp, MusicTimeStamp(0.0))
         XCTAssertEqual(frag1[1].timeStamp, MusicTimeStamp(0.5))
         XCTAssertEqual(frag1[2].timeStamp, MusicTimeStamp(1.0))
+        XCTAssertEqual(frag1[0].barBeatTime.beat, 1)
+        XCTAssertEqual(frag1[0].barBeatTime.subbeat, 0)
+        
+        let testSnippet1 = self.testDataSet.musicSnippets[2].musicNoteEvents
+        let frag2 = composerController.getFragment(testSnippet1, startIndex: 3, endIndex: 6)
+        XCTAssertEqual(frag2[0].midiNoteMess.note, testSnippet1[3].midiNoteMess.note)
+        XCTAssertEqual(frag2[1].midiNoteMess.note, testSnippet1[4].midiNoteMess.note)
+        XCTAssertEqual(frag2[2].midiNoteMess.note, testSnippet1[5].midiNoteMess.note)
+        XCTAssertEqual(frag2[3].midiNoteMess.note, testSnippet1[6].midiNoteMess.note)
+        XCTAssertEqual(frag2[0].timeStamp, MusicTimeStamp(0.75))
+        XCTAssertEqual(frag2[1].timeStamp, MusicTimeStamp(1.0))
+        XCTAssertEqual(frag2[2].timeStamp, MusicTimeStamp(1.25))
+        XCTAssertEqual(frag2[3].timeStamp, MusicTimeStamp(1.5))
+        XCTAssertEqual(frag2[0].barBeatTime.beat, 1)
+        XCTAssertEqual(frag2[0].barBeatTime.subbeat, 360)
     }
     
     func testMergeNotePassages() {
         //  TODO: Figure out a test for this.
+        let snippet1 = self.testDataSet.musicSnippets[0]
+        let snippet2 = self.testDataSet.musicSnippets[5]
+        let newNotes = composerController.mergeNotePassages(snippet1.musicNoteEvents, firstWeight: 0.75, secondPassage: snippet2.musicNoteEvents)
+        var averageFromSnippet1: Double = 0.0
+        var firstSnippetHits: Int = 0
+        var totalNotesChecked: Int = 0
+        for _ in 0..<100 {
+            for note in newNotes {
+                totalNotesChecked++
+                if snippet1.musicNoteEvents.contains(note) {
+                    firstSnippetHits++
+                }
+            }
+        }
+        averageFromSnippet1 = Double(firstSnippetHits) / Double(totalNotesChecked)
+        XCTAssertGreaterThan(averageFromSnippet1, 0.7)
+        XCTAssertLessThan(averageFromSnippet1, 0.8)
     }
     
     func testCrescendo() {

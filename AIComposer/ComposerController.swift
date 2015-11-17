@@ -207,11 +207,45 @@ class ComposerController: NSObject {
     func getFragment(notes: [MusicNote], startIndex: Int, endIndex: Int) -> [MusicNote] {
         var returnNotes = [MusicNote]()
         if endIndex <= notes.count - 1 && startIndex < endIndex {
+            var firstTimeStampOffset = 0.0
+            let firstTimeStamp = notes[startIndex].timeStamp
+            for i in 1..<12 {
+                let ts = MusicTimeStamp(i)
+                if firstTimeStamp > ts {
+                    firstTimeStampOffset = ts - 1.0
+                    break
+                } else if firstTimeStamp == ts {
+                    firstTimeStampOffset = ts
+                }
+            }
+            let firstBeatOffset = notes[startIndex].barBeatTime.beat - 1
             for i in startIndex...endIndex {
-                //  TODO: set timeStamp and bar/beat to start at the beginning.
-                returnNotes.append(notes[i])
+                let newNote = MusicNote(
+                    noteMessage: notes[i].midiNoteMess,
+                    barBeatTime: CABarBeatTime(
+                        bar: notes[i].barBeatTime.bar,
+                        beat: notes[i].barBeatTime.beat - firstBeatOffset,
+                        subbeat: notes[i].barBeatTime.subbeat,
+                        subbeatDivisor: notes[i].barBeatTime.subbeatDivisor,
+                        reserved: notes[i].barBeatTime.reserved),
+                    timeStamp: notes[i].timeStamp - firstTimeStampOffset)
+                returnNotes.append(newNote)
             }
         }
+        return returnNotes
+    }
+    
+    /**
+     Multiplies all duarations by a multiplier
+     
+     - Parameters:
+        - notes:    the `MusicNote`s to be augmented
+        - multiplier:   How much to multiply durations by
+     - Returns: `[MusicNote]`
+     */
+    func augmentPassageRhythm(notes: [MusicNote], multiplier: Int) -> [MusicNote] {
+        var returnNotes = [MusicNote]()
+        //  TODO: Implement Augment Passage
         return returnNotes
     }
     
@@ -226,8 +260,10 @@ class ComposerController: NSObject {
      */
     func mergeNotePassages(firstPassage: [MusicNote], firstWeight: Double, secondPassage: [MusicNote]) -> [MusicNote] {
         var returnNotes = [MusicNote]()
-        let secondWeigth = 1.0 - firstWeight
-        //  TODO: implement mergeNotePassages
+        for note in firstPassage {
+            returnNotes.append(note)
+        }
+
         return returnNotes
     }
     
