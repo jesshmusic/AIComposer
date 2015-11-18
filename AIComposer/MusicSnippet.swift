@@ -12,6 +12,36 @@ import Cocoa
 import CoreMIDI
 import AudioToolbox
 
+let MAJOR_INTERVALS = [
+    0: [-10, -8, -7, -5, -3, -1, 0, 2, 4, 5, 7, 9, 11],
+    1: [-10, -8, -7, -5, -3, -1, 0, 2, 4, 5, 7, 9, 11],
+    2: [-10, -9, -7, -5, -3, -2, 0, 2, 3, 5, 7, 9, 10],
+    3: [-10, -9, -7, -5, -3, -2, 0, 2, 3, 5, 7, 9, 10],
+    4: [-11, -9, -7, -5, -4, -2, 0, 1, 3, 5, 7, 8, 10],
+    5: [-10, -8, -6, -5, -3, -1, 0, 2, 4, 6, 7, 9, 11],
+    6: [-10, -8, -6, -5, -3, -1, 0, 2, 4, 6, 7, 9, 11],
+    7: [-10, -8, -7, -5, -3, -2, 0, 2, 4, 5, 7, 9, 10],
+    8: [-10, -8, -7, -5, -3, -2, 0, 2, 4, 5, 7, 9, 10],
+    9: [-10, -9, -7, -5, -4, -2, 0, 2, 3, 5, 7, 8, 10],
+    10: [-10, -9, -7, -5, -4, -2, 0, 2, 3, 5, 7, 8, 10],
+    11: [-11, -9, -7, -6, -4, -2, 0, 1, 3, 5, 6, 8, 10]
+]
+
+let MINOR_INTERVALS = [
+    //  0    1    2   3   4   5  6   7  8  9  10 11 12 13  14
+    0: [-10, -9, -7, -5, -4, -2, -1, 0, 2, 3, 5, 7, 8, 10, 11],
+    1: [-10, -9, -7, -5, -4, -2, -1, 0, 2, 3, 5, 7, 8, 10, 11],
+    2: [-11, -9, -7, -6, -4, -3, -2, 0, 1, 3, 5, 6, 8, 9, 10],
+    3: [-11, -9, -7, -6, -4, -3, -2, 0, 2, 4, 5, 7, 8, 9, 11],
+    4: [-11, -9, -7, -6, -4, -3, -2, 0, 2, 4, 5, 7, 8, 9, 11],
+    5: [-10, -9, -7, -6, -5, -3, -2, 0, 2, 3, 5, 6, 7, 9, 10],
+    6: [-10, -9, -7, -6, -5, -3, -2, 0, 2, 3, 5, 6, 7, 9, 10],
+    7: [-11, -9, -8, -7, -5, -4, -2, 0, 1, 3, 4, 5, 7, 8, 10],
+    8: [-10, -9, -8, -5, -5, -3, -1, 0, 2, 3, 4, 6, 7, 9, 11],
+    9: [-10, -9, -8, -5, -5, -3, -1, 0, 2, 3, 4, 6, 7, 9, 11],
+    10: [-11, -10, -8, -7, -5, -3, -2, 0, 1, 2, 4, 6, 7, 9, 10],
+    11: [-11, -9, -8, -6, -4, -3, -1, 0, 1, 3, 4, 6, 8, 9, 11]
+]
 
 class MusicSnippet: NSObject, NSCoding {
     
@@ -36,7 +66,8 @@ class MusicSnippet: NSObject, NSCoding {
         self.transposedNoteEvents = [MusicNote]()
         self.count = self.musicNoteEvents.count
         for note in notes {
-            self.addMusicNote(note)
+            let newNote = note.getNoteCopy()
+            self.addMusicNote(newNote)
         }
         self.zeroTransposeMusicSnippet()
     }
@@ -112,7 +143,7 @@ class MusicSnippet: NSObject, NSCoding {
      
      - halfSteps:    the number of half steps to transpose the passage ( + or - )
      */
-    func chromaticTranspose(halfSteps: Int) {
+    func chromaticTranspose(halfSteps halfSteps: Int) {
         var transposedNotes = [MusicNote]()
         for note in self.musicNoteEvents {
             let newNote = note.getNoteCopy()
@@ -128,13 +159,11 @@ class MusicSnippet: NSObject, NSCoding {
      Transpose a group of notes diatonically by steps in a C scale
      
      - Parameters:
-     - notes:        a list of notes to be transposed
-     - steps:        the number of steps to transpose the passage ( + or - )
-     - octaves:      the number of additional octaves to transpose (+ or -)
-     - isMajorKey:   `true` if is a major key.
-     - Returns: `[MusicNote]`
+        - steps:        the number of steps to transpose the passage ( + or - )
+        - octaves:      the number of additional octaves to transpose (+ or -)
+        - isMajorKey:   `true` if is a major key.
      */
-    func diatonicTranspose(steps: Int, octaves: Int, isMajorKey: Bool = true) {
+    func diatonicTranspose(steps steps: Int, octaves: Int, isMajorKey: Bool = true) {
         var transposedNotes = [MusicNote]()
         var transposeSteps = 0
         if isMajorKey {
@@ -160,6 +189,121 @@ class MusicSnippet: NSObject, NSCoding {
         self.zeroTransposeMusicSnippet()
         self.count = self.musicNoteEvents.count
     }
+    
+    /**
+     Invert a set of notes chromatically around a pivot note
+     
+     - pivotNote:   Which pitch to perform the inversion about
+     */
+    func applyChromaticInversion(pivotNoteNumber pivotNoteNumber: UInt8) {
+        //  TODO: Implement Chromatic Inversion
+    }
+    
+    /**
+     Invert a set of notes diatonically around a pivot note
+     
+     - pivotNote:    Which pitch to perform the inversion about
+     */
+    func applyDiatonicInversion(pivotNoteNumber pivotNoteNumber: UInt8) {
+        //  TODO: Implement Diatonic Inversion
+    }
+    
+    /**
+     Returns the complete retrograde of a set of notes (pitch and rhythm)
+     
+     - pivotNumber:  Which pitch to perform the inversion about
+     */
+    func applyRetrograde() {
+        //  TODO: Implement Retrograde
+    }
+    
+    /**
+     Returns the melodic retrograde of a set of notes
+     
+     */
+    func applyMelodicRetrograde() {
+        //  TODO: Implement retrograde notes
+    }
+    
+    /**
+     Returns the rhythmic retrograde of a set of notes
+     
+     */
+    func applyRhythmicRetrograde() {
+        //  TODO: Implement retrograde rhythms
+    }
+    
+    /**
+     Merges this MusicSnippet with another based on weights for each snippet
+     
+     - Parameters:
+     - firstWeight:      weight of this passage (the second passage weight is (1 - firstWeight)
+     - secondPassage:    the first set of notes to be merged
+     - Returns: A new `MusicSnippet` of notes based on the two passages
+     */
+    func mergeNotePassages(firstWeight firstWeight: Double, secondSnippet: MusicSnippet) -> MusicSnippet {
+        var returnNotes = [MusicNote]()
+        for note in self.musicNoteEvents {
+            let newNote = note.getNoteCopy()
+            returnNotes.append(newNote)
+        }
+        
+        return MusicSnippet(notes: returnNotes)
+    }
+    
+    /**
+     Creates a crescendo or decrescendo effect over a range of notes
+     
+     - Parameters:
+     - startIndex:       Index of the first note
+     - endIndex:         Index of the last note
+     - startVelocity:    velocity of the first note
+     - endVelocity:      velocity of the last note
+     */
+    func applyDynamicLine(startIndex startIndex: Int, endIndex: Int, startVelocity: UInt8, endVelocity: UInt8) {
+//        var returnNotes = [MusicNote]()
+        var currentVel = startVelocity
+        let numerator = abs(Int(endVelocity) - Int(startVelocity))
+        let velocityIncrement = UInt8(numerator) / UInt8(endIndex - startIndex)
+        if endIndex < self.musicNoteEvents.count {
+            for i in startIndex...endIndex {
+                self.musicNoteEvents[i].midiNoteMess.velocity = currentVel
+
+                if startVelocity < endVelocity {
+                    currentVel = currentVel + velocityIncrement
+                } else {
+                    currentVel = currentVel - velocityIncrement
+                }
+            }
+        }
+    }
+    
+    /**
+     Attempts to humanize the feel of a set of notes based on beat and bar
+     
+     */
+    func humanizeNotes() {
+        //  TODO: Implement HUMANIZE
+    }
+    
+    /**
+     Applies an articulation over a range of notes
+     
+     - Parameters:
+     - startIndex:       Index of the first note
+     - endIndex:         Index of the last note
+     - articulation:    `Articulation` to apply.
+     */
+    func applyArticulation(startIndex startIndex: Int, endIndex: Int, articulation: Articulation) {
+        if startIndex < endIndex && endIndex < self.musicNoteEvents.count {
+            for i in 0..<self.musicNoteEvents.count {
+                if i >= startIndex && i <= endIndex {
+                    self.musicNoteEvents[i].applyArticulation(articulation)
+                }
+            }
+        }
+    }
+    
     /**
      Returns the portion of notes in a range
      
@@ -169,7 +313,7 @@ class MusicSnippet: NSObject, NSCoding {
      - endIndex:     Index of the last note
      - Returns: `[MusicNote]`
      */
-    func getFragment(startIndex: Int, endIndex: Int) -> MusicSnippet {
+    func getFragment(startIndex startIndex: Int, endIndex: Int) -> MusicSnippet {
         var returnNotes = [MusicNote]()
         if endIndex <= self.musicNoteEvents.count - 1 && startIndex < endIndex {
             var firstTimeStampOffset = 0.0
@@ -191,6 +335,23 @@ class MusicSnippet: NSObject, NSCoding {
                 returnNotes.append(newNote)
             }
         }
+        return MusicSnippet(notes: returnNotes)
+    }
+    
+    
+    /**
+     Multiplies all duarations by a multiplier
+     
+     - Parameters:
+     - multiplier:   How much to multiply durations by
+     - Returns: `MusicSnippet`
+     */
+    func getAugmentedPassageRhythm(multiplier multiplier: Int) -> MusicSnippet {
+        var returnNotes = [MusicNote]()
+        for nextNote in self.musicNoteEvents {
+            returnNotes.append(nextNote.getNoteCopy())
+        }
+        //  TODO: Implement Augment Passage
         return MusicSnippet(notes: returnNotes)
     }
     
