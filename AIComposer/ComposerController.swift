@@ -43,14 +43,6 @@ let MINOR_INTERVALS = [
     11: [-11, -9, -8, -6, -4, -3, -1, 0, 1, 3, 4, 6, 8, 9, 11]
 ]
 
-enum Articulation {
-    case Accent
-    case Staccato
-    case Staccatissimo
-    case Marcato
-    case Tenuto
-}
-
 class ComposerController: NSObject {
     
     
@@ -60,71 +52,7 @@ class ComposerController: NSObject {
         return ComposerControllerInstance
     }
     
-    /**
-     Transpose a group of notes chromatically by halfSteps
-     
-     - Parameters:
-        - notes:        a list of notes to be transposed
-        - halfSteps:    the number of half steps to transpose the passage ( + or - )
-     - Returns: `[MusicNote]`
-    */
-    func chromaticTranspose(notes: [MusicNote], halfSteps: Int) -> [MusicNote] {
-        var returnNotes = [MusicNote]()
-        for note in notes {
-            returnNotes.append(self.transposeNote(note, halfSteps: halfSteps))
-        }
-        return returnNotes
-    }
-    
-    /**
-    Transpose a group of notes diatonically by steps in a C scale
-    
-    - Parameters:
-        - notes:        a list of notes to be transposed
-        - steps:        the number of steps to transpose the passage ( + or - )
-        - octaves:      the number of additional octaves to transpose (+ or -)
-        - isMajorKey:   `true` if is a major key.
-    - Returns: `[MusicNote]`
-    */
-    func diatonicTranspose(notes: [MusicNote], steps: Int, octaves: Int, isMajorKey: Bool = true) -> [MusicNote] {
-        var returnNotes = [MusicNote]()
-        var transposeSteps = 0
-        if isMajorKey {
-            for note in notes {
-                //  Get the base steps to transpose diatonically
-                transposeSteps = MAJOR_INTERVALS[Int(note.midiNoteMess.note % 12)]![6 + steps]
-                transposeSteps = transposeSteps + (octaves * 12)
-                returnNotes.append(self.transposeNote(note, halfSteps: transposeSteps))
-            }
-        } else {
-            for note in notes {
-                //  Get the base steps to transpose diatonically
-                transposeSteps = MINOR_INTERVALS[Int(note.midiNoteMess.note % 12)]![7 + steps]
-                transposeSteps = transposeSteps + (octaves * 12)
-                returnNotes.append(self.transposeNote(note, halfSteps: transposeSteps))
-            }
-        }
-        return returnNotes
-    }
-    
-    /**
-     Transpose a single note by half steps
-     
-     - Parameters:
-        - note:         the note to transpose
-        - halfSteps:    the number of steps to transpose the note ( + or - )
-     - Returns: `MusicNote`
-     */
-    private func transposeNote(note: MusicNote, halfSteps: Int) -> MusicNote {
-        let noteNumber = Int(note.midiNoteMess.note) + halfSteps
-        let newMIDINote = MIDINoteMessage(
-            channel: note.midiNoteMess.channel,
-            note: UInt8(noteNumber),
-            velocity: note.midiNoteMess.velocity,
-            releaseVelocity: note.midiNoteMess.releaseVelocity,
-            duration: note.midiNoteMess.duration)
-        return MusicNote(noteMessage: newMIDINote, barBeatTime: note.barBeatTime, timeStamp: note.timeStamp)
-    }
+
     
     
     /**
@@ -194,46 +122,7 @@ class ComposerController: NSObject {
         //  TODO: Implement retrograde rhythms
         return notes
     }
-    
-    /**
-     Returns the portion of notes in a range
-     
-     - Parameters:
-        - notes:        the `MusicNote`s to be retrograded
-        - startIndex:   Index of the first note
-        - endIndex:     Index of the last note
-     - Returns: `[MusicNote]`
-     */
-    func getFragment(notes: [MusicNote], startIndex: Int, endIndex: Int) -> [MusicNote] {
-        var returnNotes = [MusicNote]()
-        if endIndex <= notes.count - 1 && startIndex < endIndex {
-            var firstTimeStampOffset = 0.0
-            let firstTimeStamp = notes[startIndex].timeStamp
-            for i in 1..<12 {
-                let ts = MusicTimeStamp(i)
-                if firstTimeStamp > ts {
-                    firstTimeStampOffset = ts - 1.0
-                    break
-                } else if firstTimeStamp == ts {
-                    firstTimeStampOffset = ts
-                }
-            }
-            let firstBeatOffset = notes[startIndex].barBeatTime.beat - 1
-            for i in startIndex...endIndex {
-                let newNote = MusicNote(
-                    noteMessage: notes[i].midiNoteMess,
-                    barBeatTime: CABarBeatTime(
-                        bar: notes[i].barBeatTime.bar,
-                        beat: notes[i].barBeatTime.beat - firstBeatOffset,
-                        subbeat: notes[i].barBeatTime.subbeat,
-                        subbeatDivisor: notes[i].barBeatTime.subbeatDivisor,
-                        reserved: notes[i].barBeatTime.reserved),
-                    timeStamp: notes[i].timeStamp - firstTimeStampOffset)
-                returnNotes.append(newNote)
-            }
-        }
-        return returnNotes
-    }
+
     
     /**
      Multiplies all duarations by a multiplier
@@ -280,8 +169,28 @@ class ComposerController: NSObject {
      */
     func createDynamicLine(notes: [MusicNote], startIndex: Int, endIndex: Int, startVelocity: UInt8, endVelocity: UInt8) -> [MusicNote] {
         var returnNotes = [MusicNote]()
-        //  TODO: Implement dynamic lines
-        return notes
+        var currentVel = startVelocity
+        let numerator = abs(Int(endVelocity) - Int(startVelocity))
+        let velocityIncrement = UInt8(numerator) / UInt8(endIndex - startIndex)
+        if endIndex < notes.count {
+            for i in startIndex...endIndex {
+                returnNotes.append(MusicNote(
+                    noteMessage: MIDINoteMessage(
+                        channel: notes[i].midiNoteMess.channel,
+                        note: notes[i].midiNoteMess.note,
+                        velocity: currentVel,
+                        releaseVelocity: notes[i].midiNoteMess.releaseVelocity,
+                        duration: notes[i].midiNoteMess.duration),
+                    barBeatTime: notes[i].barBeatTime,
+                    timeStamp: notes[i].timeStamp))
+                if startVelocity < endVelocity {
+                    currentVel = currentVel + velocityIncrement
+                } else {
+                    currentVel = currentVel - velocityIncrement
+                }
+            }
+        }
+        return returnNotes
     }
     
     /**
@@ -294,10 +203,18 @@ class ComposerController: NSObject {
         - articulation:    `Articulation` to apply.
      - Returns: `[MusicNote]`
      */
-    func applyArticulation(notes: [MusicNote], startIndex: Int, endIndex: Int, articulation: Articulation) -> [MusicNote] {
+    func applyArticulation(var notes: [MusicNote], startIndex: Int, endIndex: Int, articulation: Articulation) -> [MusicNote] {
         var returnNotes = [MusicNote]()
-        //  TODO: Implement apply articulations
-        return notes
+        if startIndex < endIndex && endIndex < notes.count {
+            for i in 0..<notes.count {
+                let newNote = notes[i].getNoteCopy()
+                if i >= startIndex && i <= endIndex {
+                    newNote.applyArticulation(articulation)
+                }
+                returnNotes.append(newNote)
+            }
+        }
+        return returnNotes
     }
     
     /**

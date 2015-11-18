@@ -12,6 +12,14 @@ import Cocoa
 import CoreMIDI
 import AudioToolbox
 
+enum Articulation {
+    case Accent
+    case Staccato
+    case Staccatissimo
+    case Marcato
+    case Tenuto
+}
+
 class MusicNote: NSObject, NSCoding {
     
     var midiNoteMess: MIDINoteMessage!
@@ -68,6 +76,69 @@ class MusicNote: NSObject, NSCoding {
         aCoder.encodeFloat(duration, forKey: "Duration")
         let tStamp: Double = Double(_bits: self.timeStamp.value)
         aCoder.encodeDouble(tStamp, forKey: "Time Stamp")
+    }
+    
+    //  Alters the note to imitate various articulations
+    func applyArticulation(articulation:Articulation) {
+        switch articulation {
+        case .Accent:
+            self.midiNoteMess.velocity = self.midiNoteMess.velocity + (self.midiNoteMess.velocity / 3)
+            if self.midiNoteMess.velocity > 127 {
+                self.midiNoteMess.velocity = 127
+            }
+        case .Marcato:
+            self.midiNoteMess.velocity = self.midiNoteMess.velocity + (self.midiNoteMess.velocity / 3)
+            if self.midiNoteMess.velocity > 127 {
+                self.midiNoteMess.velocity = 127
+            }
+            self.midiNoteMess.duration = self.midiNoteMess.duration / 2
+        case .Staccatissimo:
+            self.midiNoteMess.duration = self.midiNoteMess.duration / 4
+        case .Staccato:
+            self.midiNoteMess.duration = self.midiNoteMess.duration / 2
+        case .Tenuto:
+            self.midiNoteMess.duration = self.midiNoteMess.duration + (self.midiNoteMess.duration / 4)
+        }
+    }
+    
+//    private func transposeNote(note: MusicNote, halfSteps: Int) -> MusicNote {
+//        let noteNumber = Int(note.midiNoteMess.note) + halfSteps
+//        let newMIDINote = MIDINoteMessage(
+//            channel: note.midiNoteMess.channel,
+//            note: UInt8(noteNumber),
+//            velocity: note.midiNoteMess.velocity,
+//            releaseVelocity: note.midiNoteMess.releaseVelocity,
+//            duration: note.midiNoteMess.duration)
+//        return MusicNote(noteMessage: newMIDINote, barBeatTime: note.barBeatTime, timeStamp: note.timeStamp)
+//    }
+    
+    /**
+     Transpose a single note by half steps
+     
+     - Parameters:
+     - note:         the note to transpose
+     - halfSteps:    the number of steps to transpose the note ( + or - )
+     - Returns: `MusicNote`
+     */
+    func transposeNote(halfSteps: Int) {
+        let transposedNoteNumber = Int(self.midiNoteMess.note) + halfSteps
+        if transposedNoteNumber > 0 && transposedNoteNumber < 128 {
+            self.midiNoteMess.note = UInt8(transposedNoteNumber)
+        }
+    }
+    
+    //  Returns an exact copy of the note. (MIDINoteMessage is a C pointer, so this is necessary to 
+    //      prevent the same instance from being passed around and altered.
+    func getNoteCopy() -> MusicNote {
+        return MusicNote(
+            noteMessage: MIDINoteMessage(
+                channel: self.midiNoteMess.channel,
+                note: self.midiNoteMess.note,
+                velocity: self.midiNoteMess.velocity,
+                releaseVelocity: self.midiNoteMess.releaseVelocity,
+                duration: self.midiNoteMess.duration),
+            barBeatTime: self.barBeatTime,
+            timeStamp: self.timeStamp)
     }
     
     override var description: String {
