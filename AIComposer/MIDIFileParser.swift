@@ -30,7 +30,8 @@ class MIDIFileParser: NSObject {
         midiNotes: [(midiNoteMessage: MIDINoteMessage,
         barBeatTime: CABarBeatTime,
         timeStamp: MusicTimeStamp)],
-        eventMarkers: [MusicTimeStamp])
+        eventMarkers: [MusicTimeStamp],
+        timeResolution: UInt32)
     {
         // Load the MIDI File
         var sequence = MusicSequence()
@@ -41,7 +42,7 @@ class MIDIFileParser: NSObject {
         
         let timeResolution = self.determineTimeResolutionOfSequence(sequence)
         let midiNoteEvents = parseMIDIEventTracks(sequence, timeResolution: timeResolution)
-        return (midiNoteEvents.midiEvents, midiNoteEvents.eventMarkers)
+        return (midiNoteEvents.midiEvents, midiNoteEvents.eventMarkers, timeResolution)
     }
     
     func createMIDIFile(
@@ -72,8 +73,8 @@ class MIDIFileParser: NSObject {
     
     private func parseTrackForMIDIEvents(iterator: MusicEventIterator, sequence: MusicSequence, timeResolution: UInt32) -> (
         midiEvents:[(midiNoteMessage: MIDINoteMessage,
-        barBeatTime: CABarBeatTime,
-        timeStamp: MusicTimeStamp)],
+            barBeatTime: CABarBeatTime,
+            timeStamp: MusicTimeStamp)],
         eventMarkers: [MusicTimeStamp])
     {
         

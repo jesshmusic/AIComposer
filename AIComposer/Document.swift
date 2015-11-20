@@ -12,9 +12,12 @@ class Document: NSDocument {
     
     var currentLoadedFile: String!
     var musicDataSet: MusicDataSet!
+    let composerController = ComposerController.sharedInstance
+    let midiFilePlayer = MIDIFilePlayer.sharedInstance
     
     @IBOutlet weak var clearDataButton: NSButtonCell!
     @IBOutlet weak var exportMIDIbutton: NSButton!
+    @IBOutlet weak var playButton: NSButton!
     
     @IBOutlet weak var musicSnippetTableView: NSTableView!
     @IBOutlet weak var chordProgressionTableView: NSTableView!
@@ -28,13 +31,14 @@ class Document: NSDocument {
         super.windowControllerDidLoadNib(aController)
         // Add any code here that needs to be executed once the windowController has loaded the document's window.
         if self.musicDataSet != nil {
-//            self.textOutputView.string = self.musicDataSet!.getDataString()
+            //            self.textOutputView.string = self.musicDataSet!.getDataString()
             self.musicSnippetTableView.reloadData()
         } else {
             self.musicDataSet = MusicDataSet()
             self.clearDataButton.enabled = false
             self.exportMIDIbutton.enabled = false
         }
+        self.playButton.enabled = false
     }
     
     override class func autosavesInPlace() -> Bool {
@@ -145,6 +149,36 @@ class Document: NSDocument {
             self.musicDataSet.chordProgressions.removeAtIndex(self.chordProgressionTableView.selectedRow)
             self.chordProgressionTableView.removeRowsAtIndexes(NSIndexSet(index: self.chordProgressionTableView.selectedRow), withAnimation: NSTableViewAnimationOptions.SlideRight)
         }
+    }
+    @IBAction func createTestFile(sender: AnyObject) {
+        let myFileDialog: NSSavePanel = NSSavePanel()
+        myFileDialog.runModal()
+        
+        let path = myFileDialog.URL?.path
+        if (path != nil) {
+            composerController.createPermutationTestSequence(fileName: path!, musicSnippet: self.musicDataSet.musicSnippets[0])
+            self.playButton.enabled = true
+        }
+    }
+    
+    @IBAction func loadTestMIDIFile(sender: AnyObject) {
+        
+        let myFileDialog: NSOpenPanel = NSOpenPanel()
+        myFileDialog.runModal()
+        
+        // Get the path to the file chosen in the NSOpenPanel
+        let path = myFileDialog.URL?.path
+        
+        
+        // Make sure that a path was chosen
+        if (path != nil) {
+            self.midiFilePlayer.loadMIDIFile(fileName: path!)
+            self.playButton.enabled = true
+        }
+    }
+    
+    @IBAction func playButton(sender: AnyObject) {
+        self.midiFilePlayer.playCurrentFile()
     }
 }
 

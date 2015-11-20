@@ -22,6 +22,7 @@ class MusicDataSet: NSObject, NSCoding {
     //  from music notes that occur in the same measure and channel
     var musicSnippets: [MusicSnippet]!
     var chordProgressions: [MusicChordProgression]!
+    var timeResolution: UInt32!
     
     /*
     *   Initializes the data structure.
@@ -29,7 +30,7 @@ class MusicDataSet: NSObject, NSCoding {
     override init() {
         midiFileParser = MIDIFileParser.sharedInstance
         self.musicSnippets = [MusicSnippet]()
-        
+        self.timeResolution = 480
         // For testing:
         self.chordProgressions = [MusicChordProgression]()
         super.init()
@@ -37,6 +38,11 @@ class MusicDataSet: NSObject, NSCoding {
     
     required init(coder aDecoder: NSCoder) {
         self.musicSnippets = aDecoder.decodeObjectForKey("MusicSnippets") as! [MusicSnippet]
+        if aDecoder.decodeInt32ForKey("Time Resolution") != 0 {
+            self.timeResolution = UInt32(aDecoder.decodeInt32ForKey("Time Resolution"))
+        } else {
+            self.timeResolution = 480
+        }
         if aDecoder.decodeObjectForKey("Chord Progressions") != nil {
             self.chordProgressions = aDecoder.decodeObjectForKey("Chord Progressions") as! [MusicChordProgression]
         } else {
@@ -50,6 +56,7 @@ class MusicDataSet: NSObject, NSCoding {
     func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(self.musicSnippets, forKey: "MusicSnippets")
         aCoder.encodeObject(self.chordProgressions, forKey: "Chord Progressions")
+        aCoder.encodeInt32(Int32(self.timeResolution), forKey: "Time Resolution")
     }
     
     /*
@@ -58,10 +65,12 @@ class MusicDataSet: NSObject, NSCoding {
     */
     func parseMusicSnippetsFromMIDIFile(filePathString: String) {
         let newMIDIData = self.midiFileParser.loadMIDIFile(filePathString)
+        self.timeResolution = newMIDIData.timeResolution
         var musicNotes = [MusicNote]()
         let eventMarkers = newMIDIData.eventMarkers
         for nextEvent in newMIDIData.midiNotes {
-            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
+//            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
+            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, timeStamp: nextEvent.timeStamp)
             musicNotes.append(note)
         }
         self.musicSnippets.appendContentsOf(self.generateSnippetsFromMusicNotes(musicNotes, eventMarkers: eventMarkers))
@@ -76,7 +85,8 @@ class MusicDataSet: NSObject, NSCoding {
         var musicNotes = [MusicNote]()
         let eventMarkers = newMIDIData.eventMarkers
         for nextEvent in newMIDIData.midiNotes {
-            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
+//            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
+            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, timeStamp: nextEvent.timeStamp)
             musicNotes.append(note)
         }
         self.chordProgressions.appendContentsOf(self.generateProgressionsFromMusicNotes(musicNotes, eventMarkers: eventMarkers))
@@ -112,19 +122,20 @@ class MusicDataSet: NSObject, NSCoding {
                     }
                 }
             } else {
-                var previousBeat = 0
-                nextSnippet = MusicSnippet()
-                for note in musicNotes {
-                    if previousBeat <= Int(note.barBeatTime.beat) {
-                        nextSnippet.addMusicNote(note)
-                    } else {
-                        nextSnippet.zeroTransposeMusicSnippet()
-                        musSnippets.append(nextSnippet)
-                        nextSnippet = MusicSnippet()
-                        nextSnippet.addMusicNote(note)
-                    }
-                    previousBeat = Int(note.barBeatTime.beat)
-                }
+                //  TODO: Need a way to divide up snippets without CC20
+//                var previousBeat = 0
+//                nextSnippet = MusicSnippet()
+//                for note in musicNotes {
+//                    if previousBeat <= Int(note.barBeatTime.beat) {
+//                        nextSnippet.addMusicNote(note)
+//                    } else {
+//                        nextSnippet.zeroTransposeMusicSnippet()
+//                        musSnippets.append(nextSnippet)
+//                        nextSnippet = MusicSnippet()
+//                        nextSnippet.addMusicNote(note)
+//                    }
+//                    previousBeat = Int(note.barBeatTime.beat)
+//                }
             }
         }
         return musSnippets

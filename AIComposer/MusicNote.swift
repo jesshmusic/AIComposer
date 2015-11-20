@@ -20,26 +20,48 @@ enum Articulation {
     case Tenuto
 }
 
+let MAJOR_INTERVALS = [
+    0: [-10, -8, -7, -5, -3, -1, 0, 2, 4, 5, 7, 9, 11],
+    1: [-10, -9, -7, -5, -3, -2, 0, 2, 4, 5, 7, 9, 11],
+    2: [-10, -9, -7, -5, -3, -2, 0, 2, 3, 5, 7, 9, 10],
+    3: [-11, -9, -7, -5, -4, -2, 0, 2, 3, 5, 7, 9, 10],
+    4: [-11, -9, -7, -5, -4, -2, 0, 1, 3, 5, 7, 8, 10],
+    5: [-10, -8, -6, -5, -3, -1, 0, 2, 4, 6, 7, 9, 11],
+    6: [-10, -8, -7, -5, -3, -2, 0, 2, 4, 6, 7, 9, 11],
+    7: [-10, -8, -7, -5, -3, -2, 0, 2, 4, 5, 7, 9, 10],
+    8: [-10, -9, -7, -5, -4, -2, 0, 2, 4, 5, 7, 9, 10],
+    9: [-10, -9, -7, -5, -4, -2, 0, 2, 3, 5, 7, 8, 10],
+    10: [-11, -9, -7, -6, -4, -2, 0, 2, 3, 5, 7, 8, 10],
+    11: [-11, -9, -7, -6, -4, -2, 0, 1, 3, 5, 6, 8, 10]
+]
+
+let MINOR_INTERVALS = [
+    //  0    1    2   3   4   5  6   7  8  9  10 11 12 13  14
+    0: [-10, -9, -7, -5, -4, -2, -1, 0, 2, 3, 5, 7, 8, 10, 11],
+    1: [-10, -9, -7, -6, -4, -3, -2, 0, 2, 3, 5, 7, 8, 10, 11],
+    2: [-11, -9, -7, -6, -4, -3, -2, 0, 1, 3, 5, 6, 8, 9, 10],
+    3: [-11, -9, -7, -6, -4, -3, -2, 0, 2, 4, 5, 7, 8, 9, 11],
+    4: [-10, -9, -7, -6, -5, -3, -2, 0, 2, 4, 5, 7, 8, 9, 11],
+    5: [-10, -9, -7, -6, -5, -3, -2, 0, 2, 3, 5, 6, 7, 9, 10],
+    6: [-11, -9, -8, -7, -5, -4, -2, 0, 2, 3, 5, 6, 7, 9, 10],
+    7: [-11, -9, -8, -7, -5, -4, -2, 0, 1, 3, 4, 5, 7, 8, 10],
+    8: [-10, -9, -8, -5, -5, -3, -1, 0, 2, 3, 4, 6, 7, 9, 11],
+    9: [-11, -10, -8, -7, -5, -3, -2, 0, 2, 3, 4, 6, 7, 9, 11],
+    10: [-11, -10, -8, -7, -5, -3, -2, 0, 1, 2, 4, 6, 7, 9, 10],
+    11: [-11, -9, -8, -6, -4, -3, -1, 0, 1, 3, 4, 6, 8, 9, 11]
+]
+
 class MusicNote: NSObject, NSCoding {
     
     var midiNoteMess: MIDINoteMessage!
-    var barBeatTime: CABarBeatTime!
     var timeStamp: MusicTimeStamp!
     
-    init(noteMessage: MIDINoteMessage, barBeatTime: CABarBeatTime, timeStamp: MusicTimeStamp) {
+        init(noteMessage: MIDINoteMessage, timeStamp: MusicTimeStamp) {
         self.midiNoteMess = noteMessage
-        self.barBeatTime = barBeatTime
         self.timeStamp = timeStamp
     }
     
     required init(coder aDecoder: NSCoder)  {
-        let bar = aDecoder.decodeInt32ForKey("Bar")
-        let beat = UInt16(aDecoder.decodeIntegerForKey("Beat"))
-        let subbeat = UInt16(aDecoder.decodeIntegerForKey("Subbeat"))
-        let subbeatdivisor = UInt16(aDecoder.decodeIntegerForKey("Subbeat Divisor"))
-        let reserved = UInt16(aDecoder.decodeIntegerForKey("Reserved"))
-        
-        self.barBeatTime = CABarBeatTime(bar: bar, beat: beat, subbeat: subbeat, subbeatDivisor: subbeatdivisor, reserved: reserved)
         
         let channel = UInt8(aDecoder.decodeIntegerForKey("Channel"))
         let noteNumber = UInt8(aDecoder.decodeIntegerForKey("Note Number"))
@@ -51,17 +73,6 @@ class MusicNote: NSObject, NSCoding {
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
-        let bar = self.barBeatTime.bar
-        let beat = Int(self.barBeatTime.beat)
-        let subbeat = Int(self.barBeatTime.subbeat)
-        let subbeatdivisor = Int(self.barBeatTime.subbeatDivisor)
-        let reserved = Int(self.barBeatTime.reserved)
-        
-        aCoder.encodeInt32(bar, forKey: "Bar")
-        aCoder.encodeInteger(beat, forKey: "Beat")
-        aCoder.encodeInteger(subbeat, forKey: "Subbeat")
-        aCoder.encodeInteger(subbeatdivisor, forKey: "Subbeat Divisor")
-        aCoder.encodeInteger(reserved, forKey: "Reserved")
         
         let channel = Int(self.midiNoteMess.channel)
         let noteNumber = Int(self.midiNoteMess.note)
@@ -101,29 +112,33 @@ class MusicNote: NSObject, NSCoding {
         }
     }
     
-//    private func transposeNote(note: MusicNote, halfSteps: Int) -> MusicNote {
-//        let noteNumber = Int(note.midiNoteMess.note) + halfSteps
-//        let newMIDINote = MIDINoteMessage(
-//            channel: note.midiNoteMess.channel,
-//            note: UInt8(noteNumber),
-//            velocity: note.midiNoteMess.velocity,
-//            releaseVelocity: note.midiNoteMess.releaseVelocity,
-//            duration: note.midiNoteMess.duration)
-//        return MusicNote(noteMessage: newMIDINote, barBeatTime: note.barBeatTime, timeStamp: note.timeStamp)
-//    }
-    
     /**
      Transpose a single note by half steps
      
-     - Parameters:
-     - note:         the note to transpose
      - halfSteps:    the number of steps to transpose the note ( + or - )
-     - Returns: `MusicNote`
      */
-    func transposeNote(halfSteps: Int) {
+    func transposeNote(halfSteps halfSteps: Int) {
         let transposedNoteNumber = Int(self.midiNoteMess.note) + halfSteps
         if transposedNoteNumber > 0 && transposedNoteNumber < 128 {
             self.midiNoteMess.note = UInt8(transposedNoteNumber)
+        }
+    }
+    
+    /**
+     Transpose a single note by diatonic steps
+     
+     - steps:    the number of steps to transpose the note ( + or - )
+     */
+    func transposeNoteDiatonically(steps steps: Int, isMajorKey: Bool = true, octaves: Int) {
+        var transposeSteps = 0
+        if isMajorKey {
+            transposeSteps = MAJOR_INTERVALS[Int(self.midiNoteMess.note % 12)]![6 + steps]
+            transposeSteps = transposeSteps + (octaves * 12)
+            self.transposeNote(halfSteps: transposeSteps)
+        } else {
+            transposeSteps = MINOR_INTERVALS[Int(self.midiNoteMess.note % 12)]![7 + steps]
+            transposeSteps = transposeSteps + (octaves * 12)
+            self.transposeNote(halfSteps: transposeSteps)
         }
     }
     
@@ -137,29 +152,22 @@ class MusicNote: NSObject, NSCoding {
                 velocity: self.midiNoteMess.velocity,
                 releaseVelocity: self.midiNoteMess.releaseVelocity,
                 duration: self.midiNoteMess.duration),
-            barBeatTime: self.barBeatTime,
             timeStamp: self.timeStamp)
     }
     
     override var description: String {
-        let bar = self.barBeatTime.bar
-        let beat = self.barBeatTime.beat
-        let subbeat = self.barBeatTime.subbeat
         let channel = self.midiNoteMess.channel
         let noteNumber = self.midiNoteMess.note
         let velocity = self.midiNoteMess.velocity
         let duration = self.midiNoteMess.duration
-        return ("Note: time stamp: \(self.timeStamp) measure: \(bar) beat: \(beat), sub-beat: \(subbeat), channel: \(channel), note: \(self.noteForMIDINumber(noteNumber))-\(noteNumber), velocity: \(velocity), duration: \(duration)")
+        return ("Note: time stamp: \(self.timeStamp)  channel: \(channel), note: \(self.noteForMIDINumber(noteNumber))-\(noteNumber), velocity: \(velocity), duration: \(duration)")
     }
     
     var dataString: String {
-        let bar = self.barBeatTime.bar
-        let beat = self.barBeatTime.beat
-        let subbeat = self.barBeatTime.subbeat
         let noteNumber = self.midiNoteMess.note
         let velocity = self.midiNoteMess.velocity
         let duration = self.midiNoteMess.duration
-        return "\(self.noteForMIDINumber(noteNumber))-\(noteNumber): \(bar):\(beat):\(subbeat) - velocity: \(velocity) - duration: \(duration)"
+        return "\(self.noteForMIDINumber(noteNumber))-\(noteNumber): \(self.timeStamp) - velocity: \(velocity) - duration: \(duration)"
     }
     
     override var hash: Int {
@@ -168,9 +176,7 @@ class MusicNote: NSObject, NSCoding {
     
     override func isEqual(object: AnyObject?) -> Bool {
         if let object = object as? MusicNote {
-            return self.barBeatTime.beat == object.barBeatTime.beat &&
-                self.barBeatTime.subbeat == object.barBeatTime.subbeat &&
-                self.midiNoteMess.note == object.midiNoteMess.note &&
+            return self.midiNoteMess.note == object.midiNoteMess.note &&
                 self.midiNoteMess.duration == object.midiNoteMess.duration
         } else {
             return false
@@ -179,7 +185,8 @@ class MusicNote: NSObject, NSCoding {
     
     func noteForMIDINumber(midiNumber: UInt8) -> String {
         let index = Int(midiNumber)
-        let noteArray = ["", "", "", "", "", "", "", "", "", "", "", "",
+        let noteArray = [
+            "C-1", "C#-1", "D-1", "Eb-1", "E-1", "F-1", "F#-1", "G-1", "Ab-1", "A-1", "Bb-1", "B-1",
             "C0", "C#0", "D0", "Eb0", "E0", "F0", "F#0", "G0", "Ab0", "A0", "Bb0", "B0",
             "C1", "C#1", "D1", "Eb1", "E1", "F1", "F#1", "G1", "Ab1", "A1", "Bb1", "B1",
             "C2", "C#2", "D2", "Eb2", "E2", "F2", "F#2", "G2", "Ab2", "A2", "Bb2", "B2",

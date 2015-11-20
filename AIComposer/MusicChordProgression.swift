@@ -11,10 +11,14 @@
 
 import Cocoa
 
+//  TODO: This needs to hold a list of pointers to chord progressions likely to follow it with weights.
+//  TODO: Needs a way to detect if the END should follow the progression.
+
 class MusicChordProgression: NSObject, NSCoding {
     
     internal private(set) var chords: [String]!
     private var currentChordIndex: Int!
+    private var progressionConnections: [ Double: MusicChordProgression ]!
     
     override init() {
         self.chords = [String]()

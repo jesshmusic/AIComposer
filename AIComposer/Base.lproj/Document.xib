@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9060" systemVersion="14F1021" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9060"/>
     </dependencies>
@@ -10,6 +10,7 @@
                 <outlet property="clearDataButton" destination="czb-i3-6jU" id="ifM-hk-iaD"/>
                 <outlet property="exportMIDIbutton" destination="HDh-Dd-k40" id="FNh-wz-vRd"/>
                 <outlet property="musicSnippetTableView" destination="XNs-wq-orN" id="fzb-JS-fA3"/>
+                <outlet property="playButton" destination="kGR-4F-xmA" id="gTf-bq-Fzj"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
             </connections>
         </customObject>
@@ -27,6 +28,7 @@
                 <subviews>
                     <tabView translatesAutoresizingMaskIntoConstraints="NO" id="oKk-94-ZSW">
                         <rect key="frame" x="-7" y="-10" width="814" height="614"/>
+                        <animations/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
                             <tabViewItem label="Melodic Input" identifier="1" id="cdN-bM-XA3">
@@ -34,8 +36,9 @@
                                     <rect key="frame" x="10" y="33" width="794" height="568"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="lp4-fq-klJ">
+                                        <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lp4-fq-klJ">
                                             <rect key="frame" x="646" y="537" width="137" height="32"/>
+                                            <animations/>
                                             <buttonCell key="cell" type="push" title="Load MIDI file..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4fk-vU-XHj">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -44,8 +47,9 @@
                                                 <action selector="loadMIDIFile:" target="-2" id="9jW-UI-Qdg"/>
                                             </connections>
                                         </button>
-                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SWC-2P-K1L">
+                                        <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SWC-2P-K1L">
                                             <rect key="frame" x="521" y="537" width="125" height="32"/>
+                                            <animations/>
                                             <buttonCell key="cell" type="push" title="Clear All Data" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="czb-i3-6jU">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -54,8 +58,9 @@
                                                 </connections>
                                             </buttonCell>
                                         </button>
-                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HDh-Dd-k40">
+                                        <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HDh-Dd-k40">
                                             <rect key="frame" x="636" y="10" width="147" height="32"/>
+                                            <animations/>
                                             <buttonCell key="cell" type="push" title="Export MIDI file..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6Wn-Y0-r7P">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -67,12 +72,13 @@
                                         <scrollView autohidesScrollers="YES" horizontalLineScroll="202" horizontalPageScroll="10" verticalLineScroll="202" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7AA-as-JK8">
                                             <rect key="frame" x="17" y="44" width="760" height="494"/>
                                             <clipView key="contentView" id="sg4-nF-lb3">
-                                                <rect key="frame" x="1" y="17" width="758" height="476"/>
+                                                <rect key="frame" x="1" y="0.0" width="758" height="493"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="200" rowSizeStyle="automatic" headerView="UDN-bk-jsA" viewBased="YES" id="XNs-wq-orN">
-                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="0.0"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="470"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                         <tableViewGridLines key="gridStyleMask" vertical="YES" horizontal="YES"/>
@@ -101,6 +107,7 @@
                                                                                     <constraint firstAttribute="width" constant="374" id="IfC-Y1-NxR"/>
                                                                                     <constraint firstAttribute="height" constant="58" id="Xpz-hf-tzr"/>
                                                                                 </constraints>
+                                                                                <animations/>
                                                                                 <textFieldCell key="cell" controlSize="small" sendsActionOnEndEditing="YES" placeholderString="Info" id="i9r-5p-wsB">
                                                                                     <font key="font" size="11" name=".HelveticaNeueDeskInterface-Bold"/>
                                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -112,6 +119,7 @@
                                                                                 <constraints>
                                                                                     <constraint firstAttribute="height" constant="194" id="1zV-nt-8eD"/>
                                                                                 </constraints>
+                                                                                <animations/>
                                                                                 <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="Music Snippet Data" id="cuE-vD-JcJ">
                                                                                     <font key="font" size="9" name=".HelveticaNeueDeskInterface-Regular"/>
                                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -124,6 +132,7 @@
                                                                                     <constraint firstAttribute="height" constant="128" id="GUl-Gp-CGc"/>
                                                                                     <constraint firstAttribute="width" constant="374" id="OBc-cD-52n"/>
                                                                                 </constraints>
+                                                                                <animations/>
                                                                             </customView>
                                                                         </subviews>
                                                                         <constraints>
@@ -136,6 +145,7 @@
                                                                             <constraint firstAttribute="trailing" secondItem="IMb-qe-UXM" secondAttribute="trailing" constant="3" id="sf4-hy-obT"/>
                                                                             <constraint firstItem="KRW-XE-IQm" firstAttribute="top" secondItem="Na2-QA-g4y" secondAttribute="top" constant="69" id="x9b-tm-YZ6"/>
                                                                         </constraints>
+                                                                        <animations/>
                                                                         <connections>
                                                                             <outlet property="musicSnippetData" destination="IMb-qe-UXM" id="axf-Rz-lQC"/>
                                                                             <outlet property="musicSnippetInfo" destination="Lhf-Vt-Tfj" id="P75-kv-gXe"/>
@@ -151,19 +161,24 @@
                                                         </connections>
                                                     </tableView>
                                                 </subviews>
+                                                <animations/>
                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </clipView>
-                                            <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="FQX-bZ-cqW">
-                                                <rect key="frame" x="1" y="1" width="0.0" height="16"/>
+                                            <animations/>
+                                            <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="0.5" horizontal="YES" id="FQX-bZ-cqW">
+                                                <rect key="frame" x="1" y="478" width="758" height="15"/>
                                                 <autoresizingMask key="autoresizingMask"/>
+                                                <animations/>
                                             </scroller>
                                             <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="4HO-d3-KyB">
                                                 <rect key="frame" x="224" y="17" width="15" height="102"/>
                                                 <autoresizingMask key="autoresizingMask"/>
+                                                <animations/>
                                             </scroller>
                                             <tableHeaderView key="headerView" id="UDN-bk-jsA">
-                                                <rect key="frame" x="0.0" y="0.0" width="758" height="17"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="758" height="23"/>
                                                 <autoresizingMask key="autoresizingMask"/>
+                                                <animations/>
                                             </tableHeaderView>
                                         </scrollView>
                                     </subviews>
@@ -179,6 +194,7 @@
                                         <constraint firstItem="7AA-as-JK8" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="30" id="qaH-LQ-Uj8"/>
                                         <constraint firstItem="7AA-as-JK8" firstAttribute="leading" secondItem="BCA-6L-ton" secondAttribute="leading" constant="17" id="zIv-Bb-kLc"/>
                                     </constraints>
+                                    <animations/>
                                 </view>
                             </tabViewItem>
                             <tabViewItem label="Chord Progression Input" identifier="2" id="RIR-e2-621">
@@ -189,12 +205,13 @@
                                         <scrollView autohidesScrollers="YES" horizontalLineScroll="32" horizontalPageScroll="10" verticalLineScroll="32" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NDx-CB-6ds">
                                             <rect key="frame" x="17" y="50" width="760" height="498"/>
                                             <clipView key="contentView" id="bHd-hx-KGE">
-                                                <rect key="frame" x="1" y="17" width="758" height="480"/>
+                                                <rect key="frame" x="1" y="0.0" width="758" height="497"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="30" rowSizeStyle="automatic" headerView="xkB-Gq-uYo" viewBased="YES" id="yPM-Ek-Q1w">
-                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="0.0"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="474"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                         <tableViewGridLines key="gridStyleMask" vertical="YES" horizontal="YES"/>
@@ -219,6 +236,7 @@
                                                                         <subviews>
                                                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="CG4-9g-3fP">
                                                                                 <rect key="frame" x="198" y="7" width="556" height="17"/>
+                                                                                <animations/>
                                                                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="Progression" id="ng8-uV-vxd">
                                                                                     <font key="font" metaFont="system"/>
                                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -230,6 +248,7 @@
                                                                                 <constraints>
                                                                                     <constraint firstAttribute="width" constant="190" id="naH-kN-aUx"/>
                                                                                 </constraints>
+                                                                                <animations/>
                                                                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="info" id="LEo-Mm-R5C">
                                                                                     <font key="font" metaFont="system"/>
                                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -244,6 +263,7 @@
                                                                             <constraint firstItem="zTE-Bh-AdD" firstAttribute="leading" secondItem="tDc-cq-Tnd" secondAttribute="leading" constant="2" id="oGv-ZL-HMW"/>
                                                                             <constraint firstItem="CG4-9g-3fP" firstAttribute="top" secondItem="tDc-cq-Tnd" secondAttribute="top" constant="6" id="xVU-8t-S8W"/>
                                                                         </constraints>
+                                                                        <animations/>
                                                                         <connections>
                                                                             <outlet property="chordInfoTextField" destination="zTE-Bh-AdD" id="noM-rr-XHS"/>
                                                                             <outlet property="chordProgressionTextField" destination="CG4-9g-3fP" id="ILf-bD-9e1"/>
@@ -258,23 +278,29 @@
                                                         </connections>
                                                     </tableView>
                                                 </subviews>
+                                                <animations/>
                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </clipView>
+                                            <animations/>
                                             <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="h7h-Bj-TCk">
                                                 <rect key="frame" x="1" y="386" width="362" height="16"/>
                                                 <autoresizingMask key="autoresizingMask"/>
+                                                <animations/>
                                             </scroller>
                                             <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="f7A-B1-6pj">
                                                 <rect key="frame" x="224" y="17" width="15" height="102"/>
                                                 <autoresizingMask key="autoresizingMask"/>
+                                                <animations/>
                                             </scroller>
                                             <tableHeaderView key="headerView" id="xkB-Gq-uYo">
-                                                <rect key="frame" x="0.0" y="0.0" width="758" height="17"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="758" height="23"/>
                                                 <autoresizingMask key="autoresizingMask"/>
+                                                <animations/>
                                             </tableHeaderView>
                                         </scrollView>
-                                        <button verticalHuggingPriority="750" tag="1" translatesAutoresizingMaskIntoConstraints="NO" id="JpM-hT-7dO">
+                                        <button verticalHuggingPriority="750" misplaced="YES" tag="1" translatesAutoresizingMaskIntoConstraints="NO" id="JpM-hT-7dO">
                                             <rect key="frame" x="642" y="10" width="141" height="32"/>
+                                            <animations/>
                                             <buttonCell key="cell" type="push" title="Load MIDI File..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mBi-O4-Xco">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -283,8 +309,9 @@
                                                 <action selector="loadMIDIFile:" target="-2" id="vUI-KC-ktK"/>
                                             </connections>
                                         </button>
-                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Dnn-5F-CxV">
+                                        <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Dnn-5F-CxV">
                                             <rect key="frame" x="562" y="10" width="80" height="32"/>
+                                            <animations/>
                                             <buttonCell key="cell" type="push" title="Delete" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="rJN-jj-y0n">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -304,12 +331,49 @@
                                         <constraint firstAttribute="bottom" secondItem="JpM-hT-7dO" secondAttribute="bottom" constant="17" id="yL9-V1-1iG"/>
                                         <constraint firstAttribute="bottom" secondItem="NDx-CB-6ds" secondAttribute="bottom" constant="50" id="ytP-gh-W3O"/>
                                     </constraints>
+                                    <animations/>
                                 </view>
                             </tabViewItem>
                             <tabViewItem label="Composer" identifier="" id="bt2-44-I7h">
                                 <view key="view" id="1IW-wM-sBE">
                                     <rect key="frame" x="10" y="33" width="794" height="568"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="R7r-wr-J3I">
+                                            <rect key="frame" x="294" y="274" width="207" height="32"/>
+                                            <animations/>
+                                            <buttonCell key="cell" type="push" title="Create perumtation test file" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="z6t-gw-jRF">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="createTestFile:" target="-2" id="jmB-OB-HiC"/>
+                                            </connections>
+                                        </button>
+                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kGR-4F-xmA">
+                                            <rect key="frame" x="361" y="10" width="72" height="32"/>
+                                            <animations/>
+                                            <buttonCell key="cell" type="push" title="PLAY" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="c8C-aw-504">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="playButton:" target="-2" id="Nqo-uy-OfU"/>
+                                            </connections>
+                                        </button>
+                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gYJ-7p-il1">
+                                            <rect key="frame" x="335" y="241" width="126" height="32"/>
+                                            <animations/>
+                                            <buttonCell key="cell" type="push" title="Load MIDI File" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mQr-Wb-rWU">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="loadTestMIDIFile:" target="-2" id="dqD-qV-PZ2"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <animations/>
                                 </view>
                             </tabViewItem>
                         </tabViewItems>
@@ -321,6 +385,7 @@
                     <constraint firstAttribute="bottom" secondItem="oKk-94-ZSW" secondAttribute="bottom" id="cus-my-ZSk"/>
                     <constraint firstItem="oKk-94-ZSW" firstAttribute="leading" secondItem="gIp-Ho-8D9" secondAttribute="leading" id="lmQ-gI-795"/>
                 </constraints>
+                <animations/>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
@@ -331,6 +396,7 @@
         <customView id="Yra-Fa-lOl">
             <rect key="frame" x="0.0" y="0.0" width="163" height="96"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <animations/>
         </customView>
     </objects>
 </document>
