@@ -24,7 +24,7 @@
             <value key="minSize" type="size" width="640" height="480"/>
             <view key="contentView" id="gIp-Ho-8D9">
                 <rect key="frame" x="0.0" y="0.0" width="800" height="600"/>
-                <autoresizingMask key="autoresizingMask"/>
+                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <tabView translatesAutoresizingMaskIntoConstraints="NO" id="oKk-94-ZSW">
                         <rect key="frame" x="-7" y="-10" width="814" height="614"/>
@@ -181,6 +181,17 @@
                                                 <animations/>
                                             </tableHeaderView>
                                         </scrollView>
+                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="R7r-wr-J3I">
+                                            <rect key="frame" x="11" y="10" width="207" height="32"/>
+                                            <animations/>
+                                            <buttonCell key="cell" type="push" title="Create perumtation test file" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="z6t-gw-jRF">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="createTestFile:" target="-2" id="jmB-OB-HiC"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="SWC-2P-K1L" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="3" id="14U-q8-I0P"/>
@@ -339,17 +350,6 @@
                                     <rect key="frame" x="10" y="33" width="794" height="568"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="R7r-wr-J3I">
-                                            <rect key="frame" x="294" y="274" width="207" height="32"/>
-                                            <animations/>
-                                            <buttonCell key="cell" type="push" title="Create perumtation test file" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="z6t-gw-jRF">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                            <connections>
-                                                <action selector="createTestFile:" target="-2" id="jmB-OB-HiC"/>
-                                            </connections>
-                                        </button>
                                         <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kGR-4F-xmA">
                                             <rect key="frame" x="361" y="10" width="72" height="32"/>
                                             <animations/>

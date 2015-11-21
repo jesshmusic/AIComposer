@@ -152,29 +152,40 @@ class Document: NSDocument {
     }
     @IBAction func createTestFile(sender: AnyObject) {
         let myFileDialog: NSSavePanel = NSSavePanel()
-        myFileDialog.runModal()
+        myFileDialog.beginWithCompletionHandler({ (result: Int) -> Void in
+            if result == NSFileHandlingPanelOKButton {
+                let path = myFileDialog.URL?.path
+                if (path != nil) {
+                    let selectedSnippetRow = self.musicSnippetTableView.selectedRow
+                    let newSnippets = self.composerController.createPermutationTestSequence(fileName: path!, musicSnippet: self.musicDataSet.musicSnippets[selectedSnippetRow])
+                    self.musicDataSet.musicSnippets.appendContentsOf(newSnippets)
+                    self.musicSnippetTableView.reloadData()
+                    self.playButton.enabled = true
+                } else {
+                    print("Canceled")
+                }
+            }
+        })
         
-        let path = myFileDialog.URL?.path
-        if (path != nil) {
-            composerController.createPermutationTestSequence(fileName: path!, musicSnippet: self.musicDataSet.musicSnippets[0])
-            self.playButton.enabled = true
-        }
     }
     
     @IBAction func loadTestMIDIFile(sender: AnyObject) {
         
         let myFileDialog: NSOpenPanel = NSOpenPanel()
-        myFileDialog.runModal()
-        
-        // Get the path to the file chosen in the NSOpenPanel
-        let path = myFileDialog.URL?.path
-        
-        
-        // Make sure that a path was chosen
-        if (path != nil) {
-            self.midiFilePlayer.loadMIDIFile(fileName: path!)
-            self.playButton.enabled = true
-        }
+        myFileDialog.beginWithCompletionHandler({ (result: Int) -> Void in
+            if result == NSFileHandlingPanelOKButton {
+                // Get the path to the file chosen in the NSOpenPanel
+                let path = myFileDialog.URL?.path
+                
+                
+                // Make sure that a path was chosen
+                if (path != nil) {
+                    self.midiFilePlayer.loadMIDIFile(fileName: path!)
+                    self.playButton.enabled = true
+                }
+                
+            }
+        })
     }
     
     @IBAction func playButton(sender: AnyObject) {

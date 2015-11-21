@@ -9,7 +9,6 @@
 //
 
 import Cocoa
-import CoreMIDI
 import AudioToolbox
 
 enum Articulation {

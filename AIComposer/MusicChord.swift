@@ -15,7 +15,6 @@
 //
 
 import Cocoa
-import CoreMIDI
 import AudioToolbox
 
 private let MusicChordInstance = MusicChord()

@@ -457,8 +457,8 @@ class AIComposerTests: XCTestCase {
     
     func testCreateTestMIDIFile() {
         composerController.createPermutationTestSequence(fileName: "TestMIDIFile1", musicSnippet: MusicSnippet(notes: self.testMusicNotes))
-        let midiFilePlayer = MIDIFilePlayer.sharedInstance
-        midiFilePlayer.playMIDIFile(fileName: "TestMIDIFile1.mid")
+//        let midiFilePlayer = MIDIFilePlayer.sharedInstance
+//        midiFilePlayer.playMIDIFile(fileName: "TestMIDIFile1.mid")
         
     }
     

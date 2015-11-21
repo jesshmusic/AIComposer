@@ -8,7 +8,6 @@
 
 import Cocoa
 import AudioToolbox
-//import CoreAudio
 import AVFoundation
 
 /// The `Singleton` instance
@@ -21,20 +20,26 @@ class MIDIFilePlayer {
         return MIDIFilePlayerInstance
     }
 
-    var soundBank: NSURL!
+    var soundBank = NSBundle.mainBundle().URLForResource("32MbGMStereo", withExtension: "sf2")
     var musicPlayer: AVMIDIPlayer!
     
     func loadMIDIFile(fileName fileName: String) {
-        self.soundBank = NSBundle.mainBundle().URLForResource("32MbGMStereo", withExtension: "sf2")
         let midiFileURL = NSURL(fileURLWithPath: fileName)
-//        let contents:NSURL = NSBundle.mainBundle().URLForResource(fileName, withExtension: "mid")!
         do {
             self.musicPlayer = try AVMIDIPlayer(contentsOfURL: midiFileURL, soundBankURL: self.soundBank)
         } catch  _ {
             print("Error getting sound file")
         }
         self.musicPlayer.prepareToPlay()
-//        self.musicPlayer.play(finishedPlaying)
+    }
+    
+    func loadMIDIFile(filePath filePath: NSURL) {
+        do {
+            self.musicPlayer = try AVMIDIPlayer(contentsOfURL: filePath, soundBankURL: self.soundBank)
+        } catch  _ {
+            print("Error getting sound file")
+        }
+        self.musicPlayer.prepareToPlay()
     }
     
     func playCurrentFile() {

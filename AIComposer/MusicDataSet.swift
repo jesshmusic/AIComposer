@@ -9,9 +9,6 @@
 //
 
 import Cocoa
-import Foundation
-import CoreMIDI
-import CoreAudio
 import AudioToolbox
 
 class MusicDataSet: NSObject, NSCoding {
@@ -73,7 +70,7 @@ class MusicDataSet: NSObject, NSCoding {
             let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, timeStamp: nextEvent.timeStamp)
             musicNotes.append(note)
         }
-        self.musicSnippets.appendContentsOf(self.generateSnippetsFromMusicNotes(musicNotes, eventMarkers: eventMarkers))
+        self.musicSnippets.appendContentsOf(self.generateSnippetsFromMusicNotes(musicNotes, eventMarkers: eventMarkers, numberOfBeats: Double(newMIDIData.numberOfBeats)))
     }
     
     /*
@@ -96,8 +93,9 @@ class MusicDataSet: NSObject, NSCoding {
     *   Returns generated MusicSnippets from an array of MusicNotes. Event markers (CC20) delineate where to separate snippets.
     *   If there are no event markers, then it will divide based on number of beats.
     */
-    private func generateSnippetsFromMusicNotes(musicNotes: [MusicNote], eventMarkers: [MusicTimeStamp]) -> [MusicSnippet] {
+    private func generateSnippetsFromMusicNotes(musicNotes: [MusicNote], eventMarkers: [MusicTimeStamp], var numberOfBeats: Double) -> [MusicSnippet] {
         var musSnippets = [MusicSnippet]()
+        numberOfBeats = numberOfBeats == 0 ? 4.0 : numberOfBeats
         if !musicNotes.isEmpty {
             var nextSnippet: MusicSnippet!
             if eventMarkers.count > 0 {
@@ -122,20 +120,17 @@ class MusicDataSet: NSObject, NSCoding {
                     }
                 }
             } else {
-                //  TODO: Need a way to divide up snippets without CC20
-//                var previousBeat = 0
-//                nextSnippet = MusicSnippet()
-//                for note in musicNotes {
-//                    if previousBeat <= Int(note.barBeatTime.beat) {
-//                        nextSnippet.addMusicNote(note)
-//                    } else {
-//                        nextSnippet.zeroTransposeMusicSnippet()
-//                        musSnippets.append(nextSnippet)
-//                        nextSnippet = MusicSnippet()
-//                        nextSnippet.addMusicNote(note)
-//                    }
-//                    previousBeat = Int(note.barBeatTime.beat)
-//                }
+                nextSnippet = MusicSnippet()
+                for note in musicNotes {
+                    if note.timeStamp % numberOfBeats != 0.0 {
+                        nextSnippet.addMusicNote(note)
+                    } else {
+                        nextSnippet.zeroTransposeMusicSnippet()
+                        musSnippets.append(nextSnippet)
+                        nextSnippet = MusicSnippet()
+                        nextSnippet.addMusicNote(note)
+                    }
+                }
             }
         }
         return musSnippets

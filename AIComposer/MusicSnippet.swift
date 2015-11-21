@@ -9,7 +9,6 @@
 //
 
 import Cocoa
-import CoreMIDI
 import AudioToolbox
 
 
@@ -25,14 +24,12 @@ class MusicSnippet: NSObject, NSCoding {
     internal private(set) var count = 0
     internal private(set) var numberOfOccurences = 1
     internal private(set) var possibleChords: [(chordName:String, weight: Float)]!
-    internal private(set) var endTime: MusicTimeStamp = 0.0
-    internal private(set) var timeResolution: UInt32 = 0
+    var endTime: MusicTimeStamp = 0.0
     
     override init() {
         self.musicNoteEvents = [MusicNote]()
         self.transposedNoteEvents = [MusicNote]()
         self.count = self.musicNoteEvents.count
-        self.timeResolution = 480
     }
     
     init(notes: [MusicNote]) {
@@ -40,12 +37,12 @@ class MusicSnippet: NSObject, NSCoding {
         self.musicNoteEvents = [MusicNote]()
         self.transposedNoteEvents = [MusicNote]()
         self.count = self.musicNoteEvents.count
-        self.timeResolution = 480
         for note in notes {
             let newNote = note.getNoteCopy()
             self.addMusicNote(newNote)
         }
         self.zeroTransposeMusicSnippet()
+        self.calculateEndTime()
     }
     
     required init(coder aDecoder: NSCoder)  {
@@ -53,13 +50,9 @@ class MusicSnippet: NSObject, NSCoding {
         self.transposedNoteEvents = aDecoder.decodeObjectForKey("Transposed Music Note Events") as! [MusicNote]
         self.count = aDecoder.decodeIntegerForKey("Count")
         self.numberOfOccurences = aDecoder.decodeIntegerForKey("NumberOfOccurences")
-        self.timeResolution = UInt32(aDecoder.decodeInt32ForKey("Time Resolution"))
-        if self.timeResolution == 0 {
-            self.timeResolution = 480
-        }
         self.possibleChords = musicChord.generatePossibleChordNames(self.transposedNoteEvents)
+        self.endTime = MusicTimeStamp(aDecoder.decodeDoubleForKey("End Time Stamp"))
         super.init()
-        self.calculateEndTime()
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
@@ -67,7 +60,7 @@ class MusicSnippet: NSObject, NSCoding {
         aCoder.encodeObject(self.transposedNoteEvents, forKey: "Transposed Music Note Events")
         aCoder.encodeInteger(self.count, forKey: "Count")
         aCoder.encodeInteger(self.numberOfOccurences, forKey: "NumberOfOccurences")
-        aCoder.encodeInt32(Int32(self.timeResolution), forKey: "Time Resolution")
+        aCoder.encodeDouble(Double(self.endTime), forKey: "End Time Stamp")
     }
     
     func addMusicNote(newMusicNote: MusicNote) {
@@ -89,16 +82,18 @@ class MusicSnippet: NSObject, NSCoding {
     }
     
     private func calculateEndTime() {
-        for note in self.musicNoteEvents {
-            self.endTime = self.endTime + MusicTimeStamp(note.midiNoteMess.duration)
-        }
-        if self.musicNoteEvents[0].timeStamp != 0.0 {
-            self.endTime = self.endTime + self.musicNoteEvents[0].timeStamp
-        }
+        self.endTime = ceil(self.musicNoteEvents[self.musicNoteEvents.count - 1].timeStamp + MusicTimeStamp(self.musicNoteEvents[self.musicNoteEvents.count - 1].midiNoteMess.duration))
+//        for note in self.musicNoteEvents {
+//            self.endTime = self.endTime + MusicTimeStamp(note.midiNoteMess.duration)
+//        }
+//        if self.musicNoteEvents[0].timeStamp != 0.0 {
+//            self.endTime = self.endTime + self.musicNoteEvents[0].timeStamp
+//        }
     }
     
     /*
     *   This will set each musical snippet to a transposition that can be easily used with any chord.
+    *   Each note's velocity will be set to 80 to make applying custom velocities simpler.
     *   Example: If the snippet is over an Eb chord, it will transpose it to a version over a C chord in
     *   in the bottom octave (0-11)
     *   Additionally, this will set all time stamps to start on zero
@@ -108,7 +103,9 @@ class MusicSnippet: NSObject, NSCoding {
         let firstTimeStamp = self.transposedNoteEvents[0].timeStamp
         let timeStampOffset = firstTimeStamp - (firstTimeStamp % 1.0)
         for i in 0..<self.musicNoteEvents.count {
+            self.musicNoteEvents[i].midiNoteMess.velocity = 80
             self.musicNoteEvents[i].timeStamp = self.musicNoteEvents[i].timeStamp - timeStampOffset
+            self.transposedNoteEvents[i].midiNoteMess.velocity = 80
             self.transposedNoteEvents[i].timeStamp = self.transposedNoteEvents[i].timeStamp - timeStampOffset
         }
         for nextNote in self.transposedNoteEvents {
@@ -497,6 +494,7 @@ class MusicSnippet: NSObject, NSCoding {
         for chord in self.possibleChords {
             retString = retString + "\(chord.chordName): \(chord.weight)  "
         }
+        retString = retString + "\nEnd timestamp: \(self.endTime)\n"
         return retString
     }
     
