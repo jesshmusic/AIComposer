@@ -10,6 +10,7 @@
                 <outlet property="clearDataButton" destination="czb-i3-6jU" id="ifM-hk-iaD"/>
                 <outlet property="exportMIDIbutton" destination="HDh-Dd-k40" id="FNh-wz-vRd"/>
                 <outlet property="musicSnippetTableView" destination="XNs-wq-orN" id="fzb-JS-fA3"/>
+                <outlet property="permuteTestButton" destination="R7r-wr-J3I" id="uQ3-d6-Af8"/>
                 <outlet property="playButton" destination="kGR-4F-xmA" id="gTf-bq-Fzj"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
             </connections>

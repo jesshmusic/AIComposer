@@ -16,6 +16,11 @@ private let ComposerControllerInstance = ComposerController()
 class ComposerController: NSObject {
     
     
+    let presetList: [UInt8] = [1, 2, 5, 6, 7, 12, 25, 46, 47,
+        81, 82, 99, 100]
+    
+    
+    let permWeights = [20, 40, 50, 60, 100]
     
     //  Returns the singleton instance
     class var sharedInstance:ComposerController {
@@ -23,175 +28,63 @@ class ComposerController: NSObject {
     }
     
     //  Creates a MIDI file that tests all permutations with a single MusicSnippet
-    func createPermutationTestSequence(fileName fileName: String, musicSnippet: MusicSnippet) -> [MusicSnippet] {
+    func createPermutationTestSequence(fileName fileName: String, musicSnippets: [MusicSnippet], mainSnippetIndex: Int, mainSnippetWeight: Double) -> [MusicSnippet] {
         var newSnippets = [MusicSnippet]()
+        var musicSnippet: MusicSnippet!
+        if musicSnippets[mainSnippetIndex].getHighestWeightChord().containsString("m") {
+            musicSnippet = MusicSnippet(notes: musicSnippets[mainSnippetIndex].musicNoteEvents)
+            musicSnippet.transposeToChord("Cm")
+        } else {
+            musicSnippet = MusicSnippet(notes: musicSnippets[mainSnippetIndex].musicNoteEvents)
+            musicSnippet.transposeToChord("C")
+        }
+        if musicSnippets.count > 1 {
+            for _ in 0..<3 {
+                musicSnippet = self.createNewMotive(musicSnippets, snippet: musicSnippets[mainSnippetIndex], weight: mainSnippetWeight)
+            }
+        } else {
+            musicSnippet = MusicSnippet(notes: musicSnippets[0].musicNoteEvents)
+        }
         if musicSnippet.count != 0 {
-            
             //  Initialize the MusicSequence
             var newSequence = MusicSequence()
             NewMusicSequence(&newSequence)
             MusicSequenceSetSequenceType(newSequence, MusicSequenceType.Beats)
             
-            //  Create a tempo track
+            //  Create a tempo track with a random tempo
             var tempoTrack = MusicTrack()
-            MusicSequenceGetTempoTrack(newSequence, &tempoTrack)
-            MusicTrackNewExtendedTempoEvent(tempoTrack, 0, 75)
             
-            //  Create a musicTrack
+            MusicSequenceGetTempoTrack(newSequence, &tempoTrack)
+            let newTempo: Float64 = Float64(Int.random(40...140))
+            MusicTrackNewExtendedTempoEvent(tempoTrack, 0, newTempo)
+            
+            //  Create a musicTrack by filling measures with music transposed to that chord.
             var musicTrack = MusicTrack()
             MusicSequenceNewTrack(newSequence, &musicTrack)
             
+            let randomPreset:UInt8 = presetList[Int.random(0..<presetList.count)]
             var chanmess = MIDIChannelMessage(status: 0xB0, data1: 0, data2: 0, reserved: 0)
             MusicTrackNewMIDIChannelEvent(musicTrack, 0.0, &chanmess)
             chanmess = MIDIChannelMessage(status: 0xB0, data1: 32, data2: 0, reserved: 0)
             MusicTrackNewMIDIChannelEvent(musicTrack, 0, &chanmess)
-            chanmess = MIDIChannelMessage(status: 0xC0, data1: 49, data2: 0, reserved: 0)
+            chanmess = MIDIChannelMessage(status: 0xC0, data1: randomPreset, data2: 0, reserved: 0)
             MusicTrackNewMIDIChannelEvent(musicTrack, 0, &chanmess)
+            
+            let chordsSet = [["C", "Em", "F", "Dm", "G", "C"], ["C", "Eb", "F", "Gm", "G", "Am"], ["F", "C", "Dm", "Am", "G", "C"], ["C", "G", "Am", "Em", "F", "C", "Dm", "G", "C"]]
+//            let chords = chordsSet[3]
+            let chords = chordsSet[Int.random(0...3)]
             
             var timeOffset: MusicTimeStamp = musicSnippet.musicNoteEvents[0].timeStamp
             var currentTime: MusicTimeStamp = timeOffset
             
-            //  Add the unaltered Music Snippet
-            for note in musicSnippet.musicNoteEvents {
-                var midiNoteMessage = MIDINoteMessage()
-                midiNoteMessage.channel = note.midiNoteMess.channel
-                midiNoteMessage.duration = note.midiNoteMess.duration
-                midiNoteMessage.note = note.midiNoteMess.note
-                midiNoteMessage.releaseVelocity = note.midiNoteMess.releaseVelocity
-                midiNoteMessage.velocity = note.midiNoteMess.velocity
-                MusicTrackNewMIDINoteEvent(musicTrack, note.timeStamp, &midiNoteMessage)
-                timeOffset = timeOffset + MusicTimeStamp(note.midiNoteMess.duration)
+            for chord in chords {
+                let addedEvent = self.generateNextSnippet(chord: chord, musicSnippets: musicSnippets, musicSnippet: musicSnippet, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
+                timeOffset = addedEvent.timeStamp
+                currentTime = self.setNextTimeStamp(currentTime)
+                newSnippets.append(addedEvent.newSnippet)
             }
-            
-            //  Add a transposed version 1
-            currentTime = timeOffset
-            let transposedSnippet1 = MusicSnippet(notes: musicSnippet.musicNoteEvents)
-            transposedSnippet1.diatonicTranspose(steps: 1, octaves: 0)
-            
-            var addedEvent = self.addMusicSnippetToSequence(transposedSnippet1, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
+
             //  Add a transposed version 2
-            currentTime = ceil(timeOffset)
-            let transposedSnippet2 = MusicSnippet(notes: musicSnippet.musicNoteEvents)
-            transposedSnippet2.diatonicTranspose(steps: 2, octaves: 0)
-            
-            addedEvent = self.addMusicSnippetToSequence(transposedSnippet2, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
-            //  Add a diatonic inversion version
-            currentTime = ceil(timeOffset)
-            let diatonicInversionSnippet = MusicSnippet(notes: musicSnippet.musicNoteEvents)
-            diatonicInversionSnippet.applyDiatonicInversion(pivotNoteNumber: diatonicInversionSnippet.musicNoteEvents[0].midiNoteMess.note)
-            
-            addedEvent = self.addMusicSnippetToSequence(diatonicInversionSnippet, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
-            //  Add a full retrograde version
-            currentTime = ceil(timeOffset)
-            var retroGradeSnippet = MusicSnippet(notes: musicSnippet.musicNoteEvents)
-            retroGradeSnippet.applyRetrograde()
-            retroGradeSnippet = retroGradeSnippet.getAugmentedPassageRhythm(multiplier: 2)
-            retroGradeSnippet.applyDynamicLine(startIndex: 0, endIndex: retroGradeSnippet.musicNoteEvents.count - 1, startVelocity: 20, endVelocity: 127)
-            
-            addedEvent = self.addMusicSnippetToSequence(retroGradeSnippet, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
-            //  Add a rhythmic retrograde version
-            currentTime = ceil(timeOffset)
-            let retroGradeSnippet1 = MusicSnippet(notes: musicSnippet.musicNoteEvents)
-            retroGradeSnippet1.applyRhythmicRetrograde()
-            
-            addedEvent = self.addMusicSnippetToSequence(retroGradeSnippet1, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
-            //  Add a melodic retrograde version
-            currentTime = ceil(timeOffset)
-            let retroGradeSnippet2 = MusicSnippet(notes: musicSnippet.musicNoteEvents)
-            retroGradeSnippet2.applyMelodicRetrograde()
-            retroGradeSnippet2.diatonicTranspose(steps: 0, octaves: 2)
-            retroGradeSnippet2.applyDynamicLine(startIndex: 0, endIndex: retroGradeSnippet2.musicNoteEvents.count - 1, startVelocity: 50, endVelocity: 50)
-            
-            addedEvent = self.addMusicSnippetToSequence(retroGradeSnippet2, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
-            //  Add a staccato version
-            currentTime = ceil(timeOffset)
-            var staccatoSnippet = MusicSnippet(notes: musicSnippet.musicNoteEvents)
-            staccatoSnippet = staccatoSnippet.getAugmentedPassageRhythm(multiplier: 2)
-            staccatoSnippet.applyArticulation(startIndex: 0, endIndex: staccatoSnippet.count / 2, articulation: Articulation.Staccatissimo)
-            staccatoSnippet.diatonicTranspose(steps: -3, octaves: 2)
-            staccatoSnippet.applyDynamicLine(startIndex: 0, endIndex: staccatoSnippet.musicNoteEvents.count - 1, startVelocity: 30, endVelocity: 100)
-            
-            addedEvent = self.addMusicSnippetToSequence(staccatoSnippet, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
-            //  Get a fragment and add a sequence
-            currentTime = ceil(timeOffset)
-            let frag1 = staccatoSnippet.getFragment(startIndex: staccatoSnippet.count / 2, endIndex: staccatoSnippet.count - 1)
-            frag1.diatonicTranspose(steps: 0, octaves: -3)
-            let frag2 = staccatoSnippet.getFragment(startIndex: staccatoSnippet.count / 2, endIndex: staccatoSnippet.count - 1)
-            frag2.applyArticulation(startIndex: 0, endIndex: frag2.count - 1, articulation: Articulation.Staccato)
-            frag2.applyDiatonicInversion(pivotNoteNumber: frag2.musicNoteEvents[0].midiNoteMess.note)
-            
-            frag1.applyDynamicLine(startIndex: 0, endIndex: frag1.count - 1, startVelocity: 30, endVelocity: 50)
-            addedEvent = self.addMusicSnippetToSequence(frag1, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
-            currentTime = ceil(timeOffset)
-            
-            frag2.applyDynamicLine(startIndex: 0, endIndex: frag1.count - 1, startVelocity: 55, endVelocity: 70)
-            frag2.diatonicTranspose(steps: 4, octaves: -4)
-            addedEvent = self.addMusicSnippetToSequence(frag2, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
-            currentTime = ceil(timeOffset)
-            
-            frag1.applyDynamicLine(startIndex: 0, endIndex: frag1.count - 1, startVelocity: 75, endVelocity: 90)
-            frag1.diatonicTranspose(steps: 1, octaves: 0)
-            addedEvent = self.addMusicSnippetToSequence(frag1, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
-            currentTime = ceil(timeOffset)
-            
-            frag2.applyDynamicLine(startIndex: 0, endIndex: frag1.count - 1, startVelocity: 95, endVelocity: 110)
-            frag2.diatonicTranspose(steps: 1, octaves: 0)
-            addedEvent = self.addMusicSnippetToSequence(frag2, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
-            currentTime = ceil(timeOffset)
-            
-            frag1.applyDynamicLine(startIndex: 0, endIndex: frag1.count - 1, startVelocity: 115, endVelocity: 125)
-            frag1.diatonicTranspose(steps: 1, octaves: 0)
-            addedEvent = self.addMusicSnippetToSequence(frag1, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
-            currentTime = ceil(timeOffset)
-            
-            frag2.applyDynamicLine(startIndex: 0, endIndex: frag1.count - 1, startVelocity: 120, endVelocity: 80)
-            frag2.diatonicTranspose(steps: 1, octaves: 0)
-            addedEvent = self.addMusicSnippetToSequence(frag2, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            newSnippets.append(addedEvent.newSnippet)
-            
-            currentTime = ceil(timeOffset)
-            
-            
-            addedEvent = self.addMusicSnippetToSequence(staccatoSnippet, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-            timeOffset = addedEvent.timeStamp
-            currentTime = ceil(timeOffset)
             var silentNoteForSpace = MIDINoteMessage(channel: 0, note: 0, velocity: 0, releaseVelocity: 0, duration: 2.0)
             MusicTrackNewMIDINoteEvent(musicTrack, currentTime + 3.0, &silentNoteForSpace)
             
@@ -199,6 +92,40 @@ class ComposerController: NSObject {
             midiFilePlayer.createMIDIFile(fileName: fileName, sequence: newSequence)
         }
         return newSnippets
+    }
+    
+    private func generateNextSnippet(chord
+        chord: String,
+        musicSnippets: [MusicSnippet],
+        musicSnippet: MusicSnippet,
+        timeOffset: MusicTimeStamp,
+        currentTime: MusicTimeStamp,
+        musicTrack: MusicTrack
+        ) -> (timeStamp: MusicTimeStamp, newSnippet: MusicSnippet)
+    {
+        let newMergeSnippet = self.createNewMotive(musicSnippets, snippet: musicSnippet, weight: 0.6)
+        let snippet1 = self.getSnippetWithRandomPermutation(newMergeSnippet)
+        snippet1.transposeToChord(chord)
+        let addedEvent = self.addMusicSnippetToSequence(snippet1, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
+        return (addedEvent.timeStamp, addedEvent.newSnippet)
+    }
+    
+    private func setNextTimeStamp(var currentTime: MusicTimeStamp) -> MusicTimeStamp {
+        currentTime = currentTime + 4.0
+        return currentTime
+    }
+    
+    private func createNewMotive(musicSnippets: [MusicSnippet], snippet: MusicSnippet, weight: Double) -> MusicSnippet {
+        var musicSnippet = MusicSnippet()
+        for i in 0..<musicSnippets.count {
+            if i != musicSnippets.indexOf(snippet) {
+                if musicSnippets[i].getHighestWeightChord() == snippet.getHighestWeightChord() {
+                    musicSnippet = snippet.mergeNotePassages(firstWeight: weight, secondSnippet: musicSnippets[i])
+                    break
+                }
+            }
+        }
+        return musicSnippet
     }
     
     private func addMusicSnippetToSequence(musicSnippet: MusicSnippet, var timeOffset: MusicTimeStamp, currentTime: MusicTimeStamp, musicTrack: MusicTrack) -> (timeStamp: MusicTimeStamp, newSnippet: MusicSnippet) {
@@ -211,8 +138,57 @@ class ComposerController: NSObject {
             midiNoteMessage.velocity = note.midiNoteMess.velocity
             MusicTrackNewMIDINoteEvent(musicTrack, note.timeStamp + currentTime, &midiNoteMessage)
         }
+        musicSnippet.humanizeNotes()
         timeOffset = timeOffset + musicSnippet.endTime
         return (timeOffset, musicSnippet)
+    }
+    
+    private func getSnippetWithRandomPermutation(musicSnippet: MusicSnippet) -> MusicSnippet {
+        let newSnippet = MusicSnippet(notes: musicSnippet.musicNoteEvents)
+        var permuteNum = 0
+        let rand = Int.random(0...100)
+        while (rand > self.permWeights[permuteNum]) {
+            permuteNum++
+        }
+        
+        switch permuteNum {
+        case 0:
+            newSnippet.applyDiatonicInversion(pivotNoteNumber: musicSnippet.musicNoteEvents[0].midiNoteMess.note)
+        case 1:
+            newSnippet.applyMelodicRetrograde()
+        case 2:
+            newSnippet.applyRetrograde()
+        case 3:
+            newSnippet.applyRhythmicRetrograde()
+        default:
+            break
+        }
+        
+        if Double.random() < 0.25 {
+            let start = Int.random(0..<newSnippet.count)
+            let end = Int.random(start..<newSnippet.count)
+            newSnippet.applyDynamicLine(startIndex: start, endIndex: end, startVelocity: UInt8(Int.random(25..<127)), endVelocity: UInt8(Int.random(25..<127)))
+        } else if Double.random() < 0.5 {
+            let start = Int.random(0..<newSnippet.count)
+            let end = Int.random(start..<newSnippet.count)
+            let randomArticulationNum = Int.random(0...10)
+            var artic: Articulation!
+            switch randomArticulationNum {
+            case 0, 1, 2:
+                artic = Articulation.Accent
+            case 3, 4:
+                artic = Articulation.Marcato
+            case 5, 6:
+                artic = Articulation.Staccatissimo
+            case 7, 8, 9:
+                artic = Articulation.Staccato
+            default:
+                artic = Articulation.Tenuto
+            }
+            newSnippet.applyArticulation(startIndex: start, endIndex: end, articulation: artic)
+        }
+        
+        return newSnippet
     }
     
     

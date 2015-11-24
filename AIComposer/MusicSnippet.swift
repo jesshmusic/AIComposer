@@ -68,13 +68,14 @@ class MusicSnippet: NSObject, NSCoding {
         let newMIDIMess = MIDINoteMessage(
             channel: newMusicNote.midiNoteMess.channel,
             note: newMusicNote.midiNoteMess.note,
-            velocity: newMusicNote.midiNoteMess.velocity,
+            velocity: UInt8(80),
             releaseVelocity: newMusicNote.midiNoteMess.releaseVelocity,
             duration: newMusicNote.midiNoteMess.duration)
         let newTransposedNote = MusicNote(noteMessage: newMIDIMess, timeStamp: newMusicNote.timeStamp)
         self.musicNoteEvents.append(newMusicNote)
         self.transposedNoteEvents.append(newTransposedNote)
         count++
+        self.calculateEndTime()
     }
     
     func incrementNumberOfOccurences() {
@@ -83,12 +84,6 @@ class MusicSnippet: NSObject, NSCoding {
     
     private func calculateEndTime() {
         self.endTime = ceil(self.musicNoteEvents[self.musicNoteEvents.count - 1].timeStamp + MusicTimeStamp(self.musicNoteEvents[self.musicNoteEvents.count - 1].midiNoteMess.duration))
-//        for note in self.musicNoteEvents {
-//            self.endTime = self.endTime + MusicTimeStamp(note.midiNoteMess.duration)
-//        }
-//        if self.musicNoteEvents[0].timeStamp != 0.0 {
-//            self.endTime = self.endTime + self.musicNoteEvents[0].timeStamp
-//        }
     }
     
     /*
@@ -103,9 +98,7 @@ class MusicSnippet: NSObject, NSCoding {
         let firstTimeStamp = self.transposedNoteEvents[0].timeStamp
         let timeStampOffset = firstTimeStamp - (firstTimeStamp % 1.0)
         for i in 0..<self.musicNoteEvents.count {
-            self.musicNoteEvents[i].midiNoteMess.velocity = 80
             self.musicNoteEvents[i].timeStamp = self.musicNoteEvents[i].timeStamp - timeStampOffset
-            self.transposedNoteEvents[i].midiNoteMess.velocity = 80
             self.transposedNoteEvents[i].timeStamp = self.transposedNoteEvents[i].timeStamp - timeStampOffset
         }
         for nextNote in self.transposedNoteEvents {
@@ -151,6 +144,62 @@ class MusicSnippet: NSObject, NSCoding {
         self.count = self.musicNoteEvents.count
     }
     
+    /**
+     Transpose a group of notes to fit in the given chord
+     
+     - Parameters:
+     - chord: String
+     */
+    func transposeToChord(chordName: String) {
+        let highestWeightChord = self.getHighestWeightChord()
+        if highestWeightChord != "" {
+            let transposeOffset = musicChord.getDiatonicTransposeOffset(chord1: highestWeightChord, chord2: chordName)
+            if transposeOffset.isDiatonic && !transposeOffset.isSwitchingQuality {
+                var transposeSteps = transposeOffset.steps
+                if transposeSteps > 4 {
+                    transposeSteps = transposeSteps - 7
+                }
+                self.diatonicTranspose(steps: transposeSteps, octaves: 0)
+            } else if !transposeOffset.isDiatonic && transposeOffset.isSwitchingQuality {
+                if let chordNotes = musicChord.chordNotes[chordName] {
+                    self.chromaticTranspose(halfSteps: transposeOffset.steps)
+                    for note in self.musicNoteEvents {
+                        for chordNote in chordNotes {
+                            if Int(note.midiNoteMess.note % 12) - chordNote == 1 {
+                                note.midiNoteMess.note--
+                            }
+                        }
+                    }
+                }
+            } else {
+                var chromSteps = transposeOffset.steps
+                if transposeOffset.steps > 6 {
+                    chromSteps = chromSteps - 12
+                }
+                self.chromaticTranspose(halfSteps: chromSteps)
+            }
+            self.zeroTransposeMusicSnippet()
+            self.count = self.musicNoteEvents.count
+        }
+    }
+    
+    /**
+     Returns the name of the highest weighted chord
+     
+     -Returns: `String`
+     */
+    
+    func getHighestWeightChord() -> String {
+        var highestWeightChord = ""
+        var highestWeight:Float = 0.0
+        for nextChord in self.possibleChords {
+            if nextChord.weight > highestWeight {
+                highestWeight = nextChord.weight
+                highestWeightChord = nextChord.chordName
+            }
+        }
+        return highestWeightChord
+    }
     /**
      Invert a set of notes chromatically around a pivot note
      
@@ -215,20 +264,19 @@ class MusicSnippet: NSObject, NSCoding {
                 intervals.append(0)
             }
         }
-        print("\n*************\nIntervals : \(intervals)\n\n")
-            for i in 0..<intervals.count {
-                let currentNote = self.musicNoteEvents[i]
-                let stepsToTranspose = intervals[i]
-                self.musicNoteEvents[i] = MusicNote(
-                    noteMessage: MIDINoteMessage(
-                        channel: currentNote.midiNoteMess.channel,
-                        note: UInt8(pivotNoteNumber),
-                        velocity: currentNote.midiNoteMess.velocity,
-                        releaseVelocity: currentNote.midiNoteMess.releaseVelocity,
-                        duration: currentNote.midiNoteMess.duration),
-                    timeStamp: currentNote.timeStamp)
-                self.musicNoteEvents[i].transposeNoteDiatonically(steps: stepsToTranspose, isMajorKey: isMajorKey, octaves: octaves[i])
-            }
+        for i in 0..<intervals.count {
+            let currentNote = self.musicNoteEvents[i]
+            let stepsToTranspose = intervals[i]
+            self.musicNoteEvents[i] = MusicNote(
+                noteMessage: MIDINoteMessage(
+                    channel: currentNote.midiNoteMess.channel,
+                    note: UInt8(pivotNoteNumber),
+                    velocity: currentNote.midiNoteMess.velocity,
+                    releaseVelocity: currentNote.midiNoteMess.releaseVelocity,
+                    duration: currentNote.midiNoteMess.duration),
+                timeStamp: currentNote.timeStamp)
+            self.musicNoteEvents[i].transposeNoteDiatonically(steps: stepsToTranspose, isMajorKey: isMajorKey, octaves: octaves[i])
+        }
         self.zeroTransposeMusicSnippet()
         self.count = self.musicNoteEvents.count
     }
@@ -301,30 +349,86 @@ class MusicSnippet: NSObject, NSCoding {
      - Returns: A new `MusicSnippet` of notes based on the two passages
      */
     func mergeNotePassages(firstWeight firstWeight: Double, secondSnippet: MusicSnippet) -> MusicSnippet {
-        var returnNotes = [MusicNote]()
-        //  Get the first start time
-        var currentTimeStamp: MusicTimeStamp = 0.0
-        if self.musicNoteEvents[0].timeStamp < secondSnippet.musicNoteEvents[0].timeStamp {
-            currentTimeStamp = self.musicNoteEvents[0].timeStamp
-        } else {
-            currentTimeStamp = secondSnippet.musicNoteEvents[0].timeStamp
-        }
-        
-        let numIterations = self.count < secondSnippet.count ? self.count : secondSnippet.count
-        for i in 0..<numIterations {
-            if (Double(arc4random()) / Double(UINT32_MAX)) < firstWeight {
-                let newNote = self.musicNoteEvents[i].getNoteCopy()
-                newNote.timeStamp = currentTimeStamp
-                currentTimeStamp = currentTimeStamp + MusicTimeStamp(newNote.midiNoteMess.duration)
-                returnNotes.append(newNote)
+        let returnSnippet = MusicSnippet()
+        let secSnippetCopy = MusicSnippet(notes: secondSnippet.musicNoteEvents)
+        secSnippetCopy.transposeToChord(self.getHighestWeightChord())
+        //  Get fragments from each MusicSnippet
+        let maxCount = min(self.count, secSnippetCopy.count)
+        let numberOfFirstWeightBits = Int(Double(maxCount) * firstWeight) - 1
+        let randomStartIndex = Int.random(0..<(maxCount - numberOfFirstWeightBits))
+        var bitmask = [Int]()
+        for i in 0..<maxCount {
+            if i < randomStartIndex || i > randomStartIndex + numberOfFirstWeightBits {
+                bitmask.append(0)
             } else {
-                let newNote = secondSnippet.musicNoteEvents[i].getNoteCopy()
-                newNote.timeStamp = currentTimeStamp
-                currentTimeStamp = currentTimeStamp + MusicTimeStamp(newNote.midiNoteMess.duration)
-                returnNotes.append(newNote)
+                bitmask.append(1)
             }
         }
-        return MusicSnippet(notes: returnNotes)
+        var currentTime = MusicTimeStamp(0.0)
+        for i in 0..<bitmask.count {
+            if bitmask[i] == 1 {
+                let newNote = self.musicNoteEvents[i].getNoteCopy()
+                newNote.timeStamp = currentTime
+                returnSnippet.addMusicNote(newNote)
+                currentTime = currentTime + MusicTimeStamp(newNote.midiNoteMess.duration)
+            } else {
+                let newNote = secSnippetCopy.musicNoteEvents[i].getNoteCopy()
+                newNote.timeStamp = currentTime
+                returnSnippet.addMusicNote(newNote)
+                currentTime = currentTime + MusicTimeStamp(newNote.midiNoteMess.duration)
+            }
+        }
+        let medianNote = self.musicNoteEvents[0].midiNoteMess.note
+        for note in returnSnippet.musicNoteEvents {
+            let differenceFromMedian = Int(note.midiNoteMess.note) - Int(medianNote)
+            if  differenceFromMedian > 8 && differenceFromMedian < 14 {
+                note.transposeNote(halfSteps: -12)
+            } else if differenceFromMedian > 13 {
+                note.transposeNote(halfSteps: -24)
+            } else if differenceFromMedian < -8 && differenceFromMedian > -14 {
+                note.transposeNote(halfSteps: 12)
+            } else if differenceFromMedian < -13 {
+                note.transposeNote(halfSteps: 24)
+            }
+        }
+        returnSnippet.zeroTransposeMusicSnippet()
+        returnSnippet.count = returnSnippet.musicNoteEvents.count
+        return returnSnippet
+    }
+    
+    /**
+     Returns the portion of notes in a range
+     
+     - Parameters:
+     - notes:        the `MusicNote`s to be retrograded
+     - startIndex:   Index of the first note
+     - endIndex:     Index of the last note
+     - Returns: `[MusicNote]`
+     */
+    func getFragment(startIndex startIndex: Int, endIndex: Int) -> MusicSnippet {
+        if endIndex - startIndex > 0 {
+            var returnNotes = [MusicNote]()
+            if endIndex <= self.musicNoteEvents.count - 1 && startIndex < endIndex {
+                var firstTimeStampOffset = 0.0
+                let firstTimeStamp = self.musicNoteEvents[startIndex].timeStamp
+                for i in 1..<12 {
+                    let ts = MusicTimeStamp(i)
+                    if firstTimeStamp > ts {
+                        firstTimeStampOffset = ts - 1.0
+                        break
+                    } else if firstTimeStamp == ts {
+                        firstTimeStampOffset = ts
+                    }
+                }
+                for i in startIndex...endIndex {
+                    let newNote = self.musicNoteEvents[i].getNoteCopy()
+                    newNote.timeStamp = newNote.timeStamp - firstTimeStampOffset
+                    returnNotes.append(newNote)
+                }
+            }
+            return MusicSnippet(notes: returnNotes)
+        }
+        return self
     }
     
     /**
@@ -337,20 +441,25 @@ class MusicSnippet: NSObject, NSCoding {
      - endVelocity:      velocity of the last note
      */
     func applyDynamicLine(startIndex startIndex: Int, endIndex: Int, startVelocity: UInt8, endVelocity: UInt8) {
-        //        var returnNotes = [MusicNote]()
-        var currentVel = startVelocity
-        let numerator = abs(Int(endVelocity) - Int(startVelocity))
-        let velocityIncrement = UInt8(numerator) / UInt8(endIndex - startIndex)
-        if endIndex < self.musicNoteEvents.count {
-            for i in startIndex...endIndex {
-                self.musicNoteEvents[i].midiNoteMess.velocity = currentVel
-                
-                if startVelocity < endVelocity {
-                    currentVel = currentVel + velocityIncrement
-                } else {
-                    currentVel = currentVel - velocityIncrement
+        if endIndex - startIndex > 0 {
+            var currentVel = startVelocity
+            let numerator = abs(Int(endVelocity) - Int(startVelocity))
+            let velocityIncrement = UInt8(numerator) / UInt8(endIndex - startIndex)
+            if endIndex < self.musicNoteEvents.count {
+                for i in startIndex...endIndex {
+                    self.musicNoteEvents[i].midiNoteMess.velocity = currentVel
+                    
+                    if startVelocity < endVelocity {
+                        currentVel = currentVel + velocityIncrement
+                    } else {
+                        if velocityIncrement < currentVel {
+                            currentVel = currentVel - velocityIncrement
+                        }
+                    }
                 }
             }
+        } else {
+            self.musicNoteEvents[startIndex].midiNoteMess.velocity = startVelocity
         }
         self.zeroTransposeMusicSnippet()
         self.count = self.musicNoteEvents.count
@@ -361,7 +470,22 @@ class MusicSnippet: NSObject, NSCoding {
      
      */
     func humanizeNotes() {
-        //  TODO: Implement HUMANIZE
+        for note in self.musicNoteEvents {
+            if note.timeStamp % 1 == 0 {
+                note.midiNoteMess.velocity = note.midiNoteMess.velocity + UInt8(Int.random(10...20))
+                if note.midiNoteMess.velocity > 127 {
+                    note.midiNoteMess.velocity = 127
+                }
+            } else {
+                if note.midiNoteMess.velocity > 10 {
+                    note.midiNoteMess.velocity = UInt8(Int(note.midiNoteMess.velocity) + Int.random(-10...10))
+                    if note.midiNoteMess.velocity > 127 {
+                        note.midiNoteMess.velocity = 127
+                    }
+                }
+            }
+            note.timeStamp = note.timeStamp + MusicTimeStamp(Double.random() * 0.025)
+        }
     }
     
     /**
@@ -384,38 +508,6 @@ class MusicSnippet: NSObject, NSCoding {
         self.count = self.musicNoteEvents.count
     }
     
-    /**
-     Returns the portion of notes in a range
-     
-     - Parameters:
-     - notes:        the `MusicNote`s to be retrograded
-     - startIndex:   Index of the first note
-     - endIndex:     Index of the last note
-     - Returns: `[MusicNote]`
-     */
-    func getFragment(startIndex startIndex: Int, endIndex: Int) -> MusicSnippet {
-        var returnNotes = [MusicNote]()
-        if endIndex <= self.musicNoteEvents.count - 1 && startIndex < endIndex {
-            var firstTimeStampOffset = 0.0
-            let firstTimeStamp = self.musicNoteEvents[startIndex].timeStamp
-            for i in 1..<12 {
-                let ts = MusicTimeStamp(i)
-                if firstTimeStamp > ts {
-                    firstTimeStampOffset = ts - 1.0
-                    break
-                } else if firstTimeStamp == ts {
-                    firstTimeStampOffset = ts
-                }
-            }
-            for i in startIndex...endIndex {
-                let newNote = self.musicNoteEvents[i].getNoteCopy()
-                newNote.timeStamp = newNote.timeStamp - firstTimeStampOffset
-                returnNotes.append(newNote)
-            }
-        }
-        return MusicSnippet(notes: returnNotes)
-    }
-    
     
     /**
      Multiplies all duarations by a multiplier and returns a new snippet
@@ -424,7 +516,7 @@ class MusicSnippet: NSObject, NSCoding {
      - multiplier:   How much to multiply durations by
      - Returns: `MusicSnippet`
      */
-    func getAugmentedPassageRhythm(multiplier multiplier: Int) -> MusicSnippet {
+    func getAugmentedPassageRhythm(multiplier multiplier: Double) -> MusicSnippet {
         var returnNotes = [MusicNote]()
         for nextNote in self.musicNoteEvents {
             let newNote = nextNote.getNoteCopy()
@@ -490,9 +582,11 @@ class MusicSnippet: NSObject, NSCoding {
     
     var infoString: String {
         var retString = "Notes: \(self.musicNoteEvents.count),  "
-        retString = retString + "Possible Chords: \n"
-        for chord in self.possibleChords {
-            retString = retString + "\(chord.chordName): \(chord.weight)  "
+        if possibleChords != nil {
+            retString = retString + "Possible Chords: \n"
+            for chord in self.possibleChords {
+                retString = retString + "\(chord.chordName): \(chord.weight)  "
+            }
         }
         retString = retString + "\nEnd timestamp: \(self.endTime)\n"
         return retString

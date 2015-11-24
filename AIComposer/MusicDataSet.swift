@@ -66,7 +66,7 @@ class MusicDataSet: NSObject, NSCoding {
         var musicNotes = [MusicNote]()
         let eventMarkers = newMIDIData.eventMarkers
         for nextEvent in newMIDIData.midiNotes {
-//            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
+            //            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
             let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, timeStamp: nextEvent.timeStamp)
             musicNotes.append(note)
         }
@@ -82,7 +82,7 @@ class MusicDataSet: NSObject, NSCoding {
         var musicNotes = [MusicNote]()
         let eventMarkers = newMIDIData.eventMarkers
         for nextEvent in newMIDIData.midiNotes {
-//            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
+            //            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
             let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, timeStamp: nextEvent.timeStamp)
             musicNotes.append(note)
         }
@@ -98,40 +98,75 @@ class MusicDataSet: NSObject, NSCoding {
         numberOfBeats = numberOfBeats == 0 ? 4.0 : numberOfBeats
         if !musicNotes.isEmpty {
             var nextSnippet: MusicSnippet!
-            if eventMarkers.count > 0 {
-                var nextNote = musicNotes[0]
-                var noteIndex = 0
-                for eventMarker in eventMarkers {
-                    nextSnippet = MusicSnippet()
-                    if noteIndex < musicNotes.count {
-                        while nextNote.timeStamp < eventMarker {
-                            nextSnippet.addMusicNote(nextNote)
-                            noteIndex++
-                            if musicNotes.count == noteIndex {
-                                break
-                            } else {
-                                nextNote = musicNotes[noteIndex]
-                            }
-                        }
-                        nextSnippet.zeroTransposeMusicSnippet()
-                        musSnippets.append(nextSnippet)
-                    } else {
+            //            if eventMarkers.count > 0 {
+            //                var nextNote = musicNotes[0]
+            //                var noteIndex = 0
+            //                for eventMarker in eventMarkers {
+            //                    nextSnippet = MusicSnippet()
+            //                    if noteIndex < musicNotes.count {
+            //                        while nextNote.timeStamp < eventMarker {
+            //                            nextSnippet.addMusicNote(nextNote)
+            //                            noteIndex++
+            //                            if musicNotes.count == noteIndex {
+            //                                break
+            //                            } else {
+            //                                nextNote = musicNotes[noteIndex]
+            //                            }
+            //                        }
+            //                        nextSnippet.zeroTransposeMusicSnippet()
+            //                        musSnippets.append(nextSnippet)
+            //                    } else {
+            //                        break
+            //                    }
+            //                }
+            //            } else {
+            nextSnippet = MusicSnippet()
+            var currentTimeStamp = MusicTimeStamp(0.0)
+            var i = 0
+            let totalBeats = ceil(musicNotes.last!.timeStamp) + ceil(musicNotes.last!.timeStamp % numberOfBeats) + MusicTimeStamp(1.0)
+            var nextTimestamp = musicNotes[0].timeStamp
+            while currentTimeStamp < totalBeats {
+                while nextTimestamp < currentTimeStamp {
+                    if i + 1 < musicNotes.count {
+                        nextTimestamp = musicNotes[i+1].timeStamp
+                    }
+                    nextSnippet.addMusicNote(musicNotes[i])
+                    i++
+                    if i == musicNotes.count {
+                        currentTimeStamp = totalBeats
                         break
                     }
                 }
-            } else {
-                nextSnippet = MusicSnippet()
-                for note in musicNotes {
-                    if note.timeStamp % numberOfBeats != 0.0 {
-                        nextSnippet.addMusicNote(note)
-                    } else {
-                        nextSnippet.zeroTransposeMusicSnippet()
-                        musSnippets.append(nextSnippet)
-                        nextSnippet = MusicSnippet()
-                        nextSnippet.addMusicNote(note)
-                    }
+                currentTimeStamp = currentTimeStamp + numberOfBeats
+                if nextSnippet.count != 0 {
+                    nextSnippet.zeroTransposeMusicSnippet()
+                    musSnippets.append(nextSnippet)
+                    nextSnippet = MusicSnippet()
                 }
             }
+
+//            for note in musicNotes {
+//                if note.timeStamp % numberOfBeats == 0.0 {
+//                    currentTimeStamp = currentTimeStamp + numberOfBeats
+//                }
+//                if note.timeStamp >= numberOfBeats {
+//                    currentTimeStamp = currentTimeStamp + MusicTimeStamp(numberOfBeats)
+//                    nextSnippet.zeroTransposeMusicSnippet()
+//                    musSnippets.append(nextSnippet)
+//                }
+//                if note.timeStamp % numberOfBeats != 0.0 {
+//                    nextSnippet.addMusicNote(note)
+//                } else {
+//                    if nextSnippet.count != 0 {
+//                        nextSnippet.zeroTransposeMusicSnippet()
+//                        musSnippets.append(nextSnippet)
+//                    }
+//                    nextSnippet = MusicSnippet()
+//                    nextSnippet.addMusicNote(note)
+//                }
+//            }
+//            musSnippets.append(nextSnippet)
+            //            }
         }
         return musSnippets
     }

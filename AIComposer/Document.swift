@@ -22,6 +22,8 @@ class Document: NSDocument {
     @IBOutlet weak var musicSnippetTableView: NSTableView!
     @IBOutlet weak var chordProgressionTableView: NSTableView!
     
+    @IBOutlet weak var permuteTestButton: NSButton!
+    
     override init() {
         super.init()
         // Add your subclass-specific initialization here.
@@ -151,22 +153,23 @@ class Document: NSDocument {
         }
     }
     @IBAction func createTestFile(sender: AnyObject) {
-        let myFileDialog: NSSavePanel = NSSavePanel()
-        myFileDialog.beginWithCompletionHandler({ (result: Int) -> Void in
-            if result == NSFileHandlingPanelOKButton {
-                let path = myFileDialog.URL?.path
-                if (path != nil) {
-                    let selectedSnippetRow = self.musicSnippetTableView.selectedRow
-                    let newSnippets = self.composerController.createPermutationTestSequence(fileName: path!, musicSnippet: self.musicDataSet.musicSnippets[selectedSnippetRow])
-                    self.musicDataSet.musicSnippets.appendContentsOf(newSnippets)
-                    self.musicSnippetTableView.reloadData()
-                    self.playButton.enabled = true
-                } else {
-                    print("Canceled")
+        let selectedSnippetRow = self.musicSnippetTableView.selectedRow
+        if selectedSnippetRow > -1 {
+            let myFileDialog: NSSavePanel = NSSavePanel()
+            myFileDialog.beginWithCompletionHandler({ (result: Int) -> Void in
+                if result == NSFileHandlingPanelOKButton {
+                    let path = myFileDialog.URL?.path
+                    if (path != nil) {
+                        let newSnippets = self.composerController.createPermutationTestSequence(fileName: path!, musicSnippets: self.musicDataSet.musicSnippets, mainSnippetIndex: selectedSnippetRow, mainSnippetWeight: 0.6)
+                        self.musicDataSet.musicSnippets.appendContentsOf(newSnippets)
+                        self.musicSnippetTableView.reloadData()
+                        self.playButton.enabled = true
+                    } else {
+                        print("Canceled")
+                    }
                 }
-            }
-        })
-        
+            })
+        }
     }
     
     @IBAction func loadTestMIDIFile(sender: AnyObject) {

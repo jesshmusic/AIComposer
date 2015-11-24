@@ -17,6 +17,7 @@ class AIComposerTests: XCTestCase {
     var testMusicNotes = [MusicNote]()
     
     let composerController = ComposerController.sharedInstance
+    let chordController = MusicChord.sharedInstance
     
     override func setUp() {
         super.setUp()
@@ -134,9 +135,9 @@ class AIComposerTests: XCTestCase {
         let snippet2 = self.testDataSet.musicSnippets[1]
         XCTAssertEqual(snippet2.endTime, 2.0)
         let snippet3 = self.testDataSet.musicSnippets[12]
-        XCTAssertEqual(snippet3.endTime, 2.5)
+        XCTAssertEqual(snippet3.endTime, 3.0)
         let snippet4 = self.testDataSet.musicSnippets[19]
-        XCTAssertEqual(snippet4.endTime, 2.25)
+        XCTAssertEqual(snippet4.endTime, 3.0)
     }
     
     
@@ -391,7 +392,7 @@ class AIComposerTests: XCTestCase {
         var firstSnippetHits: Int = 0
         var totalNotesChecked: Int = 0
         for _ in 0..<100 {
-            newSnippet = snippet1.mergeNotePassages(firstWeight: 0.75, secondSnippet: snippet2)
+            newSnippet = snippet1.mergeNotePassages(firstWeight: 0.6, secondSnippet: snippet2)
 //        print("\n--------------------------\nSnippet 1: \(snippet1.dataString)\n--------------------------\n")
 //        print("Snippet 2: \(snippet2.dataString)\n--------------------------\n")
 //        print("Merged Snippet: \(newSnippet.dataString)\n--------------------------\n")
@@ -404,8 +405,9 @@ class AIComposerTests: XCTestCase {
         }
         averageFromSnippet1 = Double(firstSnippetHits) / Double(totalNotesChecked)
         print("Average notes from snippet 1: \(averageFromSnippet1)")
-        XCTAssertGreaterThan(averageFromSnippet1, 0.7)
-        XCTAssertLessThan(averageFromSnippet1, 0.8)
+        print("\n---------------------------------\nOld snippet 1: \(snippet1.dataString)\nOld snippet 2: \(snippet2.dataString)\nNew snippet: \(newSnippet.dataString)\n--------------------------------\n\n")
+        XCTAssertGreaterThan(averageFromSnippet1, 0.55)
+        XCTAssertLessThan(averageFromSnippet1, 0.7)
     }
     
     func testCrescendo() {
@@ -460,6 +462,65 @@ class AIComposerTests: XCTestCase {
 //        let midiFilePlayer = MIDIFilePlayer.sharedInstance
 //        midiFilePlayer.playMIDIFile(fileName: "TestMIDIFile1.mid")
         
+    }
+    
+    func testTransposeFromChordToChord() {
+        var tranposeSnippet = MusicSnippet(notes: self.testDataSet.musicSnippets[0].musicNoteEvents)
+        tranposeSnippet.transposeToChord("Am")
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[0].midiNoteMess.note, 64)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[1].midiNoteMess.note, 65)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[2].midiNoteMess.note, 67)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[3].midiNoteMess.note, 69)
+        
+        tranposeSnippet = MusicSnippet(notes: self.testDataSet.musicSnippets[0].musicNoteEvents)
+        tranposeSnippet.transposeToChord("A")
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[0].midiNoteMess.note, 64)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[1].midiNoteMess.note, 66)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[2].midiNoteMess.note, 68)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[3].midiNoteMess.note, 69)
+        
+        let testSnippet2 = MusicSnippet(notes: self.testMusicNotes)
+        testSnippet2.transposeToChord("A")
+        XCTAssertEqual(testSnippet2.musicNoteEvents[0].midiNoteMess.note, 57)
+        XCTAssertEqual(testSnippet2.musicNoteEvents[1].midiNoteMess.note, 61)
+        XCTAssertEqual(testSnippet2.musicNoteEvents[2].midiNoteMess.note, 62)
+        XCTAssertEqual(testSnippet2.musicNoteEvents[3].midiNoteMess.note, 63)
+        XCTAssertEqual(testSnippet2.musicNoteEvents[4].midiNoteMess.note, 64)
+        
+        let testSnippet3 = MusicSnippet(notes: self.testMusicNotes)
+        testSnippet3.transposeToChord("Dm")
+        XCTAssertEqual(testSnippet3.musicNoteEvents[0].midiNoteMess.note, 62)
+        XCTAssertEqual(testSnippet3.musicNoteEvents[1].midiNoteMess.note, 65)
+        XCTAssertEqual(testSnippet3.musicNoteEvents[2].midiNoteMess.note, 67)
+        XCTAssertEqual(testSnippet3.musicNoteEvents[3].midiNoteMess.note, 68)
+        XCTAssertEqual(testSnippet3.musicNoteEvents[4].midiNoteMess.note, 69)
+        
+        let testSnippet4 = MusicSnippet(notes: self.testMusicNotes)
+        testSnippet4.transposeToChord("Fm")
+        XCTAssertEqual(testSnippet4.musicNoteEvents[0].midiNoteMess.note, 65)
+        XCTAssertEqual(testSnippet4.musicNoteEvents[1].midiNoteMess.note, 68)
+        XCTAssertEqual(testSnippet4.musicNoteEvents[2].midiNoteMess.note, 70)
+        XCTAssertEqual(testSnippet4.musicNoteEvents[3].midiNoteMess.note, 71)
+        XCTAssertEqual(testSnippet4.musicNoteEvents[4].midiNoteMess.note, 72)
+        
+        let testSnippet5 = MusicSnippet(notes: self.testMusicNotes)
+        testSnippet5.transposeToChord("Cm")
+        XCTAssertEqual(testSnippet5.musicNoteEvents[0].midiNoteMess.note, 60)
+        XCTAssertEqual(testSnippet5.musicNoteEvents[1].midiNoteMess.note, 63)
+        XCTAssertEqual(testSnippet5.musicNoteEvents[2].midiNoteMess.note, 65)
+        XCTAssertEqual(testSnippet5.musicNoteEvents[3].midiNoteMess.note, 66)
+        XCTAssertEqual(testSnippet5.musicNoteEvents[4].midiNoteMess.note, 67)
+        
+        let testSnippet6 = MusicSnippet(notes: self.testDataSet.musicSnippets[2].musicNoteEvents)
+        print(testSnippet6.dataString)
+        testSnippet6.transposeToChord("Gm")
+        XCTAssertEqual(testSnippet6.musicNoteEvents[0].midiNoteMess.note, 74)
+        XCTAssertEqual(testSnippet6.musicNoteEvents[1].midiNoteMess.note, 67)
+        XCTAssertEqual(testSnippet6.musicNoteEvents[2].midiNoteMess.note, 69)
+        XCTAssertEqual(testSnippet6.musicNoteEvents[3].midiNoteMess.note, 70)
+        XCTAssertEqual(testSnippet6.musicNoteEvents[4].midiNoteMess.note, 72)
+        XCTAssertEqual(testSnippet6.musicNoteEvents[5].midiNoteMess.note, 69)
+        XCTAssertEqual(testSnippet6.musicNoteEvents[6].midiNoteMess.note, 70)
     }
     
     func testPerformanceExample() {
