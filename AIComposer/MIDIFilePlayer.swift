@@ -19,58 +19,58 @@ class MIDIFilePlayer {
     class var sharedInstance:MIDIFilePlayer {
         return MIDIFilePlayerInstance
     }
-
-    var soundBank = NSBundle.mainBundle().URLForResource("32MbGMStereo", withExtension: "sf2")
-    var musicPlayer: AVMIDIPlayer!
-    
-    func loadMIDIFile(fileName fileName: String) {
-        let midiFileURL = NSURL(fileURLWithPath: fileName)
-        do {
-            self.musicPlayer = try AVMIDIPlayer(contentsOfURL: midiFileURL, soundBankURL: self.soundBank)
-        } catch  _ {
-            print("Error getting sound file")
-        }
-        self.musicPlayer.prepareToPlay()
-    }
-    
-    func loadMIDIFile(filePath filePath: NSURL) {
-        do {
-            self.musicPlayer = try AVMIDIPlayer(contentsOfURL: filePath, soundBankURL: self.soundBank)
-        } catch  _ {
-            print("Error getting sound file")
-        }
-        self.musicPlayer.prepareToPlay()
-    }
-    
-    func loadMusicSequenceFromMIDIFile(filePath filePath: NSURL) -> MusicSequence {
-        // Load the MIDI File
-        var sequence = MusicSequence()
-        NewMusicSequence(&sequence)
-        MusicSequenceFileLoad(sequence, filePath, MusicSequenceFileTypeID.MIDIType, MusicSequenceLoadFlags.SMF_ChannelsToTracks)
-        return sequence
-    }
-    
-    func playCurrentFile() {
-        if self.musicPlayer.playing {
-            self.musicPlayer.stop()
-        } else {
-            self.musicPlayer.play(finishedPlaying)
-        }
-    }
-    
-    func finishedPlaying() {
-        self.musicPlayer.currentPosition = 0
-        print("Done playing MIDI")
-    }
-    
-    func createMIDIFile(var fileName name: String, sequence: MusicSequence) -> NSURL {
-        if name.rangeOfString(".mid") == nil {
-            name = name + ".mid"
-        }
-        let midiFileURL = NSURL(fileURLWithPath: name)
-        
-        MusicSequenceFileCreate(sequence, midiFileURL, MusicSequenceFileTypeID.MIDIType, MusicSequenceFileFlags.EraseFile, 0)
-        return midiFileURL
-    }
+//
+//    var soundBank = NSBundle.mainBundle().URLForResource("32MbGMStereo", withExtension: "sf2")
+//    var musicPlayer: AVMIDIPlayer!
+//    
+//    func loadMIDIFile(fileName fileName: String) {
+//        let midiFileURL = NSURL(fileURLWithPath: fileName)
+//        do {
+//            self.musicPlayer = try AVMIDIPlayer(contentsOfURL: midiFileURL, soundBankURL: self.soundBank)
+//        } catch  _ {
+//            print("Error getting sound file")
+//        }
+//        self.musicPlayer.prepareToPlay()
+//    }
+//    
+//    func loadMIDIFile(filePath filePath: NSURL) {
+//        do {
+//            self.musicPlayer = try AVMIDIPlayer(contentsOfURL: filePath, soundBankURL: self.soundBank)
+//        } catch  _ {
+//            print("Error getting sound file")
+//        }
+//        self.musicPlayer.prepareToPlay()
+//    }
+//    
+//    func loadMusicSequenceFromMIDIFile(filePath filePath: NSURL) -> MusicSequence {
+//        // Load the MIDI File
+//        var sequence = MusicSequence()
+//        NewMusicSequence(&sequence)
+//        MusicSequenceFileLoad(sequence, filePath, MusicSequenceFileTypeID.MIDIType, MusicSequenceLoadFlags.SMF_ChannelsToTracks)
+//        return sequence
+//    }
+//    
+//    func playCurrentFile() {
+//        if self.musicPlayer.playing {
+//            self.musicPlayer.stop()
+//        } else {
+//            self.musicPlayer.play(finishedPlaying)
+//        }
+//    }
+//    
+//    func finishedPlaying() {
+//        self.musicPlayer.currentPosition = 0
+//        print("Done playing MIDI")
+//    }
+//    
+//    func createMIDIFile(var fileName name: String, sequence: MusicSequence) -> NSURL {
+//        if name.rangeOfString(".mid") == nil {
+//            name = name + ".mid"
+//        }
+//        let midiFileURL = NSURL(fileURLWithPath: name)
+//        
+//        MusicSequenceFileCreate(sequence, midiFileURL, MusicSequenceFileTypeID.MIDIType, MusicSequenceFileFlags.EraseFile, 0)
+//        return midiFileURL
+//    }
 
 }

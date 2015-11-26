@@ -23,7 +23,7 @@ class MusicSnippet: NSObject, NSCoding {
     internal private(set) var transposedNoteEvents: [MusicNote]!
     internal private(set) var count = 0
     internal private(set) var numberOfOccurences = 1
-    internal private(set) var possibleChords: [(chordName:String, weight: Float)]!
+    internal private(set) var possibleChords: [Chord]!
     var endTime: MusicTimeStamp = 0.0
     
     override init() {
@@ -196,7 +196,7 @@ class MusicSnippet: NSObject, NSCoding {
         for nextChord in self.possibleChords {
             if nextChord.weight > highestWeight {
                 highestWeight = nextChord.weight
-                highestWeightChord = nextChord.chordName
+                highestWeightChord = nextChord.name
             }
         }
         return highestWeightChord
@@ -427,14 +427,16 @@ class MusicSnippet: NSObject, NSCoding {
         for nextBit in bitmask {
             if nextBit {
                 for note in self.musicNoteEvents {
-                    if note.timeStamp < currentEnd && note.timeStamp >= currentStart {
-                        returnSnippet.addMusicNote(note)
+                    let newNote = note.getNoteCopy()
+                    if newNote.timeStamp < currentEnd && newNote.timeStamp >= currentStart {
+                        returnSnippet.addMusicNote(newNote)
                     }
                 }
             } else {
                 for note in secondSnippet.musicNoteEvents {
-                    if note.timeStamp < currentEnd && note.timeStamp >= currentStart {
-                        returnSnippet.addMusicNote(note)
+                    let newNote = note.getNoteCopy()
+                    if newNote.timeStamp < currentEnd && newNote.timeStamp >= currentStart {
+                        returnSnippet.addMusicNote(newNote)
                     }
                 }
             }
@@ -648,7 +650,7 @@ class MusicSnippet: NSObject, NSCoding {
         if possibleChords != nil {
             retString = retString + "Possible Chords: \n"
             for chord in self.possibleChords {
-                retString = retString + "\(chord.chordName): \(chord.weight)  "
+                retString = retString + "\(chord.name): \(chord.weight)  "
             }
         }
         retString = retString + "\nEnd timestamp: \(self.endTime)\n"

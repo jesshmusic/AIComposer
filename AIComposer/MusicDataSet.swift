@@ -11,31 +11,42 @@
 import Cocoa
 import AudioToolbox
 
+struct CompositionWeights {
+    var mainThemeWeight = 0.65
+    var permutationWeights = [0.2, 0.4, 0.5, 0.6, 1.0]
+    var restProbability = 0.1
+}
+
 class MusicDataSet: NSObject, NSCoding {
-    
-    var midiFileParser: MIDIFileParser!
-    var midiPlayer = MIDIFilePlayer.sharedInstance
+    let midiManager = MIDIManager.sharedInstance
     
     //  This will hold an array (for now) of transposable music ideas generated
     //  from music notes that occur in the same measure and channel
     var musicSnippets: [MusicSnippet]!
     var chordProgressions: [MusicChordProgression]!
     var timeResolution: UInt32!
-//    var musicSequenceURLs: [NSURL]!
     var compositions: [MusicComposition]!
     
+    var compositionWeights = CompositionWeights()
+    
+    let chordsSet = [["C", "Em", "F", "Dm", "G", "C"], ["C", "Eb", "F", "Gm", "G", "Am"], ["F", "C", "Dm", "Am", "G", "C"], ["C", "G", "Am", "Em", "F", "C", "Dm", "G", "C"]]
     /*
     *   Initializes the data structure.
     */
     override init() {
-        midiFileParser = MIDIFileParser.sharedInstance
         self.musicSnippets = [MusicSnippet]()
-//        self.musicSequenceURLs = [NSURL]()
         self.compositions = [MusicComposition]()
         self.timeResolution = 480
         // For testing:
         self.chordProgressions = [MusicChordProgression]()
         super.init()
+        for chordProg in self.chordsSet {
+            let newProgression = MusicChordProgression()
+            for chord in chordProg {
+                newProgression.addChord(chord)
+            }
+            self.chordProgressions.append(newProgression)
+        }
     }
     
     required init(coder aDecoder: NSCoder) {
@@ -58,7 +69,7 @@ class MusicDataSet: NSObject, NSCoding {
 //            }
 //        }
         
-        midiFileParser = MIDIFileParser.sharedInstance
+//        midiFileParser = MIDIFileParser.sharedInstance
         super.init()
     }
     
@@ -75,7 +86,7 @@ class MusicDataSet: NSObject, NSCoding {
     *   For now, its is best if the MIDI file has only a short snippet, or musical idea.
     */
     func parseMusicSnippetsFromMIDIFile(filePathString: String) {
-        let newMIDIData = self.midiFileParser.loadMIDIFile(filePathString)
+        let newMIDIData = self.midiManager.loadMIDIFile(filePathString)
         self.timeResolution = newMIDIData.timeResolution
         var musicNotes = [MusicNote]()
         let eventMarkers = newMIDIData.eventMarkers
@@ -92,7 +103,7 @@ class MusicDataSet: NSObject, NSCoding {
     *   For now, its is best if the MIDI file has only a short snippet, or musical idea.
     */
     func parseChordProgressionsFromMIDIFile(filePathString: String) {
-        let newMIDIData = self.midiFileParser.loadMIDIFile(filePathString)
+        let newMIDIData = self.midiManager.loadMIDIFile(filePathString)
         var musicNotes = [MusicNote]()
         let eventMarkers = newMIDIData.eventMarkers
         for nextEvent in newMIDIData.midiNotes {
@@ -112,28 +123,6 @@ class MusicDataSet: NSObject, NSCoding {
         numberOfBeats = numberOfBeats == 0 ? 4.0 : numberOfBeats
         if !musicNotes.isEmpty {
             var nextSnippet: MusicSnippet!
-            //            if eventMarkers.count > 0 {
-            //                var nextNote = musicNotes[0]
-            //                var noteIndex = 0
-            //                for eventMarker in eventMarkers {
-            //                    nextSnippet = MusicSnippet()
-            //                    if noteIndex < musicNotes.count {
-            //                        while nextNote.timeStamp < eventMarker {
-            //                            nextSnippet.addMusicNote(nextNote)
-            //                            noteIndex++
-            //                            if musicNotes.count == noteIndex {
-            //                                break
-            //                            } else {
-            //                                nextNote = musicNotes[noteIndex]
-            //                            }
-            //                        }
-            //                        nextSnippet.zeroTransposeMusicSnippet()
-            //                        musSnippets.append(nextSnippet)
-            //                    } else {
-            //                        break
-            //                    }
-            //                }
-            //            } else {
             nextSnippet = MusicSnippet()
             var currentTimeStamp = MusicTimeStamp(0.0)
             var i = 0
@@ -172,14 +161,14 @@ class MusicDataSet: NSObject, NSCoding {
         if !musicNotes.isEmpty {
             var nextSnippet: MusicSnippet!
             if eventMarkers.count > 0 {
-                var nextNote = musicNotes[0]
+                var nextNote = musicNotes[0].getNoteCopy()
                 var noteIndex = 0
                 var timeStamp = 0.0
                 for event in eventMarkers {
                     let chordProg = MusicChordProgression()
                     timeStamp = Double(nextNote.timeStamp)
-                    if noteIndex < musicNotes.count {
-                        while nextNote.timeStamp < event {
+//                    if noteIndex < musicNotes.count {
+                        while nextNote.timeStamp < event && noteIndex < musicNotes.count {
                             nextSnippet = MusicSnippet()
                             while abs(nextNote.timeStamp - timeStamp) < 0.05 {
                                 nextSnippet.addMusicNote(nextNote)
@@ -187,28 +176,28 @@ class MusicDataSet: NSObject, NSCoding {
                                 if musicNotes.count <= noteIndex {
                                     break
                                 } else {
-                                    nextNote = musicNotes[noteIndex]
+                                    nextNote = musicNotes[noteIndex].getNoteCopy()
                                 }
                             }
                             timeStamp = nextNote.timeStamp
                             if nextSnippet.count > 0 {
                                 nextSnippet.zeroTransposeMusicSnippet()
                                 if nextSnippet.possibleChords.count == 1 {
-                                    chordProg.addChord(nextSnippet.possibleChords[0].chordName)
+                                    chordProg.addChord(nextSnippet.possibleChords[0].name)
                                 } else if nextSnippet.possibleChords.count > 1 {
                                     var bestChordWeight = nextSnippet.possibleChords[0].weight
-                                    var bestChord = nextSnippet.possibleChords[0].chordName
+                                    var bestChord = nextSnippet.possibleChords[0].name
                                     for chord in nextSnippet.possibleChords {
                                         if chord.weight > bestChordWeight {
                                             bestChordWeight = chord.weight
-                                            bestChord = chord.chordName
+                                            bestChord = chord.name
                                         }
                                     }
                                     chordProg.addChord(bestChord)
                                 } else {
                                     break
                                 }
-                            }
+//                            }
                         }
                     }
                     chordProgs.append(chordProg)
@@ -228,7 +217,7 @@ class MusicDataSet: NSObject, NSCoding {
     
     func createMIDIFileFromDataSet(filePathString: String) {
         let newSeq = self.getMusicSequenceFromData()
-        self.midiFileParser.createMIDIFile(filePathString, sequence: newSeq)
+        self.midiManager.createMIDIFile(fileName: filePathString, sequence: newSeq)
     }
     
     /*
