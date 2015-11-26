@@ -9,6 +9,7 @@
                 <outlet property="chordProgressionTableView" destination="yPM-Ek-Q1w" id="E3C-gn-p9h"/>
                 <outlet property="clearDataButton" destination="czb-i3-6jU" id="ifM-hk-iaD"/>
                 <outlet property="compositionsTableView" destination="4ld-pg-Gk7" id="dVF-u4-xkO"/>
+                <outlet property="deleteCompositionButton" destination="aVW-gf-40n" id="H47-zM-PQf"/>
                 <outlet property="exportMIDIbutton" destination="HDh-Dd-k40" id="FNh-wz-vRd"/>
                 <outlet property="musicSnippetTableView" destination="XNs-wq-orN" id="fzb-JS-fA3"/>
                 <outlet property="permuteTestButton" destination="R7r-wr-J3I" id="uQ3-d6-Af8"/>
@@ -468,6 +469,17 @@
                                             </buttonCell>
                                             <connections>
                                                 <action selector="playButton:" target="-2" id="Nqo-uy-OfU"/>
+                                            </connections>
+                                        </button>
+                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aVW-gf-40n">
+                                            <rect key="frame" x="142" y="10" width="160" height="32"/>
+                                            <animations/>
+                                            <buttonCell key="cell" type="push" title="Delete Composition" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="w82-j5-C1y">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="deleteComposition:" target="-2" id="AgW-eW-HZU"/>
                                             </connections>
                                         </button>
                                     </subviews>

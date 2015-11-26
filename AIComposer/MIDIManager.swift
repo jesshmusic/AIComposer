@@ -100,6 +100,7 @@ class MIDIManager: NSObject {
     func finishedPlaying() {
         self.musicPlayer.currentPosition = 0
         self.isPlaying = false
+        NSNotificationCenter.defaultCenter().postNotificationName("Finished playing MIDI", object: self)
     }
     
     /**

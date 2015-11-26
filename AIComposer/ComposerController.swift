@@ -61,12 +61,15 @@ class ComposerController: NSObject {
             }
             var parts = [MusicPart]()
             var octaveOffset = 12
+            var numberOfMeasures = 0
             for partNum in 0..<4 {
                 var measures = [MusicMeasure]()
                 var timeOffset: MusicTimeStamp = 0.0
                 randomKeyOffset = randomKeyOffset + octaveOffset
                 octaveOffset = octaveOffset - 12
+                numberOfMeasures = 0
                 for chord in chords {
+                    numberOfMeasures++
                     if Int.random(0..<10) > 1 {
                         measures.append(self.generateMeasureForChord(
                             channel: partNum,
@@ -86,7 +89,7 @@ class ComposerController: NSObject {
             
             //  2   ... Create Composition from Parts
             
-            let newComposition = MusicComposition(name: "Test Piece", musicParts: parts)
+            let newComposition = MusicComposition(name: "Test Piece", musicParts: parts, numberOfMeasures: numberOfMeasures)
             
             //  3   ... Add composition to MusicDataSet
             
@@ -111,6 +114,15 @@ class ComposerController: NSObject {
         for note in snippet1.musicNoteEvents {
             note.timeStamp = note.timeStamp + startTimeStamp
             note.midiNoteMess.channel = UInt8(channel)
+            
+            //  Check to see if the note is in an extreme range
+            if note.midiNoteMess.note < UInt8(18) {
+                note.midiNoteMess.note = note.midiNoteMess.note + 12
+            }
+            
+            if note.midiNoteMess.note > UInt8(100) {
+                note.midiNoteMess.note = note.midiNoteMess.note - 12
+            }
         }
         return MusicMeasure(tempo: tempo, timeSignature: timeSig, firstBeatTimeStamp: startTimeStamp, notes: snippet1.musicNoteEvents, chord: chord)
     }

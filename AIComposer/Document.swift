@@ -24,6 +24,7 @@ class Document: NSDocument {
     @IBOutlet weak var compositionsTableView: NSTableView!
     
     @IBOutlet weak var permuteTestButton: NSButton!
+    @IBOutlet weak var deleteCompositionButton: NSButton!
     
     override init() {
         super.init()
@@ -48,7 +49,11 @@ class Document: NSDocument {
             self.exportMIDIbutton.enabled = false
             self.playButton.enabled = false
         }
-//        self.playButton.enabled = false
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "finishedPlaying", name: "Finished playing MIDI", object: nil)
+    }
+    
+    func finishedPlaying() {
+        self.playButton.title = "PLAY"
     }
     
     override class func autosavesInPlace() -> Bool {
@@ -115,7 +120,7 @@ class Document: NSDocument {
         clearAlert.informativeText = "This will delete all imported MIDI data from this document"
         clearAlert.alertStyle = NSAlertStyle.CriticalAlertStyle
         clearAlert.addButtonWithTitle("Cancel")
-        clearAlert.addButtonWithTitle("DELETE ALL")
+        clearAlert.addButtonWithTitle("Confirm")
         
         let choice = clearAlert.runModal()
         
@@ -163,23 +168,10 @@ class Document: NSDocument {
     @IBAction func createTestFile(sender: AnyObject) {
         let selectedSnippetRow = self.musicSnippetTableView.selectedRow
         if selectedSnippetRow > -1 {
-//            let myFileDialog: NSSavePanel = NSSavePanel()
-//            myFileDialog.beginWithCompletionHandler({ (result: Int) -> Void in
-//                if result == NSFileHandlingPanelOKButton {
-//                    let path = myFileDialog.URL?.path
-//                    if (path != nil) {
-//                        self.composerController.createPermutationTestSequence(fileName: path!, musicDataSet: self.musicDataSet, mainSnippetIndex: selectedSnippetRow, mainSnippetWeight: 0.6, numberOfBeats: 4.0)
-                        self.composerController.createPermutationTestSequence(self.musicDataSet, mainSnippetIndex: selectedSnippetRow, mainSnippetWeight: 0.6, numberOfBeats: 4.0)
-
-//                        self.musicDataSet.musicSnippets.appendContentsOf(newSnippets)
-                        self.musicSnippetTableView.reloadData()
-                        self.compositionsTableView.reloadData()
-                        self.playButton.enabled = true
-//                    } else {
-//                        print("Canceled")
-//                    }
-//                }
-//            })
+            self.composerController.createPermutationTestSequence(self.musicDataSet, mainSnippetIndex: selectedSnippetRow, mainSnippetWeight: 0.6, numberOfBeats: 4.0)
+            self.musicSnippetTableView.reloadData()
+            self.compositionsTableView.reloadData()
+            self.playButton.enabled = true
         }
     }
     
@@ -196,16 +188,38 @@ class Document: NSDocument {
         }
     }
     
+    @IBAction func deleteComposition(sender: AnyObject) {
+        let selectedSequenceRow = self.compositionsTableView.selectedRow
+        if selectedSequenceRow > -1 {
+            let clearAlert = NSAlert()
+            clearAlert.messageText = "Warning!"
+            clearAlert.informativeText = "This will permanently delete the selected composition."
+            clearAlert.alertStyle = NSAlertStyle.CriticalAlertStyle
+            clearAlert.addButtonWithTitle("Cancel")
+            clearAlert.addButtonWithTitle("Confirm")
+            
+            let choice = clearAlert.runModal()
+            
+            switch choice{
+            case NSAlertSecondButtonReturn:
+                self.musicDataSet.compositions.removeAtIndex(selectedSequenceRow)
+                self.compositionsTableView.reloadData()
+            default:
+                break
+            }
+        }
+    }
+    
     @IBAction func playButton(sender: AnyObject) {
         let selectedSequenceRow = self.compositionsTableView.selectedRow
         if selectedSequenceRow > -1 {
             self.midiManager.createMIDIPlayer(self.musicDataSet.compositions[selectedSequenceRow].musicSequence)
-        }
-        self.midiManager.play()
-        if self.midiManager.isPlaying {
-            self.playButton.title = "STOP"
-        } else {
-            self.playButton.title = "PLAY"
+            self.midiManager.play()
+            if self.midiManager.isPlaying {
+                self.playButton.title = "STOP"
+            } else {
+                self.playButton.title = "PLAY"
+            }
         }
     }
 }

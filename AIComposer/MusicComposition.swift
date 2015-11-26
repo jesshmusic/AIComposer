@@ -28,9 +28,10 @@ class MusicComposition: NSObject, NSCoding {
         super.init()
     }
     
-    init(name: String, musicParts: [MusicPart]) {
+    init(name: String, musicParts: [MusicPart], numberOfMeasures: Int) {
         self.name = name
         self.musicParts = musicParts
+        self.numberOfMeasures = numberOfMeasures
         super.init()
         self.createMusicSequence()
     }
@@ -38,6 +39,7 @@ class MusicComposition: NSObject, NSCoding {
     required init(coder aDecoder: NSCoder)  {
         self.name = aDecoder.decodeObjectForKey("Name") as! String
         self.musicParts = aDecoder.decodeObjectForKey("Parts") as! [MusicPart]
+        self.numberOfMeasures = aDecoder.decodeIntegerForKey("Number of Measures")
         super.init()
         self.createMusicSequence()
     }
@@ -45,6 +47,7 @@ class MusicComposition: NSObject, NSCoding {
     func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(self.name, forKey: "Name")
         aCoder.encodeObject(self.musicParts, forKey: "Parts")
+        aCoder.encodeInteger(self.numberOfMeasures, forKey: "Number of Measures")
     }
     
     private func createMusicSequence() {
@@ -59,18 +62,15 @@ class MusicComposition: NSObject, NSCoding {
             //  Time signatures Meta events seem to be broken in Swift, but that shouldn't be an issue
             //  Get the tempo from measures in the FIRST part in the array
             var previousTempo = musicParts[0].measures[0].tempo
+            MusicTrackNewExtendedTempoEvent(tempoTrack, 0.0, previousTempo)
             for measure in musicParts[0].measures {
                 if measure.tempo != previousTempo {
                     MusicTrackNewExtendedTempoEvent(tempoTrack, measure.firstBeatTimeStamp, measure.tempo)
                     previousTempo = measure.tempo
                 }
             }
-            self.numberOfMeasures = 0
             for part in self.musicParts {
                 self.addPartToSequence(part)
-                if part.measures.count > self.numberOfMeasures {
-                    self.numberOfMeasures = part.measures.count
-                }
             }
             
             //  Update info variables
