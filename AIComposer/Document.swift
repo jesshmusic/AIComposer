@@ -166,14 +166,10 @@ class Document: NSDocument {
         }
     }
     @IBAction func createTestFile(sender: AnyObject) {
-//        let selectedSnippetRow = self.musicSnippetTableView.selectedRow
-//        if selectedSnippetRow > -1 {
-        self.composerController.createPermutationTestSequence(self.musicDataSet)
-//            self.composerController.createPermutationTestSequence(self.musicDataSet, mainSnippetIndex: selectedSnippetRow, mainSnippetWeight: self.musicDataSet.compositionWeights.mainThemeWeight, numberOfBeats: 4.0)
+        self.composerController.createComposition(self.musicDataSet)
             self.musicSnippetTableView.reloadData()
             self.compositionsTableView.reloadData()
             self.playButton.enabled = true
-//        }
     }
     
     @IBAction func exportCompositionMIDIFile(sender: AnyObject) {

@@ -27,9 +27,12 @@ class ComposerController: NSObject {
         return ComposerControllerInstance
     }
     
-    //  Creates a MIDI file that tests all permutations with a single MusicSnippet.
-    //  This will ADD DATA to the music data set.
-    func createPermutationTestSequence(var musicDataSet: MusicDataSet) {
+    /**
+     Composes a new piece of music.
+    */
+    //  TODO:   Implement the genetic algorithm
+    //  TODO:   Extract the main theme generation
+    func createComposition(musicDataSet: MusicDataSet) {
         var musicSnippet: MusicSnippet!
         let mainSnippetIndex = Int.random(0..<musicDataSet.musicSnippets.count)
         if musicDataSet.musicSnippets[mainSnippetIndex].getHighestWeightChord().containsString("m") {
@@ -89,6 +92,16 @@ class ComposerController: NSObject {
         }
     }
     
+    //  GENETIC ALGORITHM methods
+    
+    
+    //  TODO: checkComposition: Generates a fitness score based on several criteria. (To be determined)
+    private func checkComposition() -> Double {
+        return 0.0
+    }
+    
+    
+    //  Creates a new part based on weights and other criteria
     func composeNewPartWithChannel(partNum: Int, var keyOffset: Int, musicDataSet: MusicDataSet, timeSig: TimeSignature, var octaveOffset: Int, var numberOfMeasures: Int, musicSnippet: MusicSnippet, chords: [String], tempo: Float64, compWeights: CompositionWeights) -> (part: MusicPart, numberOfMeasures: Int, octaveOffset: Int)
     {
         let randomPreset:UInt8 = presetList[Int.random(0..<presetList.count)]
@@ -100,7 +113,7 @@ class ComposerController: NSObject {
         let newSnippet = self.createNewMotive(musicDataSet.musicSnippets, snippet: musicSnippet, weight: 0.5, numberOfBeats: Double(timeSig.numberOfBeats))
         for chord in chords {
             numberOfMeasures++
-            if Double.random() > compWeights.restProbability {
+            if Double.random() > compWeights.chanceOfRest {
                 measures.append(self.generateMeasureForChord(
                     channel: partNum,
                     chord: chord,
@@ -119,6 +132,7 @@ class ComposerController: NSObject {
         return (MusicPart(measures: measures, preset: randomPreset), numberOfMeasures, octaveOffset)
     }
     
+    //  Creates a single measure
     private func generateMeasureForChord(
         channel channel: Int,
         chord: String,
@@ -132,7 +146,7 @@ class ComposerController: NSObject {
         ) -> MusicMeasure
     {
         let newMergeSnippet = self.createNewMotive(musicSnippets, snippet: musicSnippet, weight: 0.6, numberOfBeats: Double(timeSig.numberOfBeats))
-        let snippet1 = self.getSnippetWithRandomPermutation(newMergeSnippet, permWeights: compWeights.permutationWeights)
+        let snippet1 = self.getSnippetWithRandomPermutation(newMergeSnippet, compWeights: compWeights)
         snippet1.transposeToChord(chord, keyOffset: keyOffset)
         for note in snippet1.musicNoteEvents {
             note.timeStamp = note.timeStamp + startTimeStamp
@@ -150,6 +164,8 @@ class ComposerController: NSObject {
         return MusicMeasure(tempo: tempo, timeSignature: timeSig, firstBeatTimeStamp: startTimeStamp, notes: snippet1.musicNoteEvents, chord: chord)
     }
     
+    
+    //  Generates the final measure. For now, it just adds held out notes in the tonic chord
     private func generateEndingMeasureForChord(chord: String, channel: Int, keyOffset: Int, timeSig: TimeSignature, startTimeStamp: MusicTimeStamp, previousNote: MIDINoteMessage, tempo: Float64) -> MusicMeasure
     {
         let chordController = MusicChord.sharedInstance
@@ -162,6 +178,7 @@ class ComposerController: NSObject {
         return MusicMeasure(tempo: tempo, timeSignature: timeSig, firstBeatTimeStamp: startTimeStamp, notes: [newNote], chord: chord)
     }
     
+    //  Generates a new MusicSnippet theme
     private func createNewMotive(musicSnippets: [MusicSnippet], snippet: MusicSnippet, weight: Double, numberOfBeats: Double) -> MusicSnippet {
         var musicSnippet = MusicSnippet()
         for i in 0..<musicSnippets.count {
@@ -179,11 +196,12 @@ class ComposerController: NSObject {
         }
     }
     
-    private func getSnippetWithRandomPermutation(musicSnippet: MusicSnippet, permWeights: [Double]) -> MusicSnippet {
+    //  Generates a random permutation based on weights
+    private func getSnippetWithRandomPermutation(musicSnippet: MusicSnippet, compWeights: CompositionWeights) -> MusicSnippet {
         let newSnippet = MusicSnippet(notes: musicSnippet.musicNoteEvents)
         var permuteNum = 0
         let rand = Double.random()
-        while (rand > permWeights[permuteNum]) {
+        while (rand > compWeights.permutationWeights[permuteNum]) {
             permuteNum++
         }
         
@@ -200,28 +218,19 @@ class ComposerController: NSObject {
             break
         }
         
-        if Double.random() < 0.25 {
+        if Double.random() < compWeights.chanceOfCrescendo {
             let start = Int.random(0..<newSnippet.count)
             let end = Int.random(start..<newSnippet.count)
             newSnippet.applyDynamicLine(startIndex: start, endIndex: end, startVelocity: UInt8(Int.random(25..<127)), endVelocity: UInt8(Int.random(25..<127)))
-        } else if Double.random() < 0.5 {
+        } else if Double.random() < compWeights.chanceOfArticulation {
             let start = Int.random(0..<newSnippet.count)
             let end = Int.random(start..<newSnippet.count)
-            let randomArticulationNum = Int.random(0...10)
-            var artic: Articulation!
-            switch randomArticulationNum {
-            case 0, 1, 2:
-                artic = Articulation.Accent
-            case 3, 4:
-                artic = Articulation.Marcato
-            case 5, 6:
-                artic = Articulation.Staccatissimo
-            case 7, 8, 9:
-                artic = Articulation.Staccato
-            default:
-                artic = Articulation.Tenuto
+            var articulationType:Articulation.RawValue = 0
+            while(Double.random() > compWeights.articulationWeights[articulationType]) {
+                articulationType++
             }
-            newSnippet.applyArticulation(startIndex: start, endIndex: end, articulation: artic)
+            let artic = Articulation(rawValue: articulationType)
+            newSnippet.applyArticulation(startIndex: start, endIndex: end, articulation: artic!)
         }
         
         return newSnippet

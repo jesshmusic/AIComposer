@@ -11,10 +11,21 @@
 import Cocoa
 import AudioToolbox
 
+enum Articulation: Int {
+    case Accent
+    case Staccato
+    case Staccatissimo
+    case Marcato
+    case Tenuto
+}
+
 struct CompositionWeights {
     var mainThemeWeight = 0.65
     var permutationWeights = [0.2, 0.4, 0.5, 0.6, 1.0]
-    var restProbability = 0.1
+    var chanceOfRest = 0.1
+    var chanceOfCrescendo = 0.5
+    var chanceOfArticulation = 0.5
+    var articulationWeights = [0.2, 0.8, 0.85, 0.95, 1.0]
 }
 
 class MusicDataSet: NSObject, NSCoding {

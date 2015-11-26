@@ -11,14 +11,6 @@
 import Cocoa
 import AudioToolbox
 
-enum Articulation {
-    case Accent
-    case Staccato
-    case Staccatissimo
-    case Marcato
-    case Tenuto
-}
-
 let MAJOR_INTERVALS = [
     0: [-10, -8, -7, -5, -3, -1, 0, 2, 4, 5, 7, 9, 11],
     1: [-10, -9, -7, -5, -3, -2, 0, 2, 4, 5, 7, 9, 11],

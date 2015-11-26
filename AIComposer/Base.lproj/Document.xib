@@ -12,7 +12,6 @@
                 <outlet property="deleteCompositionButton" destination="aVW-gf-40n" id="H47-zM-PQf"/>
                 <outlet property="exportMIDIbutton" destination="HDh-Dd-k40" id="FNh-wz-vRd"/>
                 <outlet property="musicSnippetTableView" destination="XNs-wq-orN" id="fzb-JS-fA3"/>
-                <outlet property="permuteTestButton" destination="R7r-wr-J3I" id="uQ3-d6-Af8"/>
                 <outlet property="playButton" destination="kGR-4F-xmA" id="gTf-bq-Fzj"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
             </connections>
@@ -184,17 +183,6 @@
                                                 <animations/>
                                             </tableHeaderView>
                                         </scrollView>
-                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="R7r-wr-J3I">
-                                            <rect key="frame" x="11" y="10" width="207" height="32"/>
-                                            <animations/>
-                                            <buttonCell key="cell" type="push" title="Create perumtation test file" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="z6t-gw-jRF">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                            <connections>
-                                                <action selector="createTestFile:" target="-2" id="jmB-OB-HiC"/>
-                                            </connections>
-                                        </button>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="SWC-2P-K1L" firstAttribute="top" secondItem="BCA-6L-ton" secondAttribute="top" constant="3" id="14U-q8-I0P"/>
@@ -353,7 +341,7 @@
                                     <rect key="frame" x="10" y="33" width="794" height="568"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gYJ-7p-il1">
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gYJ-7p-il1">
                                             <rect key="frame" x="6" y="10" width="136" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Export MIDI File" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mQr-Wb-rWU">
@@ -364,9 +352,9 @@
                                                 <action selector="exportCompositionMIDIFile:" target="-2" id="fD4-AN-XGs"/>
                                             </connections>
                                         </button>
-                                        <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="32" horizontalPageScroll="10" verticalLineScroll="32" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J2f-EU-JF3">
+                                        <scrollView autohidesScrollers="YES" horizontalLineScroll="32" horizontalPageScroll="10" verticalLineScroll="32" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J2f-EU-JF3">
                                             <rect key="frame" x="17" y="58" width="760" height="498"/>
-                                            <clipView key="contentView" ambiguous="YES" id="aO6-Nw-ZXH">
+                                            <clipView key="contentView" id="aO6-Nw-ZXH">
                                                 <rect key="frame" x="1" y="0.0" width="758" height="497"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
@@ -460,7 +448,7 @@
                                                 <animations/>
                                             </tableHeaderView>
                                         </scrollView>
-                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kGR-4F-xmA">
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kGR-4F-xmA">
                                             <rect key="frame" x="711" y="10" width="72" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="PLAY" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="c8C-aw-504">
@@ -471,7 +459,7 @@
                                                 <action selector="playButton:" target="-2" id="Nqo-uy-OfU"/>
                                             </connections>
                                         </button>
-                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aVW-gf-40n">
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aVW-gf-40n">
                                             <rect key="frame" x="142" y="10" width="160" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Delete Composition" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="w82-j5-C1y">
@@ -482,7 +470,36 @@
                                                 <action selector="deleteComposition:" target="-2" id="AgW-eW-HZU"/>
                                             </connections>
                                         </button>
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9i0-Sf-TZ8">
+                                            <rect key="frame" x="342" y="16" width="110" height="35"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="33" id="XHp-7y-c1o"/>
+                                                <constraint firstAttribute="width" constant="110" id="jlV-xa-vxF"/>
+                                            </constraints>
+                                            <animations/>
+                                            <buttonCell key="cell" type="smallSquare" title="Compose" bezelStyle="smallSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="fUh-rY-qE4">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="systemBold" size="16"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="createTestFile:" target="-2" id="j6S-CW-nCo"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
+                                    <constraints>
+                                        <constraint firstItem="9i0-Sf-TZ8" firstAttribute="centerX" secondItem="1IW-wM-sBE" secondAttribute="centerX" id="1Xr-I2-kRh"/>
+                                        <constraint firstItem="aVW-gf-40n" firstAttribute="leading" secondItem="gYJ-7p-il1" secondAttribute="trailing" constant="12" id="8VU-h1-FOi"/>
+                                        <constraint firstItem="J2f-EU-JF3" firstAttribute="leading" secondItem="1IW-wM-sBE" secondAttribute="leading" constant="17" id="8sC-3a-wwv"/>
+                                        <constraint firstItem="J2f-EU-JF3" firstAttribute="top" secondItem="1IW-wM-sBE" secondAttribute="top" constant="12" id="9cH-6J-OX4"/>
+                                        <constraint firstAttribute="bottom" secondItem="kGR-4F-xmA" secondAttribute="bottom" constant="17" id="C9L-Ei-gTU"/>
+                                        <constraint firstItem="gYJ-7p-il1" firstAttribute="leading" secondItem="1IW-wM-sBE" secondAttribute="leading" constant="12" id="JaB-UB-jud"/>
+                                        <constraint firstAttribute="bottom" secondItem="J2f-EU-JF3" secondAttribute="bottom" constant="58" id="SFw-KL-wyf"/>
+                                        <constraint firstAttribute="bottom" secondItem="9i0-Sf-TZ8" secondAttribute="bottom" constant="17" id="ZXe-5e-jr6"/>
+                                        <constraint firstAttribute="bottom" secondItem="aVW-gf-40n" secondAttribute="bottom" constant="17" id="bty-K1-97Q"/>
+                                        <constraint firstAttribute="trailing" secondItem="J2f-EU-JF3" secondAttribute="trailing" constant="17" id="cP1-o8-I8J"/>
+                                        <constraint firstAttribute="trailing" secondItem="kGR-4F-xmA" secondAttribute="trailing" constant="17" id="nlB-Sy-uyx"/>
+                                        <constraint firstAttribute="bottom" secondItem="gYJ-7p-il1" secondAttribute="bottom" constant="17" id="wkV-4T-ODK"/>
+                                    </constraints>
                                     <animations/>
                                 </view>
                             </tabViewItem>
