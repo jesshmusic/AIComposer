@@ -42,6 +42,14 @@ class MIDIFilePlayer {
         self.musicPlayer.prepareToPlay()
     }
     
+    func loadMusicSequenceFromMIDIFile(filePath filePath: NSURL) -> MusicSequence {
+        // Load the MIDI File
+        var sequence = MusicSequence()
+        NewMusicSequence(&sequence)
+        MusicSequenceFileLoad(sequence, filePath, MusicSequenceFileTypeID.MIDIType, MusicSequenceLoadFlags.SMF_ChannelsToTracks)
+        return sequence
+    }
+    
     func playCurrentFile() {
         if self.musicPlayer.playing {
             self.musicPlayer.stop()
@@ -55,13 +63,14 @@ class MIDIFilePlayer {
         print("Done playing MIDI")
     }
     
-    func createMIDIFile(var fileName name: String, sequence: MusicSequence) {
+    func createMIDIFile(var fileName name: String, sequence: MusicSequence) -> NSURL {
         if name.rangeOfString(".mid") == nil {
             name = name + ".mid"
         }
         let midiFileURL = NSURL(fileURLWithPath: name)
         
         MusicSequenceFileCreate(sequence, midiFileURL, MusicSequenceFileTypeID.MIDIType, MusicSequenceFileFlags.EraseFile, 0)
+        return midiFileURL
     }
 
 }

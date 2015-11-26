@@ -150,7 +150,7 @@ class MusicSnippet: NSObject, NSCoding {
      - Parameters:
      - chord: String
      */
-    func transposeToChord(chordName: String) {
+    func transposeToChord(chordName: String, keyOffset: Int) {
         let highestWeightChord = self.getHighestWeightChord()
         if highestWeightChord != "" {
             let transposeOffset = musicChord.getDiatonicTransposeOffset(chord1: highestWeightChord, chord2: chordName)
@@ -178,6 +178,7 @@ class MusicSnippet: NSObject, NSCoding {
                 }
                 self.chromaticTranspose(halfSteps: chromSteps)
             }
+            self.chromaticTranspose(halfSteps: keyOffset)
             self.zeroTransposeMusicSnippet()
             self.count = self.musicNoteEvents.count
         }
@@ -351,7 +352,7 @@ class MusicSnippet: NSObject, NSCoding {
     func mergeNotePassages(firstWeight firstWeight: Double, secondSnippet: MusicSnippet) -> MusicSnippet {
         let returnSnippet = MusicSnippet()
         let secSnippetCopy = MusicSnippet(notes: secondSnippet.musicNoteEvents)
-        secSnippetCopy.transposeToChord(self.getHighestWeightChord())
+        secSnippetCopy.transposeToChord(self.getHighestWeightChord(), keyOffset: 0)
         //  Get fragments from each MusicSnippet
         let maxCount = min(self.count, secSnippetCopy.count)
         let numberOfFirstWeightBits = Int(Double(maxCount) * firstWeight) - 1
@@ -389,6 +390,68 @@ class MusicSnippet: NSObject, NSCoding {
                 note.transposeNote(halfSteps: 12)
             } else if differenceFromMedian < -13 {
                 note.transposeNote(halfSteps: 24)
+            }
+        }
+        returnSnippet.zeroTransposeMusicSnippet()
+        returnSnippet.count = returnSnippet.musicNoteEvents.count
+        return returnSnippet
+    }
+    
+    /**
+     Merges this MusicSnippet with another based on weights for each snippet by dividing it by beat
+     
+     - Parameters:
+     - firstWeight:      weight of this passage (the second passage weight is (1 - firstWeight)
+     - chanceOfRest:    Probability of silence
+     - secondPassage:    the first set of notes to be merged
+     - Returns: A new `MusicSnippet` of notes based on the two passages
+     */
+    func mergeNotePassagesRhythmically(firstWeight firstWeight: Double, chanceOfRest: Double, secondSnippet: MusicSnippet, numberOfBeats: Double) -> MusicSnippet {
+        let returnSnippet = MusicSnippet()
+        let secSnippetCopy = MusicSnippet(notes: secondSnippet.musicNoteEvents)
+        secSnippetCopy.transposeToChord(self.getHighestWeightChord(), keyOffset: 0)
+        let numberOfFirstWeightBits = Int(Double(numberOfBeats) * firstWeight) - 1
+        let randomStartIndex = Int.random(0..<(Int(numberOfBeats) - numberOfFirstWeightBits))
+        var bitmask = [Bool]()
+        for i in 0..<Int(numberOfBeats) {
+            if i < randomStartIndex || i > randomStartIndex + numberOfFirstWeightBits {
+                bitmask.append(false)
+            } else {
+                bitmask.append(true)
+            }
+        }
+        
+        var currentStart = MusicTimeStamp(0.0)
+        var currentEnd = MusicTimeStamp(1.0)
+        
+        for nextBit in bitmask {
+            if nextBit {
+                for note in self.musicNoteEvents {
+                    if note.timeStamp < currentEnd && note.timeStamp >= currentStart {
+                        returnSnippet.addMusicNote(note)
+                    }
+                }
+            } else {
+                for note in secondSnippet.musicNoteEvents {
+                    if note.timeStamp < currentEnd && note.timeStamp >= currentStart {
+                        returnSnippet.addMusicNote(note)
+                    }
+                }
+            }
+            currentStart = currentStart + 1.0
+            currentEnd = currentEnd + 1.0
+        }
+        let previousNote = returnSnippet.musicNoteEvents[0]
+        for i in 1..<returnSnippet.musicNoteEvents.count {
+            let leapSteps = Int(previousNote.midiNoteMess.note) - Int(returnSnippet.musicNoteEvents[i].midiNoteMess.note)
+            if leapSteps > 8 && leapSteps < 18 {
+                returnSnippet.musicNoteEvents[i].transposeNote(halfSteps: 12)
+            } else if leapSteps > 17 {
+                returnSnippet.musicNoteEvents[i].transposeNote(halfSteps: 24)
+            } else if leapSteps < -8 && leapSteps > -18 {
+                returnSnippet.musicNoteEvents[i].transposeNote(halfSteps: -12)
+            } else if leapSteps < -17 {
+                returnSnippet.musicNoteEvents[i].transposeNote(halfSteps: -24)
             }
         }
         returnSnippet.zeroTransposeMusicSnippet()

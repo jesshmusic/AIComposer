@@ -15,6 +15,7 @@ private let ComposerControllerInstance = ComposerController()
 
 class ComposerController: NSObject {
     
+    let midiManager = MIDIManager.sharedInstance
     
     let presetList: [UInt8] = [1, 2, 5, 6, 7, 12, 25, 46, 47,
         81, 82, 99, 100]
@@ -27,120 +28,108 @@ class ComposerController: NSObject {
         return ComposerControllerInstance
     }
     
-    //  Creates a MIDI file that tests all permutations with a single MusicSnippet
-    func createPermutationTestSequence(fileName fileName: String, musicSnippets: [MusicSnippet], mainSnippetIndex: Int, mainSnippetWeight: Double) -> [MusicSnippet] {
-        var newSnippets = [MusicSnippet]()
+    //  Creates a MIDI file that tests all permutations with a single MusicSnippet.
+    //  This will ADD DATA to the music data set.
+    func createPermutationTestSequence(var musicDataSet: MusicDataSet, mainSnippetIndex: Int, mainSnippetWeight: Double, numberOfBeats: Double) {
         var musicSnippet: MusicSnippet!
-        if musicSnippets[mainSnippetIndex].getHighestWeightChord().containsString("m") {
-            musicSnippet = MusicSnippet(notes: musicSnippets[mainSnippetIndex].musicNoteEvents)
-            musicSnippet.transposeToChord("Cm")
+        if musicDataSet.musicSnippets[mainSnippetIndex].getHighestWeightChord().containsString("m") {
+            musicSnippet = MusicSnippet(notes: musicDataSet.musicSnippets[mainSnippetIndex].musicNoteEvents)
+            musicSnippet.transposeToChord("Cm", keyOffset: 0)
         } else {
-            musicSnippet = MusicSnippet(notes: musicSnippets[mainSnippetIndex].musicNoteEvents)
-            musicSnippet.transposeToChord("C")
+            musicSnippet = MusicSnippet(notes: musicDataSet.musicSnippets[mainSnippetIndex].musicNoteEvents)
+            musicSnippet.transposeToChord("C", keyOffset: 0)
         }
-        if musicSnippets.count > 1 {
+        if musicDataSet.musicSnippets.count > 1 {
             for _ in 0..<3 {
-                musicSnippet = self.createNewMotive(musicSnippets, snippet: musicSnippets[mainSnippetIndex], weight: mainSnippetWeight)
+                musicSnippet = self.createNewMotive(musicDataSet.musicSnippets, snippet: musicDataSet.musicSnippets[mainSnippetIndex], weight: mainSnippetWeight, numberOfBeats: numberOfBeats)
             }
         } else {
-            musicSnippet = MusicSnippet(notes: musicSnippets[0].musicNoteEvents)
+            musicSnippet = MusicSnippet(notes: musicDataSet.musicSnippets[0].musicNoteEvents)
         }
         if musicSnippet.count != 0 {
-            //  Initialize the MusicSequence
-            var newSequence = MusicSequence()
-            NewMusicSequence(&newSequence)
-            MusicSequenceSetSequenceType(newSequence, MusicSequenceType.Beats)
             
-            //  Create a tempo track with a random tempo
-            var tempoTrack = MusicTrack()
-            
-            MusicSequenceGetTempoTrack(newSequence, &tempoTrack)
-            let newTempo: Float64 = Float64(Int.random(40...140))
-            MusicTrackNewExtendedTempoEvent(tempoTrack, 0, newTempo)
-            
-            //  Create a musicTrack by filling measures with music transposed to that chord.
-            var musicTrack = MusicTrack()
-            MusicSequenceNewTrack(newSequence, &musicTrack)
-            
+            //  1   ... Create 4 parts and measures
+            var randomKeyOffset = Int.random(0..<12) - 6
             let randomPreset:UInt8 = presetList[Int.random(0..<presetList.count)]
-            var chanmess = MIDIChannelMessage(status: 0xB0, data1: 0, data2: 0, reserved: 0)
-            MusicTrackNewMIDIChannelEvent(musicTrack, 0.0, &chanmess)
-            chanmess = MIDIChannelMessage(status: 0xB0, data1: 32, data2: 0, reserved: 0)
-            MusicTrackNewMIDIChannelEvent(musicTrack, 0, &chanmess)
-            chanmess = MIDIChannelMessage(status: 0xC0, data1: randomPreset, data2: 0, reserved: 0)
-            MusicTrackNewMIDIChannelEvent(musicTrack, 0, &chanmess)
-            
-            let chordsSet = [["C", "Em", "F", "Dm", "G", "C"], ["C", "Eb", "F", "Gm", "G", "Am"], ["F", "C", "Dm", "Am", "G", "C"], ["C", "G", "Am", "Em", "F", "C", "Dm", "G", "C"]]
-//            let chords = chordsSet[3]
-            let chords = chordsSet[Int.random(0...3)]
-            
-            var timeOffset: MusicTimeStamp = musicSnippet.musicNoteEvents[0].timeStamp
-            var currentTime: MusicTimeStamp = timeOffset
-            
-            for chord in chords {
-                let addedEvent = self.generateNextSnippet(chord: chord, musicSnippets: musicSnippets, musicSnippet: musicSnippet, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-                timeOffset = addedEvent.timeStamp
-                currentTime = self.setNextTimeStamp(currentTime)
-                newSnippets.append(addedEvent.newSnippet)
+            let newTempo: Float64 = Float64(Int.random(40...140))
+            var chords = [String]()
+            if musicDataSet.chordProgressions.isEmpty {
+                let chordsSet = [["C", "Em", "F", "Dm", "G", "C"], ["C", "Eb", "F", "Gm", "G", "Am"], ["F", "C", "Dm", "Am", "G", "C"], ["C", "G", "Am", "Em", "F", "C", "Dm", "G", "C"]]
+                chords = chordsSet[Int.random(0...3)]
+            } else {
+                chords = musicDataSet.chordProgressions[Int.random(0..<musicDataSet.chordProgressions.count)].chords
             }
-
-            //  Add a transposed version 2
-            var silentNoteForSpace = MIDINoteMessage(channel: 0, note: 0, velocity: 0, releaseVelocity: 0, duration: 2.0)
-            MusicTrackNewMIDINoteEvent(musicTrack, currentTime + 3.0, &silentNoteForSpace)
+            var parts = [MusicPart]()
+            var octaveOffset = 12
+            for partNum in 0..<4 {
+                var measures = [MusicMeasure]()
+                var timeOffset: MusicTimeStamp = 0.0
+                randomKeyOffset = randomKeyOffset + octaveOffset
+                octaveOffset = octaveOffset - 12
+                for chord in chords {
+                    if Int.random(0..<10) > 1 {
+                        measures.append(self.generateMeasureForChord(
+                            channel: partNum,
+                            chord: chord,
+                            musicSnippets: musicDataSet.musicSnippets,
+                            musicSnippet: musicSnippet,
+                            keyOffset: randomKeyOffset,
+                            timeSig: TimeSignature(numberOfBeats: Int(numberOfBeats), beatLength: 1.0),
+                            startTimeStamp: timeOffset,
+                            tempo: newTempo))
+                    }
+                    timeOffset = timeOffset + numberOfBeats
+                }
+                
+                parts.append(MusicPart(measures: measures, preset: randomPreset))
+            }
             
-            let midiFilePlayer = MIDIFilePlayer.sharedInstance
-            midiFilePlayer.createMIDIFile(fileName: fileName, sequence: newSequence)
+            //  2   ... Create Composition from Parts
+            
+            let newComposition = MusicComposition(name: "Test Piece", musicParts: parts)
+            
+            //  3   ... Add composition to MusicDataSet
+            
+            musicDataSet.compositions.append(newComposition)
         }
-        return newSnippets
     }
     
-    private func generateNextSnippet(chord
+    private func generateMeasureForChord(
+        channel channel: Int,
         chord: String,
         musicSnippets: [MusicSnippet],
         musicSnippet: MusicSnippet,
-        timeOffset: MusicTimeStamp,
-        currentTime: MusicTimeStamp,
-        musicTrack: MusicTrack
-        ) -> (timeStamp: MusicTimeStamp, newSnippet: MusicSnippet)
+        keyOffset: Int,
+        timeSig: TimeSignature,
+        startTimeStamp: MusicTimeStamp,
+        tempo: Float64
+        ) -> MusicMeasure
     {
-        let newMergeSnippet = self.createNewMotive(musicSnippets, snippet: musicSnippet, weight: 0.6)
+        let newMergeSnippet = self.createNewMotive(musicSnippets, snippet: musicSnippet, weight: 0.6, numberOfBeats: Double(timeSig.numberOfBeats))
         let snippet1 = self.getSnippetWithRandomPermutation(newMergeSnippet)
-        snippet1.transposeToChord(chord)
-        let addedEvent = self.addMusicSnippetToSequence(snippet1, timeOffset: timeOffset, currentTime: currentTime, musicTrack: musicTrack)
-        return (addedEvent.timeStamp, addedEvent.newSnippet)
+        snippet1.transposeToChord(chord, keyOffset: keyOffset)
+        for note in snippet1.musicNoteEvents {
+            note.timeStamp = note.timeStamp + startTimeStamp
+            note.midiNoteMess.channel = UInt8(channel)
+        }
+        return MusicMeasure(tempo: tempo, timeSignature: timeSig, firstBeatTimeStamp: startTimeStamp, notes: snippet1.musicNoteEvents, chord: chord)
     }
     
-    private func setNextTimeStamp(var currentTime: MusicTimeStamp) -> MusicTimeStamp {
-        currentTime = currentTime + 4.0
-        return currentTime
-    }
-    
-    private func createNewMotive(musicSnippets: [MusicSnippet], snippet: MusicSnippet, weight: Double) -> MusicSnippet {
+    private func createNewMotive(musicSnippets: [MusicSnippet], snippet: MusicSnippet, weight: Double, numberOfBeats: Double) -> MusicSnippet {
         var musicSnippet = MusicSnippet()
         for i in 0..<musicSnippets.count {
             if i != musicSnippets.indexOf(snippet) {
                 if musicSnippets[i].getHighestWeightChord() == snippet.getHighestWeightChord() {
-                    musicSnippet = snippet.mergeNotePassages(firstWeight: weight, secondSnippet: musicSnippets[i])
+                    musicSnippet = snippet.mergeNotePassagesRhythmically(firstWeight: weight, chanceOfRest: 0.1, secondSnippet: musicSnippets[i], numberOfBeats: numberOfBeats)
                     break
                 }
             }
         }
-        return musicSnippet
-    }
-    
-    private func addMusicSnippetToSequence(musicSnippet: MusicSnippet, var timeOffset: MusicTimeStamp, currentTime: MusicTimeStamp, musicTrack: MusicTrack) -> (timeStamp: MusicTimeStamp, newSnippet: MusicSnippet) {
-        for note in musicSnippet.musicNoteEvents {
-            var midiNoteMessage = MIDINoteMessage()
-            midiNoteMessage.channel = note.midiNoteMess.channel
-            midiNoteMessage.duration = note.midiNoteMess.duration
-            midiNoteMessage.note = note.midiNoteMess.note
-            midiNoteMessage.releaseVelocity = note.midiNoteMess.releaseVelocity
-            midiNoteMessage.velocity = note.midiNoteMess.velocity
-            MusicTrackNewMIDINoteEvent(musicTrack, note.timeStamp + currentTime, &midiNoteMessage)
+        if musicSnippet.count == 0 {
+            return snippet
+        } else {
+            return musicSnippet
         }
-        musicSnippet.humanizeNotes()
-        timeOffset = timeOffset + musicSnippet.endTime
-        return (timeOffset, musicSnippet)
     }
     
     private func getSnippetWithRandomPermutation(musicSnippet: MusicSnippet) -> MusicSnippet {

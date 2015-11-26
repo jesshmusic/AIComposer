@@ -13,7 +13,7 @@ class Document: NSDocument {
     var currentLoadedFile: String!
     var musicDataSet: MusicDataSet!
     let composerController = ComposerController.sharedInstance
-    let midiFilePlayer = MIDIFilePlayer.sharedInstance
+    let midiManager = MIDIManager.sharedInstance
     
     @IBOutlet weak var clearDataButton: NSButtonCell!
     @IBOutlet weak var exportMIDIbutton: NSButton!
@@ -21,6 +21,7 @@ class Document: NSDocument {
     
     @IBOutlet weak var musicSnippetTableView: NSTableView!
     @IBOutlet weak var chordProgressionTableView: NSTableView!
+    @IBOutlet weak var compositionsTableView: NSTableView!
     
     @IBOutlet weak var permuteTestButton: NSButton!
     
@@ -35,12 +36,19 @@ class Document: NSDocument {
         if self.musicDataSet != nil {
             //            self.textOutputView.string = self.musicDataSet!.getDataString()
             self.musicSnippetTableView.reloadData()
+            if self.musicDataSet.compositions.count > 0 {
+                self.playButton.enabled = true
+                self.playButton.title = "PLAY"
+            } else {
+                self.playButton.enabled = false
+            }
         } else {
             self.musicDataSet = MusicDataSet()
             self.clearDataButton.enabled = false
             self.exportMIDIbutton.enabled = false
+            self.playButton.enabled = false
         }
-        self.playButton.enabled = false
+//        self.playButton.enabled = false
     }
     
     override class func autosavesInPlace() -> Bool {
@@ -155,44 +163,50 @@ class Document: NSDocument {
     @IBAction func createTestFile(sender: AnyObject) {
         let selectedSnippetRow = self.musicSnippetTableView.selectedRow
         if selectedSnippetRow > -1 {
-            let myFileDialog: NSSavePanel = NSSavePanel()
-            myFileDialog.beginWithCompletionHandler({ (result: Int) -> Void in
-                if result == NSFileHandlingPanelOKButton {
-                    let path = myFileDialog.URL?.path
-                    if (path != nil) {
-                        let newSnippets = self.composerController.createPermutationTestSequence(fileName: path!, musicSnippets: self.musicDataSet.musicSnippets, mainSnippetIndex: selectedSnippetRow, mainSnippetWeight: 0.6)
-                        self.musicDataSet.musicSnippets.appendContentsOf(newSnippets)
+//            let myFileDialog: NSSavePanel = NSSavePanel()
+//            myFileDialog.beginWithCompletionHandler({ (result: Int) -> Void in
+//                if result == NSFileHandlingPanelOKButton {
+//                    let path = myFileDialog.URL?.path
+//                    if (path != nil) {
+//                        self.composerController.createPermutationTestSequence(fileName: path!, musicDataSet: self.musicDataSet, mainSnippetIndex: selectedSnippetRow, mainSnippetWeight: 0.6, numberOfBeats: 4.0)
+                        self.composerController.createPermutationTestSequence(self.musicDataSet, mainSnippetIndex: selectedSnippetRow, mainSnippetWeight: 0.6, numberOfBeats: 4.0)
+
+//                        self.musicDataSet.musicSnippets.appendContentsOf(newSnippets)
                         self.musicSnippetTableView.reloadData()
+                        self.compositionsTableView.reloadData()
                         self.playButton.enabled = true
-                    } else {
-                        print("Canceled")
-                    }
-                }
-            })
+//                    } else {
+//                        print("Canceled")
+//                    }
+//                }
+//            })
         }
     }
     
-    @IBAction func loadTestMIDIFile(sender: AnyObject) {
-        
-        let myFileDialog: NSOpenPanel = NSOpenPanel()
-        myFileDialog.beginWithCompletionHandler({ (result: Int) -> Void in
-            if result == NSFileHandlingPanelOKButton {
-                // Get the path to the file chosen in the NSOpenPanel
-                let path = myFileDialog.URL?.path
-                
-                
-                // Make sure that a path was chosen
-                if (path != nil) {
-                    self.midiFilePlayer.loadMIDIFile(fileName: path!)
-                    self.playButton.enabled = true
-                }
-                
+    @IBAction func exportCompositionMIDIFile(sender: AnyObject) {
+        let selectedSequenceRow = self.compositionsTableView.selectedRow
+        if selectedSequenceRow > -1 {
+            let myFileDialog: NSSavePanel = NSSavePanel()
+            myFileDialog.runModal()
+            
+            let path = myFileDialog.URL?.path
+            if (path != nil) {
+                self.midiManager.createMIDIFile(fileName: path!, sequence: self.musicDataSet.compositions[selectedSequenceRow].musicSequence)
             }
-        })
+        }
     }
     
     @IBAction func playButton(sender: AnyObject) {
-        self.midiFilePlayer.playCurrentFile()
+        let selectedSequenceRow = self.compositionsTableView.selectedRow
+        if selectedSequenceRow > -1 {
+            self.midiManager.createMIDIPlayer(self.musicDataSet.compositions[selectedSequenceRow].musicSequence)
+        }
+        self.midiManager.play()
+        if self.midiManager.isPlaying {
+            self.playButton.title = "STOP"
+        } else {
+            self.playButton.title = "PLAY"
+        }
     }
 }
 
@@ -209,6 +223,10 @@ extension Document: NSTableViewDataSource {
             if tableView == self.musicSnippetTableView {
                 return self.musicDataSet.musicSnippets.count
             }
+            
+            if tableView == self.compositionsTableView {
+                return self.musicDataSet.compositions.count
+            }
         }
         
         return 1
@@ -223,7 +241,7 @@ extension Document: NSTableViewDataSource {
                 cellView.chordInfoTextField!.stringValue = "Progression (\(nextProgression.chords.count) chords):"
                 cellView.chordProgressionTextField!.stringValue = nextProgression.description
                 return cellView
-            } else {
+            } else if tableView == self.musicSnippetTableView {
                 if !self.musicDataSet.musicSnippets.isEmpty {
                     let cellView = tableView.makeViewWithIdentifier(tableColumn!.identifier, owner: self) as! MusicSnippetCellView
                     let nextSnippet = self.musicDataSet.musicSnippets[row]
@@ -233,7 +251,14 @@ extension Document: NSTableViewDataSource {
                     return cellView
                 }
                 return nil
-                
+            } else if tableView == self.compositionsTableView {
+                if !self.musicDataSet.compositions.isEmpty {
+                    let cellView = tableView.makeViewWithIdentifier(tableColumn!.identifier, owner: self) as! CompositionFileCellView
+                    let nextCompositionFile = self.musicDataSet.compositions[row]
+                    cellView.fileInfoTextField.stringValue = nextCompositionFile.dataString
+                    cellView.fileTextField.stringValue = nextCompositionFile.name
+                    return cellView
+                }
             }
         }
         return nil

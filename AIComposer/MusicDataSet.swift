@@ -14,12 +14,15 @@ import AudioToolbox
 class MusicDataSet: NSObject, NSCoding {
     
     var midiFileParser: MIDIFileParser!
+    var midiPlayer = MIDIFilePlayer.sharedInstance
     
     //  This will hold an array (for now) of transposable music ideas generated
     //  from music notes that occur in the same measure and channel
     var musicSnippets: [MusicSnippet]!
     var chordProgressions: [MusicChordProgression]!
     var timeResolution: UInt32!
+//    var musicSequenceURLs: [NSURL]!
+    var compositions: [MusicComposition]!
     
     /*
     *   Initializes the data structure.
@@ -27,6 +30,8 @@ class MusicDataSet: NSObject, NSCoding {
     override init() {
         midiFileParser = MIDIFileParser.sharedInstance
         self.musicSnippets = [MusicSnippet]()
+//        self.musicSequenceURLs = [NSURL]()
+        self.compositions = [MusicComposition]()
         self.timeResolution = 480
         // For testing:
         self.chordProgressions = [MusicChordProgression]()
@@ -45,6 +50,13 @@ class MusicDataSet: NSObject, NSCoding {
         } else {
             self.chordProgressions = [MusicChordProgression]()
         }
+        self.compositions = aDecoder.decodeObjectForKey("Compositions") as! [MusicComposition]
+//        if aDecoder.decodeObjectForKey("MusicSequence File Paths") != nil {
+//            self.musicSequenceURLs = aDecoder.decodeObjectForKey("MusicSequence File Paths") as! [NSURL]
+//            for nextURL in self.musicSequenceURLs {
+//                self.musicSequences.append(self.midiPlayer.loadMusicSequenceFromMIDIFile(filePath: nextURL))
+//            }
+//        }
         
         midiFileParser = MIDIFileParser.sharedInstance
         super.init()
@@ -54,6 +66,8 @@ class MusicDataSet: NSObject, NSCoding {
         aCoder.encodeObject(self.musicSnippets, forKey: "MusicSnippets")
         aCoder.encodeObject(self.chordProgressions, forKey: "Chord Progressions")
         aCoder.encodeInt32(Int32(self.timeResolution), forKey: "Time Resolution")
+        aCoder.encodeObject(self.compositions, forKey: "Compositions")
+//        aCoder.encodeObject(self.musicSequenceURLs, forKey: "MusicSequence File Paths")
     }
     
     /*
@@ -144,29 +158,6 @@ class MusicDataSet: NSObject, NSCoding {
                     nextSnippet = MusicSnippet()
                 }
             }
-
-//            for note in musicNotes {
-//                if note.timeStamp % numberOfBeats == 0.0 {
-//                    currentTimeStamp = currentTimeStamp + numberOfBeats
-//                }
-//                if note.timeStamp >= numberOfBeats {
-//                    currentTimeStamp = currentTimeStamp + MusicTimeStamp(numberOfBeats)
-//                    nextSnippet.zeroTransposeMusicSnippet()
-//                    musSnippets.append(nextSnippet)
-//                }
-//                if note.timeStamp % numberOfBeats != 0.0 {
-//                    nextSnippet.addMusicNote(note)
-//                } else {
-//                    if nextSnippet.count != 0 {
-//                        nextSnippet.zeroTransposeMusicSnippet()
-//                        musSnippets.append(nextSnippet)
-//                    }
-//                    nextSnippet = MusicSnippet()
-//                    nextSnippet.addMusicNote(note)
-//                }
-//            }
-//            musSnippets.append(nextSnippet)
-            //            }
         }
         return musSnippets
     }
