@@ -16,7 +16,7 @@ class Document: NSDocument {
     let midiManager = MIDIManager.sharedInstance
     
     @IBOutlet weak var clearDataButton: NSButtonCell!
-    @IBOutlet weak var exportMIDIbutton: NSButton!
+    @IBOutlet weak var deleteSnippetbutton: NSButton!
     @IBOutlet weak var playButton: NSButton!
     
     @IBOutlet weak var musicSnippetTableView: NSTableView!
@@ -46,7 +46,6 @@ class Document: NSDocument {
         } else {
             self.musicDataSet = MusicDataSet()
             self.clearDataButton.enabled = false
-            self.exportMIDIbutton.enabled = false
             self.playButton.enabled = false
         }
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "finishedPlaying", name: "Finished playing MIDI", object: nil)
@@ -105,7 +104,6 @@ class Document: NSDocument {
             if sender.tag() == 0 {
                 self.musicDataSet!.parseMusicSnippetsFromMIDIFile(path!)
                 self.clearDataButton.enabled = true
-                self.exportMIDIbutton.enabled = true
                 self.musicSnippetTableView.reloadData()
             } else if sender.tag() == 1 {
                 self.musicDataSet!.parseChordProgressionsFromMIDIFile(path!)
@@ -130,10 +128,17 @@ class Document: NSDocument {
                 self.musicDataSet!.clearAllData()
                 self.musicSnippetTableView.reloadData()
                 self.clearDataButton.enabled = false
-                self.exportMIDIbutton.enabled = false
             }
         default:
             break
+        }
+    }
+    
+    @IBAction func deleteSnippet(sender: AnyObject) {
+        let selectedRow = self.chordProgressionTableView.selectedRow
+        if selectedRow > -1 {
+            self.musicDataSet.musicSnippets.removeAtIndex(selectedRow)
+            self.musicSnippetTableView.reloadData()
         }
     }
     
@@ -146,17 +151,6 @@ class Document: NSDocument {
             return self.musicDataSet.chordProgressions[selectedRow]
         }
         return nil
-    }
-    
-    
-    @IBAction func exportMIDIFile(sender: AnyObject) {
-        let myFileDialog: NSSavePanel = NSSavePanel()
-        myFileDialog.runModal()
-        
-        let path = myFileDialog.URL?.path
-        if (path != nil) {
-            self.musicDataSet.createMIDIFileFromDataSet(path!)
-        }
     }
     
     @IBAction func deleteProgression(sender: AnyObject) {
