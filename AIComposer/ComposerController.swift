@@ -19,6 +19,12 @@ struct CompositionGene {
     var fitness = 0.0
 }
 
+struct MainThemeGene {
+    var musicSnippet: MusicSnippet!
+    let chord: String!
+    var fitness = 0.0
+}
+
 struct DesiredResults {
     var silenceRatio = 0.125
     var chordDissonanceRatio = 0.5
@@ -120,9 +126,9 @@ class ComposerController: NSObject {
         let randomName = self.getRandomName()           //  This is for fun.
         self.compositionGenes = [CompositionGene]()
         let presets = self.setInstrumentPresets()
+        self.createMainTheme()  //  All genes will be based on this theme.
         for _ in 0..<self.numberOfGenes {
             
-            self.createMainTheme()  //  All genes will be based on this theme.
             self.tempo = Float64(Int.random(40...140))
             self.generateChordProgressions()
             
@@ -369,31 +375,240 @@ class ComposerController: NSObject {
         return 0.0
     }
     
-    //
-    //  MARK: - Compositional methods
-    //
-    
+    //  MARK: - COMPOSITIONAL METHODS: Main theme generation
+    // Creates the main theme for the piece. I'm going to attempt to do this with a genetic algorithm too.
+    //  *** REQUIRED ***    There must be more than 1 MusicSnippet.
     private func createMainTheme() {
-        
+        var themeGenes = [MainThemeGene]()
         var musicSnippet: MusicSnippet!
+        var chord = ""
         let mainSnippetIndex = Int.random(0..<self.musicDataSet.musicSnippets.count)
         if self.musicDataSet.musicSnippets[mainSnippetIndex].getHighestWeightChord().containsString("m") {
             musicSnippet = MusicSnippet(notes: self.musicDataSet.musicSnippets[mainSnippetIndex].musicNoteEvents)
             musicSnippet.transposeToChord("Cm", keyOffset: 0)
+            chord = "Cm"
         } else {
             musicSnippet = MusicSnippet(notes: self.musicDataSet.musicSnippets[mainSnippetIndex].musicNoteEvents)
             musicSnippet.transposeToChord("C", keyOffset: 0)
+            chord = "C"
         }
-        if self.musicDataSet.musicSnippets.count > 1 {
-            for _ in 0..<3 {
-                musicSnippet = self.createNewMotive(self.musicDataSet.musicSnippets[mainSnippetIndex])
+        
+        //  Initialize
+        for _ in 0..<self.numberOfGenes {
+            themeGenes.append(MainThemeGene(musicSnippet: self.createNewMotive(self.musicDataSet.musicSnippets[mainSnippetIndex]), chord: chord, fitness: 0.0))
+        }
+        themeGenes = self.checkThemeFitness(themeGenes)
+        var bestFitness = self.getThemeBestFitness(themeGenes)
+        var currentGeneration = 0
+        while bestFitness <= fitnessGoal && currentGeneration < self.maxAttempts {
+            themeGenes = self.selectionForThemes(themeGenes)
+            themeGenes = self.crossoverForThemes(themeGenes)
+            themeGenes = self.mutationForThemes(themeGenes)
+            themeGenes = self.checkThemeFitness(themeGenes)
+            bestFitness = self.getThemeBestFitness(themeGenes)
+            currentGeneration++
+            print("THEME Generation attempt: \(currentGeneration): Best fitness: \(bestFitness)\n")
+            for theme in themeGenes {
+                print("\tTheme: \(theme.musicSnippet) \tfitness: \(theme.fitness)")
             }
-        } else {
-            musicSnippet = MusicSnippet(notes: self.musicDataSet.musicSnippets[0].musicNoteEvents)
         }
-        self.mainTheme = musicSnippet
+        let results = self.getBestFitThemeGene(themeGenes)
+//        if self.musicDataSet.musicSnippets.count > 1 {
+//            for _ in 0..<3 {
+//                musicSnippet = self.createNewMotive(self.musicDataSet.musicSnippets[mainSnippetIndex])
+//            }
+//        } else {
+//            musicSnippet = MusicSnippet(notes: self.musicDataSet.musicSnippets[0].musicNoteEvents)
+//        }
+        self.mainTheme = results.musicSnippet
     }
     
+    //  Generates a new MusicSnippet theme
+    private func createNewMotive(snippet: MusicSnippet) -> MusicSnippet {
+        var musicSnippet = MusicSnippet()
+        for i in 0..<self.musicDataSet.musicSnippets.count {
+            if i != self.musicDataSet.musicSnippets.indexOf(snippet) {
+                if self.musicDataSet.musicSnippets[i].getHighestWeightChord() == snippet.getHighestWeightChord() {
+                    musicSnippet = snippet.mergeNotePassagesRhythmically(
+                        firstWeight: self.musicDataSet.compositionWeights.mainThemeWeight,
+                        chanceOfRest: self.musicDataSet.compositionWeights.chanceOfRest,
+                        secondSnippet: self.musicDataSet.musicSnippets[i],
+                        numberOfBeats: Double(self.timeSig.numberOfBeats))
+                    break
+                }
+            }
+        }
+        if musicSnippet.count == 0 {
+            return snippet
+        } else {
+            return musicSnippet
+        }
+    }
+    
+    //  Check fitness of new main themes based on differences in range/smoothness of melody, smoothness of velocity, ratio of chord tones
+    private func checkThemeFitness(themeGenes: [MainThemeGene]) -> [MainThemeGene] {
+        
+        let chordCtrl = MusicChord.sharedInstance
+        var returnThemes = [MainThemeGene]()
+        
+        for themeGene in themeGenes {
+            var fitScore = 0.0
+            var previousNote = themeGene.musicSnippet.musicNoteEvents[0]
+            var totalHalfSteps = 0
+            var totalVelocityDifference = 0
+            var lowestNote = Int(previousNote.midiNoteMess.note)
+            var highestNote = Int(previousNote.midiNoteMess.note)
+            
+            //  Check average leap, total range, and velocity difference
+            
+            for i in 1..<themeGene.musicSnippet.musicNoteEvents.count {
+                let currentNote = themeGene.musicSnippet.musicNoteEvents[i]
+                let noteNum = Int(currentNote.midiNoteMess.note)
+                if  noteNum > highestNote {
+                    highestNote = noteNum
+                }
+                if noteNum < lowestNote {
+                    lowestNote = noteNum
+                }
+                totalHalfSteps = totalHalfSteps + (noteNum - Int(previousNote.midiNoteMess.note))
+                totalVelocityDifference = totalVelocityDifference + (Int(currentNote.midiNoteMess.velocity) - Int(previousNote.midiNoteMess.velocity))
+                previousNote = currentNote
+            }
+            
+            let averageLeap = Double(totalHalfSteps / themeGene.musicSnippet.musicNoteEvents.count)
+            if averageLeap <= 4 {
+                fitScore = fitScore + 0.1
+            }
+            if averageLeap <= 2 {
+                fitScore = fitScore + 0.1
+            }
+            
+            let totalRange = highestNote - lowestNote
+            if totalRange > 6 && totalRange < 24 {
+                fitScore = fitScore + 0.1
+            }
+            if totalRange > 12 && totalRange < 18 {
+                fitScore = fitScore + 0.1
+            }
+            
+            let averageVelocityChange = Double(totalVelocityDifference / themeGene.musicSnippet.musicNoteEvents.count)
+            if averageVelocityChange <= 10 {
+                fitScore = fitScore + 0.1
+            } else if averageVelocityChange <= 20 && averageVelocityChange > 10 {
+                fitScore = fitScore + 0.1
+            }
+            
+            //  Check total duration in chord
+            var totalDurationsInChord = 0.0
+            var totalDurations = 0.0
+            let chordNotes = chordCtrl.chordNotes[themeGene.chord]
+            
+            for note in themeGene.musicSnippet.musicNoteEvents {
+                let noteNumber = Int(note.midiNoteMess.note % 12)
+                if chordNotes!.contains(noteNumber) {
+                    totalDurationsInChord = totalDurationsInChord + Double(note.midiNoteMess.duration)
+                }
+                totalDurations = totalDurations + Double(note.midiNoteMess.duration)
+            }
+            let ratioOfChordNotes = totalDurationsInChord / totalDurations
+            if ratioOfChordNotes > 0.5 && ratioOfChordNotes <= 1.0 {
+                fitScore = fitScore + 0.2
+            }
+            if ratioOfChordNotes > 0.6 && ratioOfChordNotes <= 0.8 {
+                fitScore = fitScore + 0.2
+            }
+            
+            //  Add to return themes
+            returnThemes.append(MainThemeGene(musicSnippet: themeGene.musicSnippet, chord: themeGene.chord, fitness: fitScore))
+        }
+        
+        returnThemes.sortInPlace({$0.fitness > $1.fitness})
+        return returnThemes
+    }
+    
+    private func getThemeBestFitness(themeGenes: [MainThemeGene]) -> Double {
+        var bestFit = 0.0
+        for themeGene in themeGenes {
+            if themeGene.fitness > bestFit {
+                bestFit = themeGene.fitness
+            }
+        }
+        return bestFit
+    }
+    
+    //  Passes on half of the genes with the highest fitness
+    private func selectionForThemes(themeGenes: [MainThemeGene]) -> [MainThemeGene] {
+        var returnThemes = [MainThemeGene]()       //  Take half of the best fits
+        let cutoffIndex = self.numberOfGenes / 2
+        for i in 0..<cutoffIndex {
+            returnThemes.append(themeGenes[i])
+            returnThemes.append(themeGenes[cutoffIndex - i])      //  Add the genes in an alternating manner so they can crossover
+        }
+        return returnThemes
+    }
+    
+    //  Merges every pair of genes
+    private func crossoverForThemes(themeGenes: [MainThemeGene]) -> [MainThemeGene] {
+        var returnThemes = [MainThemeGene]()
+        for (var i = 1; i < themeGenes.count; i = i + 2) {
+            let gene1 = themeGenes[i]
+            let gene2 = themeGenes[i-1]
+            let newGene1 = MainThemeGene(
+                musicSnippet: gene1.musicSnippet.mergeNotePassagesRhythmically(
+                    firstWeight: gene1.fitness,
+                    chanceOfRest: self.musicDataSet.compositionWeights.chanceOfRest,
+                    secondSnippet: gene2.musicSnippet,
+                    numberOfBeats: Double(self.timeSig.numberOfBeats)), chord: themeGenes[0].chord, fitness: 0.0)
+            let newGene2 = MainThemeGene(
+                musicSnippet: gene1.musicSnippet.mergeNotePassagesRhythmically(
+                    firstWeight: gene1.fitness,
+                    chanceOfRest: self.musicDataSet.compositionWeights.chanceOfRest,
+                    secondSnippet: gene2.musicSnippet,
+                    numberOfBeats: Double(self.timeSig.numberOfBeats)), chord: themeGenes[0].chord, fitness: 0.0)
+            returnThemes.append(newGene1)
+            returnThemes.append(newGene2)
+        }
+        return returnThemes
+    }
+    
+    //  Performs a permutation on ~1/8 genes
+    private func mutationForThemes(themeGenes: [MainThemeGene]) -> [MainThemeGene] {
+        var returnThemes = [MainThemeGene]()
+        var bitMask = [Bool]()
+        for _ in 0..<self.numberOfGenes {
+            if Double.random() < 0.125 {
+                bitMask.append(true)
+            } else {
+                bitMask.append(false)
+            }
+        }
+        
+        for i in 0..<themeGenes.count {
+            var newThemeGene = MainThemeGene(musicSnippet: themeGenes[i].musicSnippet, chord: themeGenes[i].chord, fitness: themeGenes[i].fitness)
+            if bitMask[i] {
+                newThemeGene.musicSnippet = self.getSnippetWithRandomPermutation(newThemeGene.musicSnippet)
+            }
+            returnThemes.append(newThemeGene)
+        }
+        return returnThemes
+    }
+    
+    //  Returns the highest fitness gene
+    private func getBestFitThemeGene(themeGenes: [MainThemeGene]) -> MainThemeGene {
+        var bestFit = 0.0
+        var returnGene: MainThemeGene!
+        for themeGene in themeGenes {
+            if themeGene.fitness > bestFit {
+                bestFit = themeGene.fitness
+                returnGene = themeGene
+            }
+        }
+        return returnGene
+    }
+    
+    
+    
+    //  MARK: - COMPOSITIONAL METHODS: Instrument and chord setup
     //  Set the instruments for each part
     private func setInstrumentPresets() -> [UInt8] {
         var presets:[UInt8] = []
@@ -411,7 +626,7 @@ class ComposerController: NSObject {
     private func generateChordProgressions()
     {
         self.chords = [String]()
-        let numberOfProgressions = Int.random(3...8)
+        let numberOfProgressions = Int.random(1...4)
         for _ in 0..<numberOfProgressions {
             var chordProgIndex = 0
             let randomDbl = Double.random()
@@ -422,6 +637,8 @@ class ComposerController: NSObject {
             self.chords.appendContentsOf(self.musicDataSet.chordProgressions[chordProgIndex].chords)
         }
     }
+    
+    //  MARK: - COMPOSITIONAL METHODS: Part creation
     
     //  Creates a new part based on weights and other criteria
     func composeNewPartWithChannel(partNum: Int, var numberOfMeasures: Int, presets: [UInt8]) -> (part: MusicPart, numberOfMeasures: Int, octaveOffset: Int)
@@ -503,27 +720,7 @@ class ComposerController: NSObject {
         }
     }
     
-    //  Generates a new MusicSnippet theme
-    private func createNewMotive(snippet: MusicSnippet) -> MusicSnippet {
-        var musicSnippet = MusicSnippet()
-        for i in 0..<self.musicDataSet.musicSnippets.count {
-            if i != self.musicDataSet.musicSnippets.indexOf(snippet) {
-                if self.musicDataSet.musicSnippets[i].getHighestWeightChord() == snippet.getHighestWeightChord() {
-                    musicSnippet = snippet.mergeNotePassagesRhythmically(
-                        firstWeight: self.musicDataSet.compositionWeights.mainThemeWeight,
-                        chanceOfRest: self.musicDataSet.compositionWeights.chanceOfRest,
-                        secondSnippet: self.musicDataSet.musicSnippets[i],
-                        numberOfBeats: Double(self.timeSig.numberOfBeats))
-                    break
-                }
-            }
-        }
-        if musicSnippet.count == 0 {
-            return snippet
-        } else {
-            return musicSnippet
-        }
-    }
+    //  MARK: - COMPOSITIONAL METHODS: Permutation/Variation
     
     //  Generates a random permutation based on weights
     private func getSnippetWithRandomPermutation(musicSnippet: MusicSnippet) -> MusicSnippet {
@@ -577,6 +774,8 @@ class ComposerController: NSObject {
         newMeasure.notes = musicSnippet.musicNoteEvents
         return newMeasure
     }
+    
+    //  MARK: - COMPOSITIONAL METHODS: Random name generation
     
     private func getRandomName() -> String {
         let randomNames = ["Tapestry No. ", "Viginette No. ", "Evolved No. ", "Fantasy No. ", "Thing No. ", "Epiphany No. "]
