@@ -19,6 +19,7 @@ class MusicComposition: NSObject, NSCoding {
     internal private(set) var tempo: Int!
     internal private(set) var numberOfMeasures: Int!
     internal private(set) var numberOfParts: Int!
+    var fitnessScore = 0.0
     
     override init() {
         self.musicParts = [MusicPart]()
@@ -40,6 +41,7 @@ class MusicComposition: NSObject, NSCoding {
         self.name = aDecoder.decodeObjectForKey("Name") as! String
         self.musicParts = aDecoder.decodeObjectForKey("Parts") as! [MusicPart]
         self.numberOfMeasures = aDecoder.decodeIntegerForKey("Number of Measures")
+        self.fitnessScore = aDecoder.decodeDoubleForKey("Fitness Score")
         super.init()
         self.createMusicSequence()
     }
@@ -48,6 +50,7 @@ class MusicComposition: NSObject, NSCoding {
         aCoder.encodeObject(self.name, forKey: "Name")
         aCoder.encodeObject(self.musicParts, forKey: "Parts")
         aCoder.encodeInteger(self.numberOfMeasures, forKey: "Number of Measures")
+        aCoder.encodeDouble(self.fitnessScore, forKey: "Fitness Score")
     }
     
     private func createMusicSequence() {
@@ -111,6 +114,6 @@ class MusicComposition: NSObject, NSCoding {
     
     //  Returns a formatted String for display in the Table View
     var dataString: String {
-        return "Tempo: \(self.tempo)\t\(self.numberOfMeasures) measures\t\(self.numberOfParts) parts"
+        return "Tempo: \(self.tempo)\t\(self.numberOfMeasures) measures\t\(self.numberOfParts) parts \t\tFitness score: \(self.fitnessScore)"
     }
 }
