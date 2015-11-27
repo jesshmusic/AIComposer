@@ -26,6 +26,9 @@ struct CompositionWeights {
     var chanceOfCrescendo = 0.5
     var chanceOfArticulation = 0.5
     var articulationWeights = [0.2, 0.8, 0.85, 0.95, 1.0]
+    
+    //  Genetic Algorithm parameters
+    var chanceOfMutation = 0.125
 }
 
 class MusicDataSet: NSObject, NSCoding {
