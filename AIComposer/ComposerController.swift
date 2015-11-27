@@ -85,10 +85,10 @@ class ComposerController: NSObject {
         self.initializeCompositions()        //  Initialization
         var currentAttempt = 0
         var bestFitness = 0.0
-        var fitnessResults = self.checkCompositions()       //  First Check
-        for result in fitnessResults {
-            if result.score > bestFitness {
-                bestFitness = result.score
+        self.checkCompositions()       //  First Check
+        for compGene in self.compositionGenes {
+            if compGene.fitness > bestFitness {
+                bestFitness = compGene.fitness
             }
         }
         //  Genetic processes
@@ -98,11 +98,11 @@ class ComposerController: NSObject {
             self.selectFitCompositions()                            //  Selection
             self.crossoverCompositions()                            //  Crossover
             self.mutateCompositions()                               //  Mutation
-            fitnessResults = self.checkCompositions()                   //  Test
-            for result in fitnessResults {
-                print("\t\t compGene - \(result.compGene.composition.name)... score: \(result.score)")
-                if result.score > bestFitness {
-                    bestFitness = result.score
+            self.checkCompositions()       //  First Check
+            for compGene in self.compositionGenes {
+                print("\t\t compGene - \(compGene.composition.name)... score: \(compGene.fitness)")
+                if compGene.fitness > bestFitness {
+                    bestFitness = compGene.fitness
                 }
             }
             print("Attempt \(currentAttempt): best fitness = \(bestFitness)")
@@ -146,6 +146,10 @@ class ComposerController: NSObject {
     private func selectFitCompositions()
     {
         //  TODO: Implement selection...
+        self.orderGenesByBestFitness()  //  I think this will help getting the most fit genes.
+        for compGene in self.compositionGenes {
+            
+        }
     }
     
     //  Crossover
@@ -156,6 +160,9 @@ class ComposerController: NSObject {
     private func crossoverCompositions()
     {
         //  TODO: Implement crossover.
+        for compGene in self.compositionGenes {
+            
+        }
     }
     
     //  Mutation
@@ -163,13 +170,15 @@ class ComposerController: NSObject {
     private func mutateCompositions()
     {
         //  TODO: Implement Mutation
+        for compGene in self.compositionGenes {
+            
+        }
     }
     
     
-    private func checkCompositions() -> [(compGene: CompositionGene, score: Double)]
+    private func checkCompositions()
     {
         //  TODO: checkComposition: Generates a fitness score based on several criteria. (To be determined)
-        var fitnessResults = [(compGene: CompositionGene, score: Double)]()
         for compGene in self.compositionGenes {
             var overallFitness = 0.0        //  Using a single result number for now
             var silenceRatio = 0.0
@@ -202,9 +211,10 @@ class ComposerController: NSObject {
                 }
             }
             compGene.composition.fitnessScore = overallFitness
-            fitnessResults.append((compGene: compGene, score: overallFitness))
         }
-        return fitnessResults
+        for i in 0..<self.compositionGenes.count {
+            self.compositionGenes[i].fitness = self.compositionGenes[i].composition.fitnessScore
+        }
     }
     
     //  After the genetic algorithm, gets the best fit composition
@@ -225,6 +235,13 @@ class ComposerController: NSObject {
     //
     //  MARK: - Fitness Checks
     //
+    
+    /**
+    Order genes based on fitness: highest to lowest
+    */
+    private func orderGenesByBestFitness() {
+        self.compositionGenes.sortInPlace({$0.fitness > $1.fitness})
+    }
     
     /**
     Returns the ratio of measures with no notes to those with notes
@@ -546,6 +563,19 @@ class ComposerController: NSObject {
         }
         
         return newSnippet
+    }
+    
+    /**
+    Apply a random permutation to a measure and return a fresh copy.
+    
+    - measure: `MusicMeasure`
+    - Returns: `MusicMeasure`
+    */
+    private func applyRandomPermutationToMeasure(measure: MusicMeasure) -> MusicMeasure {
+        let newMeasure = measure.getMeasureCopy()
+        let musicSnippet = self.getSnippetWithRandomPermutation(MusicSnippet(notes: newMeasure.notes))
+        newMeasure.notes = musicSnippet.musicNoteEvents
+        return newMeasure
     }
     
     private func getRandomName() -> String {

@@ -31,10 +31,10 @@ class MusicMeasure: NSObject, NSCoding {
     
     internal private(set) var tempo: Float64!
     internal private(set) var timeSignature: TimeSignature!
-    internal private(set) var firstBeatTimeStamp: MusicTimeStamp!
-    internal private(set) var notes: [MusicNote]!
-    internal private(set) var chord: String!
-    internal private(set) var keySig = 0        // from -7 to 7, will offset all notes when returning a sequence
+    var firstBeatTimeStamp: MusicTimeStamp!
+    var notes: [MusicNote]!
+    var chord: String!
+    var keySig = 0        // from -7 to 7, will offset all notes when returning a sequence
     
     init(tempo: Float64, timeSignature: TimeSignature, firstBeatTimeStamp: MusicTimeStamp, notes: [MusicNote], chord: String, key: Int = 0) {
         super.init()
@@ -68,5 +68,14 @@ class MusicMeasure: NSObject, NSCoding {
         aCoder.encodeObject(self.notes, forKey: "Notes")
         aCoder.encodeObject(self.chord, forKey: "Chord")
         aCoder.encodeInteger(self.keySig, forKey: "Key Sig")
+    }
+    
+    //  Returns a fresh copy of this measure
+    func getMeasureCopy() -> MusicMeasure {
+        var newNotes = [MusicNote]()
+        for note in self.notes {
+            newNotes.append(note.getNoteCopy())
+        }
+        return MusicMeasure(tempo: self.tempo, timeSignature: self.timeSignature, firstBeatTimeStamp: self.firstBeatTimeStamp, notes: newNotes, chord: self.chord)
     }
 }
