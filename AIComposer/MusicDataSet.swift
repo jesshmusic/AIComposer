@@ -37,13 +37,19 @@ class MusicDataSet: NSObject, NSCoding {
     //  This will hold an array (for now) of transposable music ideas generated
     //  from music notes that occur in the same measure and channel
     var musicSnippets: [MusicSnippet]!
-    var chordProgressions: [MusicChordProgression]!
+    var chordProgressions = [MusicChordProgression]()
     var timeResolution: UInt32!
     var compositions: [MusicComposition]!
-    
     var compositionWeights = CompositionWeights()
     
-    let chordsSet = [["C", "Em", "F", "Dm", "G", "C"], ["C", "Eb", "F", "Gm", "G", "Am"], ["F", "C", "Dm", "Am", "G", "C"], ["C", "G", "Am", "Em", "F", "C", "Dm", "G", "C"]]
+    let chordsSet = [["C", "C", "G", "G"], ["C", "C", "G", "G"], ["C", "C", "G", "G"], ["C", "C", "G", "G"],
+        ["C", "C", "F", "F", "G", "G"], ["C", "C", "F", "F", "G", "G"],
+        ["C", "Am", "C", "Am", "C", "Am", "G", "G"],
+        ["C", "C", "Am", "Am", "Dm", "Dm", "G", "G"],
+        ["C", "G", "Dm", "Am", "Em", "Bdim", "F"],
+        ["C", "Am", "G", "C", "C", "B", "Em", "Em", "D", "G", "G"],
+        ["G", "D", "G", "Bm", "C", "D", "G"]
+    ]
     /*
     *   Initializes the data structure.
     */
@@ -59,11 +65,13 @@ class MusicDataSet: NSObject, NSCoding {
             for chord in chordProg {
                 newProgression.addChord(chord)
             }
-            self.chordProgressions.append(newProgression)
+            self.addChordProgression(newProgression)
         }
     }
     
     required init(coder aDecoder: NSCoder) {
+        super.init()
+        
         self.musicSnippets = aDecoder.decodeObjectForKey("MusicSnippets") as! [MusicSnippet]
         if aDecoder.decodeInt32ForKey("Time Resolution") != 0 {
             self.timeResolution = UInt32(aDecoder.decodeInt32ForKey("Time Resolution"))
@@ -71,20 +79,14 @@ class MusicDataSet: NSObject, NSCoding {
             self.timeResolution = 480
         }
         if aDecoder.decodeObjectForKey("Chord Progressions") != nil {
-            self.chordProgressions = aDecoder.decodeObjectForKey("Chord Progressions") as! [MusicChordProgression]
+            let chordProgs = aDecoder.decodeObjectForKey("Chord Progressions") as! [MusicChordProgression]      // To ensure old files without weights are compatible
+            for chordProg in chordProgs {
+                self.addChordProgression(chordProg)
+            }
         } else {
             self.chordProgressions = [MusicChordProgression]()
         }
         self.compositions = aDecoder.decodeObjectForKey("Compositions") as! [MusicComposition]
-//        if aDecoder.decodeObjectForKey("MusicSequence File Paths") != nil {
-//            self.musicSequenceURLs = aDecoder.decodeObjectForKey("MusicSequence File Paths") as! [NSURL]
-//            for nextURL in self.musicSequenceURLs {
-//                self.musicSequences.append(self.midiPlayer.loadMusicSequenceFromMIDIFile(filePath: nextURL))
-//            }
-//        }
-        
-//        midiFileParser = MIDIFileParser.sharedInstance
-        super.init()
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
@@ -92,7 +94,6 @@ class MusicDataSet: NSObject, NSCoding {
         aCoder.encodeObject(self.chordProgressions, forKey: "Chord Progressions")
         aCoder.encodeInt32(Int32(self.timeResolution), forKey: "Time Resolution")
         aCoder.encodeObject(self.compositions, forKey: "Compositions")
-//        aCoder.encodeObject(self.musicSequenceURLs, forKey: "MusicSequence File Paths")
     }
     
     /*
@@ -121,11 +122,10 @@ class MusicDataSet: NSObject, NSCoding {
         var musicNotes = [MusicNote]()
         let eventMarkers = newMIDIData.eventMarkers
         for nextEvent in newMIDIData.midiNotes {
-            //            let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, barBeatTime: nextEvent.barBeatTime, timeStamp: nextEvent.timeStamp)
             let note = MusicNote(noteMessage: nextEvent.midiNoteMessage, timeStamp: nextEvent.timeStamp)
             musicNotes.append(note)
         }
-        self.chordProgressions.appendContentsOf(self.generateProgressionsFromMusicNotes(musicNotes, eventMarkers: eventMarkers))
+        self.generateProgressionsFromMusicNotes(musicNotes, eventMarkers: eventMarkers)
     }
     
     /*
@@ -170,8 +170,7 @@ class MusicDataSet: NSObject, NSCoding {
     *   Event markers (CC20) delineate where phrases end.
     *   Event markers are required.
     */
-    private func generateProgressionsFromMusicNotes(musicNotes: [MusicNote], eventMarkers: [MusicTimeStamp]) -> [MusicChordProgression] {
-        var chordProgs = [MusicChordProgression]()
+    private func generateProgressionsFromMusicNotes(musicNotes: [MusicNote], eventMarkers: [MusicTimeStamp]) {
         if !musicNotes.isEmpty {
             var nextSnippet: MusicSnippet!
             if eventMarkers.count > 0 {
@@ -181,49 +180,66 @@ class MusicDataSet: NSObject, NSCoding {
                 for event in eventMarkers {
                     let chordProg = MusicChordProgression()
                     timeStamp = Double(nextNote.timeStamp)
-//                    if noteIndex < musicNotes.count {
-                        while nextNote.timeStamp < event && noteIndex < musicNotes.count {
-                            nextSnippet = MusicSnippet()
-                            while abs(nextNote.timeStamp - timeStamp) < 0.05 {
-                                nextSnippet.addMusicNote(nextNote)
-                                noteIndex++
-                                if musicNotes.count <= noteIndex {
-                                    break
-                                } else {
-                                    nextNote = musicNotes[noteIndex].getNoteCopy()
-                                }
+                    while nextNote.timeStamp < event && noteIndex < musicNotes.count {
+                        nextSnippet = MusicSnippet()
+                        while abs(nextNote.timeStamp - timeStamp) < 0.05 {
+                            nextSnippet.addMusicNote(nextNote)
+                            noteIndex++
+                            if musicNotes.count <= noteIndex {
+                                break
+                            } else {
+                                nextNote = musicNotes[noteIndex].getNoteCopy()
                             }
-                            timeStamp = nextNote.timeStamp
-                            if nextSnippet.count > 0 {
-                                nextSnippet.zeroTransposeMusicSnippet()
-                                if nextSnippet.possibleChords.count == 1 {
-                                    chordProg.addChord(nextSnippet.possibleChords[0].name)
-                                } else if nextSnippet.possibleChords.count > 1 {
-                                    var bestChordWeight = nextSnippet.possibleChords[0].weight
-                                    var bestChord = nextSnippet.possibleChords[0].name
-                                    for chord in nextSnippet.possibleChords {
-                                        if chord.weight > bestChordWeight {
-                                            bestChordWeight = chord.weight
-                                            bestChord = chord.name
-                                        }
+                        }
+                        timeStamp = nextNote.timeStamp
+                        if nextSnippet.count > 0 {
+                            nextSnippet.zeroTransposeMusicSnippet()
+                            if nextSnippet.possibleChords.count == 1 {
+                                chordProg.addChord(nextSnippet.possibleChords[0].name)
+                            } else if nextSnippet.possibleChords.count > 1 {
+                                var bestChordWeight = nextSnippet.possibleChords[0].weight
+                                var bestChord = nextSnippet.possibleChords[0].name
+                                for chord in nextSnippet.possibleChords {
+                                    if chord.weight > bestChordWeight {
+                                        bestChordWeight = chord.weight
+                                        bestChord = chord.name
                                     }
-                                    chordProg.addChord(bestChord)
-                                } else {
-                                    break
                                 }
-//                            }
+                                chordProg.addChord(bestChord)
+                            } else {
+                                break
+                            }
                         }
                     }
-                    chordProgs.append(chordProg)
+                    self.addChordProgression(chordProg)
                 }
             }
         }
-        return chordProgs
     }
     
-    /*
-    *   Deletes all music snippets from the data structure
-    */
+    /**
+     Add a new chord progression to the data set
+     */
+    func addChordProgression(chordProgression: MusicChordProgression) {
+        if self.chordProgressions.contains(chordProgression) {
+            self.chordProgressions[self.chordProgressions.indexOf(chordProgression)!].incrementNumberOfOccurences()
+        } else {
+            self.chordProgressions.append(chordProgression)
+        }
+        self.recalculateAllChordProgressionWeights()
+    }
+    
+    /**
+     Add a new chord progression to the data set
+     */
+    func removeChordProgression(chordProgressionIndex: Int) {
+        self.chordProgressions.removeAtIndex(chordProgressionIndex)
+        self.recalculateAllChordProgressionWeights()
+    }
+    
+     /*
+     *   Deletes all music snippets from the data structure
+     */
     func clearAllData() {
         self.musicSnippets.removeAll()
         self.chordProgressions.removeAll()
@@ -232,6 +248,19 @@ class MusicDataSet: NSObject, NSCoding {
     func createMIDIFileFromDataSet(filePathString: String) {
         let newSeq = self.getMusicSequenceFromData()
         self.midiManager.createMIDIFile(fileName: filePathString, sequence: newSeq)
+    }
+    
+    /*
+    *   Recalculates all chord progression weights
+    */
+    private func recalculateAllChordProgressionWeights() {
+        var totalOccurences = 0.0
+        for chordProg in self.chordProgressions {
+            totalOccurences = totalOccurences + Double(chordProg.numberOfOccurences)
+        }
+        for chordProg in self.chordProgressions {
+            chordProg.updateWeight(Double(chordProg.numberOfOccurences) / totalOccurences)
+        }
     }
     
     /*

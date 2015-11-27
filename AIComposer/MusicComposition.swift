@@ -96,7 +96,7 @@ class MusicComposition: NSObject, NSCoding {
                 var midiNoteMessage = MIDINoteMessage()
                 midiNoteMessage.channel = note.midiNoteMess.channel
                 midiNoteMessage.duration = note.midiNoteMess.duration
-                midiNoteMessage.note = note.midiNoteMess.note
+                midiNoteMessage.note = UInt8(Int(note.midiNoteMess.note) + measure.keySig)
                 midiNoteMessage.releaseVelocity = note.midiNoteMess.releaseVelocity
                 midiNoteMessage.velocity = note.midiNoteMess.velocity
                 MusicTrackNewMIDINoteEvent(nextTrack, note.timeStamp, &midiNoteMessage)

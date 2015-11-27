@@ -161,7 +161,7 @@ class Document: NSDocument {
     
     @IBAction func deleteProgression(sender: AnyObject) {
         if let _ = self.selectedChordProgression() {
-            self.musicDataSet.chordProgressions.removeAtIndex(self.chordProgressionTableView.selectedRow)
+            self.musicDataSet.removeChordProgression(self.chordProgressionTableView.selectedRow)
             self.chordProgressionTableView.removeRowsAtIndexes(NSIndexSet(index: self.chordProgressionTableView.selectedRow), withAnimation: NSTableViewAnimationOptions.SlideRight)
         }
     }
