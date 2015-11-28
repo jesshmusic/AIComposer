@@ -9,6 +9,7 @@
                 <outlet property="chordProgressionTableView" destination="yPM-Ek-Q1w" id="E3C-gn-p9h"/>
                 <outlet property="clearDataButton" destination="czb-i3-6jU" id="ifM-hk-iaD"/>
                 <outlet property="compositionsTableView" destination="4ld-pg-Gk7" id="dVF-u4-xkO"/>
+                <outlet property="consoleTextView" destination="feu-cV-bcK" id="Ya4-qB-kSy"/>
                 <outlet property="deleteCompositionButton" destination="aVW-gf-40n" id="H47-zM-PQf"/>
                 <outlet property="deleteSnippetbutton" destination="HDh-Dd-k40" id="Zg7-BA-swN"/>
                 <outlet property="musicSnippetTableView" destination="XNs-wq-orN" id="fzb-JS-fA3"/>
@@ -21,25 +22,25 @@
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="xOd-HO-29H" userLabel="Window">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="689" y="557" width="800" height="600"/>
+            <rect key="contentRect" x="689" y="557" width="800" height="800"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1440"/>
-            <value key="minSize" type="size" width="640" height="480"/>
+            <value key="minSize" type="size" width="600" height="600"/>
             <view key="contentView" id="gIp-Ho-8D9">
-                <rect key="frame" x="0.0" y="0.0" width="800" height="600"/>
+                <rect key="frame" x="0.0" y="0.0" width="800" height="800"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <tabView translatesAutoresizingMaskIntoConstraints="NO" id="oKk-94-ZSW">
-                        <rect key="frame" x="-7" y="-10" width="814" height="614"/>
+                        <rect key="frame" x="0.0" y="0.0" width="800" height="800"/>
                         <animations/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
                             <tabViewItem label="Composer" identifier="" id="bt2-44-I7h">
                                 <view key="view" id="1IW-wM-sBE">
-                                    <rect key="frame" x="10" y="33" width="794" height="568"/>
+                                    <rect key="frame" x="10" y="33" width="780" height="754"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gYJ-7p-il1">
-                                            <rect key="frame" x="6" y="10" width="136" height="32"/>
+                                            <rect key="frame" x="11" y="10" width="136" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Export MIDI File" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mQr-Wb-rWU">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -49,14 +50,14 @@
                                                 <action selector="exportCompositionMIDIFile:" target="-2" id="fD4-AN-XGs"/>
                                             </connections>
                                         </button>
-                                        <scrollView autohidesScrollers="YES" horizontalLineScroll="32" horizontalPageScroll="10" verticalLineScroll="32" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J2f-EU-JF3">
-                                            <rect key="frame" x="17" y="58" width="760" height="498"/>
+                                        <scrollView autohidesScrollers="YES" horizontalLineScroll="102" horizontalPageScroll="10" verticalLineScroll="102" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J2f-EU-JF3">
+                                            <rect key="frame" x="17" y="412" width="760" height="330"/>
                                             <clipView key="contentView" id="aO6-Nw-ZXH">
-                                                <rect key="frame" x="1" y="0.0" width="758" height="497"/>
+                                                <rect key="frame" x="1" y="0.0" width="758" height="329"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="30" rowSizeStyle="automatic" headerView="gyO-R6-x7f" viewBased="YES" id="4ld-pg-Gk7">
-                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="474"/>
+                                                    <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="100" rowSizeStyle="automatic" headerView="gyO-R6-x7f" viewBased="YES" id="4ld-pg-Gk7">
+                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="306"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <animations/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
@@ -78,33 +79,52 @@
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 <prototypeCellViews>
                                                                     <tableCellView id="W6j-xC-lq1" customClass="CompositionFileCellView" customModule="AIComposer" customModuleProvider="target">
-                                                                        <rect key="frame" x="1" y="1" width="755" height="30"/>
+                                                                        <rect key="frame" x="1" y="1" width="755" height="100"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <subviews>
                                                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="ctL-Cn-kTv">
-                                                                                <rect key="frame" x="198" y="7" width="556" height="17"/>
+                                                                                <rect key="frame" x="198" y="51" width="556" height="43"/>
+                                                                                <constraints>
+                                                                                    <constraint firstAttribute="height" constant="43" id="TdU-eQ-hdi"/>
+                                                                                </constraints>
                                                                                 <animations/>
-                                                                                <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="Progression" id="039-dJ-v9h">
+                                                                                <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="Basic Info" id="039-dJ-v9h">
                                                                                     <font key="font" metaFont="system"/>
                                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                                 </textFieldCell>
                                                                             </textField>
                                                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Prf-Vr-6nt">
-                                                                                <rect key="frame" x="0.0" y="7" width="194" height="17"/>
+                                                                                <rect key="frame" x="0.0" y="77" width="194" height="17"/>
                                                                                 <constraints>
                                                                                     <constraint firstAttribute="width" constant="190" id="XDp-7e-tdc"/>
                                                                                 </constraints>
                                                                                 <animations/>
-                                                                                <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="info" id="iT0-Fz-jpB">
+                                                                                <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="Title" id="iT0-Fz-jpB">
                                                                                     <font key="font" metaFont="system"/>
                                                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                                </textFieldCell>
+                                                                            </textField>
+                                                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Dhz-pt-8aw">
+                                                                                <rect key="frame" x="1" y="3" width="753" height="40"/>
+                                                                                <constraints>
+                                                                                    <constraint firstAttribute="height" constant="40" id="C1H-K6-87q"/>
+                                                                                </constraints>
+                                                                                <animations/>
+                                                                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" placeholderString="Chord Progression" id="URO-jq-zPG">
+                                                                                    <font key="font" metaFont="system"/>
+                                                                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                                 </textFieldCell>
                                                                             </textField>
                                                                         </subviews>
                                                                         <constraints>
                                                                             <constraint firstItem="Prf-Vr-6nt" firstAttribute="leading" secondItem="W6j-xC-lq1" secondAttribute="leading" constant="2" id="0ea-qm-Bp8"/>
+                                                                            <constraint firstItem="Dhz-pt-8aw" firstAttribute="leading" secondItem="W6j-xC-lq1" secondAttribute="leading" constant="3" id="0sT-Gg-pD6"/>
+                                                                            <constraint firstAttribute="trailing" secondItem="Dhz-pt-8aw" secondAttribute="trailing" constant="3" id="X5d-su-ZOu"/>
+                                                                            <constraint firstAttribute="bottom" secondItem="Dhz-pt-8aw" secondAttribute="bottom" constant="3" id="YXW-qH-N8A"/>
+                                                                            <constraint firstItem="Dhz-pt-8aw" firstAttribute="top" secondItem="ctL-Cn-kTv" secondAttribute="bottom" constant="8" id="c3N-KY-bng"/>
                                                                             <constraint firstAttribute="trailing" secondItem="ctL-Cn-kTv" secondAttribute="trailing" constant="3" id="eab-jc-DPx"/>
                                                                             <constraint firstItem="Prf-Vr-6nt" firstAttribute="top" secondItem="W6j-xC-lq1" secondAttribute="top" constant="6" id="ebj-BM-GgS"/>
                                                                             <constraint firstItem="ctL-Cn-kTv" firstAttribute="top" secondItem="W6j-xC-lq1" secondAttribute="top" constant="6" id="q6Z-9S-q8z"/>
@@ -112,6 +132,7 @@
                                                                         </constraints>
                                                                         <animations/>
                                                                         <connections>
+                                                                            <outlet property="fileChordProgression" destination="Dhz-pt-8aw" id="P6z-Qc-LAm"/>
                                                                             <outlet property="fileInfoTextField" destination="ctL-Cn-kTv" id="swc-07-cEj"/>
                                                                             <outlet property="fileTextField" destination="Prf-Vr-6nt" id="GGl-2g-9yv"/>
                                                                         </connections>
@@ -128,6 +149,9 @@
                                                 <animations/>
                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </clipView>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="330" id="ZOd-LV-awp"/>
+                                            </constraints>
                                             <animations/>
                                             <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="lHD-hx-gim">
                                                 <rect key="frame" x="1" y="7" width="0.0" height="16"/>
@@ -145,19 +169,8 @@
                                                 <animations/>
                                             </tableHeaderView>
                                         </scrollView>
-                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kGR-4F-xmA">
-                                            <rect key="frame" x="711" y="10" width="72" height="32"/>
-                                            <animations/>
-                                            <buttonCell key="cell" type="push" title="PLAY" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="c8C-aw-504">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                            <connections>
-                                                <action selector="playButton:" target="-2" id="Nqo-uy-OfU"/>
-                                            </connections>
-                                        </button>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aVW-gf-40n">
-                                            <rect key="frame" x="142" y="10" width="160" height="32"/>
+                                            <rect key="frame" x="147" y="10" width="160" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Delete Composition" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="w82-j5-C1y">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -168,7 +181,7 @@
                                             </connections>
                                         </button>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9i0-Sf-TZ8">
-                                            <rect key="frame" x="342" y="16" width="110" height="35"/>
+                                            <rect key="frame" x="335" y="10" width="110" height="35"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="33" id="XHp-7y-c1o"/>
                                                 <constraint firstAttribute="width" constant="110" id="jlV-xa-vxF"/>
@@ -182,19 +195,67 @@
                                                 <action selector="createTestFile:" target="-2" id="j6S-CW-nCo"/>
                                             </connections>
                                         </button>
+                                        <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gfR-fo-ccn">
+                                            <rect key="frame" x="17" y="58" width="760" height="332"/>
+                                            <clipView key="contentView" copiesOnScroll="NO" id="jlN-Ga-HcA">
+                                                <rect key="frame" x="1" y="1" width="758" height="330"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <textView editable="NO" importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="feu-cV-bcK">
+                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="330"/>
+                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                        <animations/>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <size key="minSize" width="758" height="330"/>
+                                                        <size key="maxSize" width="764" height="10000000"/>
+                                                        <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                                        <size key="minSize" width="758" height="330"/>
+                                                        <size key="maxSize" width="764" height="10000000"/>
+                                                    </textView>
+                                                </subviews>
+                                                <animations/>
+                                                <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </clipView>
+                                            <animations/>
+                                            <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="W7O-ZL-NJf">
+                                                <rect key="frame" x="-100" y="-100" width="87" height="18"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                                <animations/>
+                                            </scroller>
+                                            <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="Pez-cr-xdy">
+                                                <rect key="frame" x="743" y="1" width="16" height="330"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                                <animations/>
+                                            </scroller>
+                                        </scrollView>
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kGR-4F-xmA">
+                                            <rect key="frame" x="711" y="10" width="72" height="32"/>
+                                            <animations/>
+                                            <buttonCell key="cell" type="push" title="PLAY" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="c8C-aw-504">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="playButton:" target="-2" id="Nqo-uy-OfU"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <constraints>
+                                        <constraint firstItem="gfR-fo-ccn" firstAttribute="leading" secondItem="1IW-wM-sBE" secondAttribute="leading" constant="17" id="0zV-Jv-VNH"/>
                                         <constraint firstItem="9i0-Sf-TZ8" firstAttribute="centerX" secondItem="1IW-wM-sBE" secondAttribute="centerX" id="1Xr-I2-kRh"/>
+                                        <constraint firstItem="gfR-fo-ccn" firstAttribute="top" secondItem="1IW-wM-sBE" secondAttribute="top" constant="364" id="2Ab-Mz-fzn"/>
+                                        <constraint firstItem="9i0-Sf-TZ8" firstAttribute="leading" secondItem="aVW-gf-40n" secondAttribute="trailing" constant="34" id="2UC-8C-dL7"/>
                                         <constraint firstItem="aVW-gf-40n" firstAttribute="leading" secondItem="gYJ-7p-il1" secondAttribute="trailing" constant="12" id="8VU-h1-FOi"/>
                                         <constraint firstItem="J2f-EU-JF3" firstAttribute="leading" secondItem="1IW-wM-sBE" secondAttribute="leading" constant="17" id="8sC-3a-wwv"/>
                                         <constraint firstItem="J2f-EU-JF3" firstAttribute="top" secondItem="1IW-wM-sBE" secondAttribute="top" constant="12" id="9cH-6J-OX4"/>
                                         <constraint firstAttribute="bottom" secondItem="kGR-4F-xmA" secondAttribute="bottom" constant="17" id="C9L-Ei-gTU"/>
-                                        <constraint firstItem="gYJ-7p-il1" firstAttribute="leading" secondItem="1IW-wM-sBE" secondAttribute="leading" constant="12" id="JaB-UB-jud"/>
-                                        <constraint firstAttribute="bottom" secondItem="J2f-EU-JF3" secondAttribute="bottom" constant="58" id="SFw-KL-wyf"/>
-                                        <constraint firstAttribute="bottom" secondItem="9i0-Sf-TZ8" secondAttribute="bottom" constant="17" id="ZXe-5e-jr6"/>
+                                        <constraint firstItem="gYJ-7p-il1" firstAttribute="leading" secondItem="1IW-wM-sBE" secondAttribute="leading" constant="17" id="JaB-UB-jud"/>
+                                        <constraint firstAttribute="bottom" secondItem="9i0-Sf-TZ8" secondAttribute="bottom" constant="11" id="ZXe-5e-jr6"/>
                                         <constraint firstAttribute="bottom" secondItem="aVW-gf-40n" secondAttribute="bottom" constant="17" id="bty-K1-97Q"/>
-                                        <constraint firstAttribute="trailing" secondItem="J2f-EU-JF3" secondAttribute="trailing" constant="17" id="cP1-o8-I8J"/>
-                                        <constraint firstAttribute="trailing" secondItem="kGR-4F-xmA" secondAttribute="trailing" constant="17" id="nlB-Sy-uyx"/>
+                                        <constraint firstAttribute="trailing" secondItem="J2f-EU-JF3" secondAttribute="trailing" constant="3" id="cP1-o8-I8J"/>
+                                        <constraint firstAttribute="bottom" secondItem="gfR-fo-ccn" secondAttribute="bottom" constant="58" id="epL-XD-oFY"/>
+                                        <constraint firstAttribute="trailing" secondItem="gfR-fo-ccn" secondAttribute="trailing" constant="3" id="jyo-6e-rUd"/>
+                                        <constraint firstAttribute="trailing" secondItem="kGR-4F-xmA" secondAttribute="trailing" constant="3" id="nlB-Sy-uyx"/>
                                         <constraint firstAttribute="bottom" secondItem="gYJ-7p-il1" secondAttribute="bottom" constant="17" id="wkV-4T-ODK"/>
                                     </constraints>
                                     <animations/>
@@ -202,11 +263,11 @@
                             </tabViewItem>
                             <tabViewItem label="Melodic Input" identifier="1" id="cdN-bM-XA3">
                                 <view key="view" id="BCA-6L-ton">
-                                    <rect key="frame" x="10" y="33" width="794" height="568"/>
+                                    <rect key="frame" x="10" y="33" width="780" height="754"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="lp4-fq-klJ">
-                                            <rect key="frame" x="649" y="537" width="134" height="32"/>
+                                            <rect key="frame" x="635" y="723" width="134" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Load MIDI file..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4fk-vU-XHj">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -217,7 +278,7 @@
                                             </connections>
                                         </button>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SWC-2P-K1L">
-                                            <rect key="frame" x="523" y="537" width="123" height="32"/>
+                                            <rect key="frame" x="509" y="723" width="123" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Clear All Data" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="czb-i3-6jU">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -228,13 +289,13 @@
                                             </buttonCell>
                                         </button>
                                         <scrollView autohidesScrollers="YES" horizontalLineScroll="202" horizontalPageScroll="10" verticalLineScroll="202" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7AA-as-JK8">
-                                            <rect key="frame" x="17" y="44" width="760" height="494"/>
+                                            <rect key="frame" x="17" y="44" width="746" height="680"/>
                                             <clipView key="contentView" id="sg4-nF-lb3">
-                                                <rect key="frame" x="1" y="0.0" width="758" height="493"/>
+                                                <rect key="frame" x="1" y="0.0" width="744" height="679"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="200" rowSizeStyle="automatic" headerView="UDN-bk-jsA" viewBased="YES" id="XNs-wq-orN">
-                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="470"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="744" height="656"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <animations/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
@@ -242,7 +303,7 @@
                                                         <tableViewGridLines key="gridStyleMask" vertical="YES" horizontal="YES"/>
                                                         <color key="gridColor" red="0.20000000000000001" green="0.40000000000000002" blue="0.80000000000000004" alpha="0.32000000000000001" colorSpace="calibratedRGB"/>
                                                         <tableColumns>
-                                                            <tableColumn width="755" minWidth="40" maxWidth="1000" id="rQ3-PZ-CaY">
+                                                            <tableColumn width="741" minWidth="40" maxWidth="1000" id="rQ3-PZ-CaY">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -256,11 +317,31 @@
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 <prototypeCellViews>
                                                                     <tableCellView id="Na2-QA-g4y" customClass="MusicSnippetCellView" customModule="AIComposer" customModuleProvider="target">
-                                                                        <rect key="frame" x="1" y="1" width="755" height="200"/>
+                                                                        <rect key="frame" x="1" y="1" width="741" height="200"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <subviews>
+                                                                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="IMb-qe-UXM">
+                                                                                <rect key="frame" x="383" y="3" width="357" height="128"/>
+                                                                                <constraints>
+                                                                                    <constraint firstAttribute="height" constant="128" id="1zV-nt-8eD"/>
+                                                                                </constraints>
+                                                                                <animations/>
+                                                                                <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="Music Snippet Data" id="cuE-vD-JcJ">
+                                                                                    <font key="font" size="9" name=".HelveticaNeueDeskInterface-Regular"/>
+                                                                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                                </textFieldCell>
+                                                                            </textField>
+                                                                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="KRW-XE-IQm" customClass="MIDIDrawView" customModule="AIComposer" customModuleProvider="target">
+                                                                                <rect key="frame" x="3" y="3" width="374" height="194"/>
+                                                                                <constraints>
+                                                                                    <constraint firstAttribute="height" constant="194" id="GUl-Gp-CGc"/>
+                                                                                    <constraint firstAttribute="width" constant="374" id="OBc-cD-52n"/>
+                                                                                </constraints>
+                                                                                <animations/>
+                                                                            </customView>
                                                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Lhf-Vt-Tfj">
-                                                                                <rect key="frame" x="1" y="139" width="378" height="58"/>
+                                                                                <rect key="frame" x="379" y="139" width="378" height="58"/>
                                                                                 <constraints>
                                                                                     <constraint firstAttribute="width" constant="374" id="IfC-Y1-NxR"/>
                                                                                     <constraint firstAttribute="height" constant="58" id="Xpz-hf-tzr"/>
@@ -272,36 +353,16 @@
                                                                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                                 </textFieldCell>
                                                                             </textField>
-                                                                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="IMb-qe-UXM">
-                                                                                <rect key="frame" x="383" y="3" width="371" height="194"/>
-                                                                                <constraints>
-                                                                                    <constraint firstAttribute="height" constant="194" id="1zV-nt-8eD"/>
-                                                                                </constraints>
-                                                                                <animations/>
-                                                                                <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="Music Snippet Data" id="cuE-vD-JcJ">
-                                                                                    <font key="font" size="9" name=".HelveticaNeueDeskInterface-Regular"/>
-                                                                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                                                </textFieldCell>
-                                                                            </textField>
-                                                                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="KRW-XE-IQm" customClass="MIDIDrawView" customModule="AIComposer" customModuleProvider="target">
-                                                                                <rect key="frame" x="3" y="3" width="374" height="128"/>
-                                                                                <constraints>
-                                                                                    <constraint firstAttribute="height" constant="128" id="GUl-Gp-CGc"/>
-                                                                                    <constraint firstAttribute="width" constant="374" id="OBc-cD-52n"/>
-                                                                                </constraints>
-                                                                                <animations/>
-                                                                            </customView>
                                                                         </subviews>
                                                                         <constraints>
-                                                                            <constraint firstItem="IMb-qe-UXM" firstAttribute="top" secondItem="Na2-QA-g4y" secondAttribute="top" constant="3" id="Dxd-2d-ifU"/>
-                                                                            <constraint firstItem="Lhf-Vt-Tfj" firstAttribute="leading" secondItem="Na2-QA-g4y" secondAttribute="leading" constant="3" id="KzM-8L-23k"/>
+                                                                            <constraint firstItem="IMb-qe-UXM" firstAttribute="top" secondItem="Na2-QA-g4y" secondAttribute="top" constant="69" id="Dxd-2d-ifU"/>
                                                                             <constraint firstItem="Lhf-Vt-Tfj" firstAttribute="top" secondItem="Na2-QA-g4y" secondAttribute="top" constant="3" id="NqS-LU-gQQ"/>
                                                                             <constraint firstItem="IMb-qe-UXM" firstAttribute="leading" secondItem="KRW-XE-IQm" secondAttribute="trailing" constant="8" id="OxA-HM-z7w"/>
                                                                             <constraint firstItem="KRW-XE-IQm" firstAttribute="leading" secondItem="Na2-QA-g4y" secondAttribute="leading" constant="3" id="WuM-ld-vhK"/>
                                                                             <constraint firstAttribute="bottom" secondItem="IMb-qe-UXM" secondAttribute="bottom" constant="3" id="Xmh-cn-Vx7"/>
+                                                                            <constraint firstAttribute="trailing" secondItem="Lhf-Vt-Tfj" secondAttribute="trailing" constant="-14" id="i3K-bF-D7E"/>
                                                                             <constraint firstAttribute="trailing" secondItem="IMb-qe-UXM" secondAttribute="trailing" constant="3" id="sf4-hy-obT"/>
-                                                                            <constraint firstItem="KRW-XE-IQm" firstAttribute="top" secondItem="Na2-QA-g4y" secondAttribute="top" constant="69" id="x9b-tm-YZ6"/>
+                                                                            <constraint firstItem="KRW-XE-IQm" firstAttribute="top" secondItem="Na2-QA-g4y" secondAttribute="top" constant="3" id="x9b-tm-YZ6"/>
                                                                         </constraints>
                                                                         <animations/>
                                                                         <connections>
@@ -334,13 +395,13 @@
                                                 <animations/>
                                             </scroller>
                                             <tableHeaderView key="headerView" id="UDN-bk-jsA">
-                                                <rect key="frame" x="0.0" y="0.0" width="758" height="23"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="744" height="23"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <animations/>
                                             </tableHeaderView>
                                         </scrollView>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HDh-Dd-k40">
-                                            <rect key="frame" x="596" y="10" width="187" height="32"/>
+                                            <rect key="frame" x="582" y="10" width="187" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Delete Selected Snippet" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6Wn-Y0-r7P">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -368,17 +429,17 @@
                             </tabViewItem>
                             <tabViewItem label="Chord Progression Input" identifier="2" id="RIR-e2-621">
                                 <view key="view" id="h9r-ge-mNO">
-                                    <rect key="frame" x="10" y="33" width="794" height="568"/>
+                                    <rect key="frame" x="10" y="33" width="780" height="754"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <scrollView autohidesScrollers="YES" horizontalLineScroll="32" horizontalPageScroll="10" verticalLineScroll="32" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NDx-CB-6ds">
-                                            <rect key="frame" x="17" y="50" width="760" height="498"/>
+                                            <rect key="frame" x="17" y="50" width="746" height="684"/>
                                             <clipView key="contentView" id="bHd-hx-KGE">
-                                                <rect key="frame" x="1" y="0.0" width="758" height="497"/>
+                                                <rect key="frame" x="1" y="0.0" width="744" height="683"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="30" rowSizeStyle="automatic" headerView="xkB-Gq-uYo" viewBased="YES" id="yPM-Ek-Q1w">
-                                                        <rect key="frame" x="0.0" y="0.0" width="758" height="474"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="744" height="660"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <animations/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
@@ -386,7 +447,7 @@
                                                         <tableViewGridLines key="gridStyleMask" vertical="YES" horizontal="YES"/>
                                                         <color key="gridColor" red="0.0" green="0.71663080320000005" blue="0.85414693809999997" alpha="1" colorSpace="calibratedRGB"/>
                                                         <tableColumns>
-                                                            <tableColumn editable="NO" width="755.07421875" minWidth="40" maxWidth="1000" id="X4d-8U-e8P">
+                                                            <tableColumn editable="NO" width="741.07421875" minWidth="40" maxWidth="1000" id="X4d-8U-e8P">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Chord Progressions">
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -400,11 +461,11 @@
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                                 <prototypeCellViews>
                                                                     <tableCellView id="tDc-cq-Tnd" customClass="ChordProgressionCellView" customModule="AIComposer" customModuleProvider="target">
-                                                                        <rect key="frame" x="1" y="1" width="755" height="30"/>
+                                                                        <rect key="frame" x="1" y="1" width="741" height="30"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <subviews>
                                                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="CG4-9g-3fP">
-                                                                                <rect key="frame" x="198" y="7" width="556" height="17"/>
+                                                                                <rect key="frame" x="198" y="7" width="542" height="17"/>
                                                                                 <animations/>
                                                                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="Progression" id="ng8-uV-vxd">
                                                                                     <font key="font" metaFont="system"/>
@@ -462,13 +523,13 @@
                                                 <animations/>
                                             </scroller>
                                             <tableHeaderView key="headerView" id="xkB-Gq-uYo">
-                                                <rect key="frame" x="0.0" y="0.0" width="758" height="23"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="744" height="23"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <animations/>
                                             </tableHeaderView>
                                         </scrollView>
                                         <button verticalHuggingPriority="750" tag="1" translatesAutoresizingMaskIntoConstraints="NO" id="JpM-hT-7dO">
-                                            <rect key="frame" x="646" y="10" width="137" height="32"/>
+                                            <rect key="frame" x="632" y="10" width="137" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Load MIDI File..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mBi-O4-Xco">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -479,7 +540,7 @@
                                             </connections>
                                         </button>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Dnn-5F-CxV">
-                                            <rect key="frame" x="566" y="10" width="80" height="32"/>
+                                            <rect key="frame" x="552" y="10" width="80" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Delete" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="rJN-jj-y0n">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -507,10 +568,10 @@
                     </tabView>
                 </subviews>
                 <constraints>
-                    <constraint firstAttribute="trailing" secondItem="oKk-94-ZSW" secondAttribute="trailing" id="Ec6-JP-9Of"/>
-                    <constraint firstItem="oKk-94-ZSW" firstAttribute="top" secondItem="gIp-Ho-8D9" secondAttribute="top" constant="2" id="Iel-0g-Ye3"/>
-                    <constraint firstAttribute="bottom" secondItem="oKk-94-ZSW" secondAttribute="bottom" id="cus-my-ZSk"/>
-                    <constraint firstItem="oKk-94-ZSW" firstAttribute="leading" secondItem="gIp-Ho-8D9" secondAttribute="leading" id="lmQ-gI-795"/>
+                    <constraint firstAttribute="trailing" secondItem="oKk-94-ZSW" secondAttribute="trailing" constant="7" id="Ec6-JP-9Of"/>
+                    <constraint firstItem="oKk-94-ZSW" firstAttribute="top" secondItem="gIp-Ho-8D9" secondAttribute="top" constant="6" id="Iel-0g-Ye3"/>
+                    <constraint firstAttribute="bottom" secondItem="oKk-94-ZSW" secondAttribute="bottom" constant="10" id="cus-my-ZSk"/>
+                    <constraint firstItem="oKk-94-ZSW" firstAttribute="leading" secondItem="gIp-Ho-8D9" secondAttribute="leading" constant="7" id="lmQ-gI-795"/>
                 </constraints>
                 <animations/>
             </view>

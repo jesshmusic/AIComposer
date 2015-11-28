@@ -25,6 +25,7 @@ class Document: NSDocument {
     
     @IBOutlet weak var permuteTestButton: NSButton!
     @IBOutlet weak var deleteCompositionButton: NSButton!
+    @IBOutlet var consoleTextView: NSTextView!
     
     override init() {
         super.init()
@@ -53,6 +54,12 @@ class Document: NSDocument {
     
     func finishedPlaying() {
         self.playButton.title = "PLAY"
+    }
+    
+    func compositionDataDisplay(notification: NSNotification) {
+        let userInfo = notification.userInfo as! [String: String]
+        self.consoleTextView.string = self.consoleTextView.string! + "\(userInfo["Data String"]!)\n"
+        self.consoleTextView.scrollRangeToVisible(NSRange(location: (self.consoleTextView.string!.characters.count), length: 0))
     }
     
     override class func autosavesInPlace() -> Bool {
@@ -135,7 +142,7 @@ class Document: NSDocument {
     }
     
     @IBAction func deleteSnippet(sender: AnyObject) {
-        let selectedRow = self.chordProgressionTableView.selectedRow
+        let selectedRow = self.musicSnippetTableView.selectedRow
         if selectedRow > -1 {
             self.musicDataSet.musicSnippets.removeAtIndex(selectedRow)
             self.musicSnippetTableView.reloadData()
@@ -160,10 +167,13 @@ class Document: NSDocument {
         }
     }
     @IBAction func createTestFile(sender: AnyObject) {
+        self.consoleTextView.string = self.consoleTextView.string! + "Generating \(self.composerController.numberOfGenes) compositions...\n-------------------------------------\n"
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "compositionDataDisplay:", name: "ComposerControllerData", object: nil)
         self.composerController.createComposition(self.musicDataSet)
-            self.musicSnippetTableView.reloadData()
-            self.compositionsTableView.reloadData()
-            self.playButton.enabled = true
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: "compositionDataDisplay:", object: nil)
+        self.musicSnippetTableView.reloadData()
+        self.compositionsTableView.reloadData()
+        self.playButton.enabled = true
     }
     
     @IBAction func exportCompositionMIDIFile(sender: AnyObject) {
@@ -262,6 +272,7 @@ extension Document: NSTableViewDataSource {
                     let nextCompositionFile = self.musicDataSet.compositions[row]
                     cellView.fileInfoTextField.stringValue = nextCompositionFile.dataString
                     cellView.fileTextField.stringValue = nextCompositionFile.name
+                    cellView.fileChordProgression.stringValue = nextCompositionFile.chordProgressionString
                     return cellView
                 }
             }

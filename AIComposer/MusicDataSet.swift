@@ -21,7 +21,7 @@ enum Articulation: Int {
 
 struct CompositionWeights {
     var mainThemeWeight = 0.65
-    var permutationWeights = [0.2, 0.4, 0.5, 0.6, 1.0]
+    var permutationWeights = [0.1, 0.25, 0.5, 0.75, 1.0]
     var chanceOfRest = 0.1
     var chanceOfCrescendo = 0.5
     var chanceOfArticulation = 0.5
@@ -41,6 +41,7 @@ class MusicDataSet: NSObject, NSCoding {
     var timeResolution: UInt32!
     var compositions: [MusicComposition]!
     var compositionWeights = CompositionWeights()
+    var snippetCount = 0
     
     let chordsSet = [["C", "C", "G", "G"], ["C", "C", "G", "G"], ["C", "C", "G", "G"], ["C", "C", "G", "G"],
         ["C", "C", "F", "F", "G", "G"], ["C", "C", "F", "F", "G", "G"],
@@ -87,6 +88,7 @@ class MusicDataSet: NSObject, NSCoding {
             self.chordProgressions = [MusicChordProgression]()
         }
         self.compositions = aDecoder.decodeObjectForKey("Compositions") as! [MusicComposition]
+        self.snippetCount = self.musicSnippets.count
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
