@@ -26,7 +26,7 @@ struct CompositionGene {
 
 struct MainThemeGene {
     var musicSnippet: MusicSnippet!
-    let chord: String!
+    let chord: Chord!
     var fitness = 0.0
 }
 
@@ -56,7 +56,7 @@ class ComposerController: NSObject {
     //  MARK: Music Data
     var musicDataSet:MusicDataSet!
     var compositionGenes: [CompositionGene]!
-    var chords: [String]!
+    var chords: [Chord]!
     var chordProgressionCDF = [(weight: Double, chordProg: MusicChordProgression)]()
     var tempo: Float64 = 120
     let minTempo = 60
@@ -87,7 +87,7 @@ class ComposerController: NSObject {
         
         self.musicDataSet = musicDataSet
         
-        if self.musicDataSet.snippetCount != 0 {
+        if self.musicDataSet.musicSnippets.count != 0 {
             
             // Initialize the chord progression cumulative distribution function
             var chordProgWeight = 0.0
@@ -324,16 +324,18 @@ class ComposerController: NSObject {
      - Returns: (chordDissonanceRatio: `Double`, noteDissonanceRatio: `Double`)
      */
     private func checkDissonanceRatio(comp: MusicComposition) -> (chordDissonanceRatio: Double, noteDissonanceRatio: Double) {
-        let chordCtrl = MusicChord.sharedInstance
+        let chordCtrl = ChordController()
         
         //  Check Dissonance against chord in each measure
         var dissonantDuration = 0.0
         var consonantDuration = 0.0
         for i in 0..<comp.numberOfMeasures {
-            let chordNotes = chordCtrl.chordNotes[comp.musicParts[0].measures[0].chord]
+            let chordNotes = chordCtrl.getChordNotesForChord(comp.musicParts[0].measures[0].chord)
             for part in comp.musicParts {
                 for note in part.measures[i].notes {
-                    if chordNotes!.contains(Int(note.midiNoteMess.note % 12)) {
+                    let testNote = note.getNoteCopy()
+                    testNote.midiNoteMess.note = testNote.noteValue
+                    if chordNotes!.contains(testNote) {
                         consonantDuration = consonantDuration + Double(note.midiNoteMess.duration)
                     } else {
                         dissonantDuration = dissonantDuration + Double(note.midiNoteMess.duration)
@@ -352,7 +354,7 @@ class ComposerController: NSObject {
                     for note in part.measures[mNum].notes {
                         totalNotes++
                         if note.timeStamp < j {
-                            notesInBeat.insert(note.midiNoteMess.note % 12)
+                            notesInBeat.insert(note.noteValue)
                         } else {
                             break
                         }
@@ -421,10 +423,8 @@ class ComposerController: NSObject {
                 for i in 0..<numberOfNotes {
                     totalChecks++
                     let musicNoteTimeStamp = (measure.notes[i].timeStamp % MusicTimeStamp(self.timeSig.numberOfBeats))
-                    if timeStamps[i] != musicNoteTimeStamp {
+                    if abs(timeStamps[i] - musicNoteTimeStamp) > 0.02 {
                         rhythmicVarietyScore = rhythmicVarietyScore + 1.0
-                    } else if abs(timeStamps[i] - musicNoteTimeStamp) > 0.01 {
-                        rhythmicVarietyScore = rhythmicVarietyScore + 0.5
                     }
                 }
             }
@@ -436,13 +436,13 @@ class ComposerController: NSObject {
     //  MARK: - COMPOSITIONAL METHODS: Main theme generation
     // Creates the main theme for the piece. I'm going to attempt to do this with a genetic algorithm too.
     //  *** REQUIRED ***    There must be more than 1 MusicSnippet.
-    private func createMainTheme(startingChord: String) {
+    private func createMainTheme(startingChord: Chord) {
         
         var themeGenes = [MainThemeGene]()
         var musicSnippet: MusicSnippet!
         let mainSnippetIndex = Int.random(0..<self.musicDataSet.musicSnippets.count)
         musicSnippet = MusicSnippet(notes: self.musicDataSet.musicSnippets[mainSnippetIndex].musicNoteEvents)
-        musicSnippet.transposeToChord(startingChord, keyOffset: 0)
+        musicSnippet.transposeToChord(chord: startingChord, keyOffset: 0)
         
         //  Initialize
         for _ in 0..<self.numberOfGenes {
@@ -478,12 +478,12 @@ class ComposerController: NSObject {
     }
     
     //  Generates a new MusicSnippet theme
-    private func createNewMotive(snippet: MusicSnippet, chord: String) -> MusicSnippet {
+    private func createNewMotive(snippet: MusicSnippet, chord: Chord) -> MusicSnippet {
         var musicSnippet = MusicSnippet()
         for i in 0..<self.musicDataSet.musicSnippets.count {
             if i != self.musicDataSet.musicSnippets.indexOf(snippet) {
                 let mergeSnippet = MusicSnippet(notes: self.musicDataSet.musicSnippets[i].musicNoteEvents)
-                mergeSnippet.transposeToChord(chord, keyOffset: 0)
+                mergeSnippet.transposeToChord(chord: chord, keyOffset: 0)
                 musicSnippet = snippet.mergeNotePassagesRhythmically(
                     firstWeight: self.musicDataSet.compositionWeights.mainThemeWeight,
                     chanceOfRest: self.musicDataSet.compositionWeights.chanceOfRest,
@@ -502,7 +502,7 @@ class ComposerController: NSObject {
     //  Check fitness of new main themes based on differences in range/smoothness of melody, smoothness of velocity, ratio of chord tones
     private func checkThemeFitness(themeGenes: [MainThemeGene]) -> [MainThemeGene] {
         
-        let chordCtrl = MusicChord.sharedInstance
+        let chordCtrl = ChordController()
         var returnThemes = [MainThemeGene]()
         for themeGene in themeGenes {
             var fitScore = 0.0
@@ -512,7 +512,7 @@ class ComposerController: NSObject {
             var highestNote = Int(previousNote.midiNoteMess.note)
             var totalDurationsInChord = 0.0
             var totalDurations = 0.0
-            let chordNotes = chordCtrl.chordNotes[themeGene.chord]
+            let chordNotes = chordCtrl.getChordNotesForChord(themeGene.chord)
             var durationResult = 0.0
             
             //  Check average leap, total range, and velocity difference
@@ -526,15 +526,20 @@ class ComposerController: NSObject {
                 if noteNum < lowestNote {
                     lowestNote = noteNum
                 }
-                let noteNumber = Int(currentNote.midiNoteMess.note % 12)
-                if chordNotes!.contains(noteNumber) {
+                let testNote = currentNote.getNoteCopy()
+                testNote.midiNoteMess.note = testNote.noteValue
+                if chordNotes!.contains(testNote) {
                     totalDurationsInChord = totalDurationsInChord + Double(currentNote.midiNoteMess.duration)
                 }
-                if self.tempo > 120.0 {
+                if self.tempo > 130.0 {
+                    if currentNote.midiNoteMess.duration >= 0.33 {
+                        durationResult = durationResult + 0.2
+                    }
+                } else if self.tempo < 130.0 && self.tempo > 100.0  {
                     if currentNote.midiNoteMess.duration >= 0.25 {
                         durationResult = durationResult + 0.2
                     }
-                } else if self.tempo <= 120.0 && self.tempo > 80.0 {
+                } else if self.tempo <= 100.0 && self.tempo > 66.0 {
                     if currentNote.midiNoteMess.duration >= 0.125 {
                         durationResult = durationResult + 0.2
                     }
@@ -692,7 +697,7 @@ class ComposerController: NSObject {
     //  Generate the chord progressions
     private func generateChordProgressions()
     {
-        self.chords = [String]()
+        self.chords = [Chord]()
         let numberOfProgressions = Int.random(1...4)
         for _ in 0..<numberOfProgressions {
             var chordProgIndex = 0
@@ -744,11 +749,11 @@ class ComposerController: NSObject {
     }
     
     //  Creates a single measure
-    private func generateMeasureForChord(channel channel: Int, chord: String, musicSnippet: MusicSnippet, octaveOffset: Int, startTimeStamp: MusicTimeStamp) -> MusicMeasure
+    private func generateMeasureForChord(channel channel: Int, chord: Chord, musicSnippet: MusicSnippet, octaveOffset: Int, startTimeStamp: MusicTimeStamp) -> MusicMeasure
     {
         let newMergeSnippet = self.createNewMotive(musicSnippet, chord: chord)
         let snippet1 = self.getSnippetWithRandomPermutation(newMergeSnippet, chord: chord)
-        snippet1.transposeToChord(chord, keyOffset: octaveOffset)
+        snippet1.transposeToChord(chord: chord, keyOffset: octaveOffset)
         for note in snippet1.musicNoteEvents {
             note.timeStamp = note.timeStamp + startTimeStamp
             note.midiNoteMess.channel = UInt8(channel)
@@ -767,20 +772,20 @@ class ComposerController: NSObject {
     
     
     //  Generates the final measure. For now, it just adds held out notes in the tonic chord
-    private func generateEndingMeasureForChord(chord: String, channel: Int, startTimeStamp: MusicTimeStamp, previousNote: MIDINoteMessage?) -> MusicMeasure
+    private func generateEndingMeasureForChord(chord: Chord, channel: Int, startTimeStamp: MusicTimeStamp, previousNote: MIDINoteMessage?) -> MusicMeasure
     {
-        let chordController = MusicChord.sharedInstance
-        let chordNotes = chordController.chordNotes[chord]
-        let noteNumber = chordNotes![Int.random(0..<chordNotes!.count)]
+        let chordController = ChordController()
+        let chordNotes = chordController.getChordNotesForChord(chord)
+        let note = chordNotes![Int.random(0..<chordNotes!.count)]
         if previousNote != nil {
             let octave = Int(previousNote!.note) / 12
-            let newNoteNum:Int =  noteNumber + (octave * 12)
+            let newNoteNum:Int =  Int(note.midiNoteMess.note) + (octave * 12)
             let midiNote = MIDINoteMessage(channel: UInt8(channel), note: UInt8(newNoteNum), velocity: previousNote!.velocity, releaseVelocity: 0, duration: Float32(self.timeSig.numberOfBeats))
             let newNote = MusicNote(noteMessage: midiNote, timeStamp: startTimeStamp)
             return MusicMeasure(tempo: tempo, timeSignature: self.timeSig, firstBeatTimeStamp: startTimeStamp, notes: [newNote], chord: chord)
         } else {
             let octave = 5
-            let newNoteNum:Int =  noteNumber + (octave * 12)
+            let newNoteNum:Int =  Int(note.midiNoteMess.note) + (octave * 12)
             let midiNote = MIDINoteMessage(channel: UInt8(channel), note: UInt8(newNoteNum), velocity: 80, releaseVelocity: 0, duration: Float32(self.timeSig.numberOfBeats))
             let newNote = MusicNote(noteMessage: midiNote, timeStamp: startTimeStamp)
             return MusicMeasure(tempo: tempo, timeSignature: self.timeSig, firstBeatTimeStamp: startTimeStamp, notes: [newNote], chord: chord)
@@ -790,7 +795,7 @@ class ComposerController: NSObject {
     //  MARK: - COMPOSITIONAL METHODS: Permutation/Variation
     
     //  Generates a random permutation based on weights
-    private func getSnippetWithRandomPermutation(musicSnippet: MusicSnippet, chord: String) -> MusicSnippet {
+    private func getSnippetWithRandomPermutation(musicSnippet: MusicSnippet, chord: Chord) -> MusicSnippet {
         var newSnippet = MusicSnippet(notes: musicSnippet.musicNoteEvents)
         var permuteNum = 0
         let rand = Double.random()

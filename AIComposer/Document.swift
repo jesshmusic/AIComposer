@@ -23,7 +23,6 @@ class Document: NSDocument {
     @IBOutlet weak var chordProgressionTableView: NSTableView!
     @IBOutlet weak var compositionsTableView: NSTableView!
     
-    @IBOutlet weak var permuteTestButton: NSButton!
     @IBOutlet weak var deleteCompositionButton: NSButton!
     @IBOutlet var consoleTextView: NSTextView!
     
@@ -166,8 +165,8 @@ class Document: NSDocument {
             self.chordProgressionTableView.removeRowsAtIndexes(NSIndexSet(index: self.chordProgressionTableView.selectedRow), withAnimation: NSTableViewAnimationOptions.SlideRight)
         }
     }
-    @IBAction func createTestFile(sender: AnyObject) {
-        self.consoleTextView.string = self.consoleTextView.string! + "Generating \(self.composerController.numberOfGenes) compositions...\n-------------------------------------\n"
+    @IBAction func createComposition(sender: AnyObject) {
+        self.consoleTextView.string = "Generating \(self.composerController.numberOfGenes) compositions...\n-------------------------------------\n"
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "compositionDataDisplay:", name: "ComposerControllerData", object: nil)
         self.composerController.createComposition(self.musicDataSet)
         NSNotificationCenter.defaultCenter().removeObserver(self, name: "compositionDataDisplay:", object: nil)

@@ -132,7 +132,7 @@ class MusicComposition: NSObject, NSCoding {
     private func generateChordProgressionString() {
         if self.musicParts.count != 0 {
             for measure in self.musicParts[0].measures {
-                self.chordProgressionString = self.chordProgressionString + "\(measure.chord) ➝ "
+                self.chordProgressionString = self.chordProgressionString + "\(measure.chord.name) ➝ "
             }
             self.chordProgressionString = self.chordProgressionString + "END"
         }

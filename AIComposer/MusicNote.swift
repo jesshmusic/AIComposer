@@ -47,9 +47,13 @@ class MusicNote: NSObject, NSCoding {
     var midiNoteMess: MIDINoteMessage!
     var timeStamp: MusicTimeStamp!
     
-        init(noteMessage: MIDINoteMessage, timeStamp: MusicTimeStamp) {
+    //  A value between 0-11 for various checks
+    var noteValue: UInt8!
+    
+    init(noteMessage: MIDINoteMessage, timeStamp: MusicTimeStamp) {
         self.midiNoteMess = noteMessage
         self.timeStamp = timeStamp
+        self.noteValue = midiNoteMess.note % 12
     }
     
     required init(coder aDecoder: NSCoder)  {
@@ -61,6 +65,7 @@ class MusicNote: NSObject, NSCoding {
         let duration = Float32(aDecoder.decodeFloatForKey("Duration"))
         self.midiNoteMess = MIDINoteMessage(channel: channel, note: noteNumber, velocity: velocity, releaseVelocity: releaseVelocity, duration: duration)
         self.timeStamp = MusicTimeStamp(aDecoder.decodeDoubleForKey("Time Stamp"))
+        self.noteValue = midiNoteMess.note % 12
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
@@ -112,6 +117,7 @@ class MusicNote: NSObject, NSCoding {
         let transposedNoteNumber = Int(self.midiNoteMess.note) + halfSteps
         if transposedNoteNumber > 0 && transposedNoteNumber < 128 {
             self.midiNoteMess.note = UInt8(transposedNoteNumber)
+            self.noteValue = midiNoteMess.note % 12
         }
     }
     
@@ -123,17 +129,17 @@ class MusicNote: NSObject, NSCoding {
     func transposeNoteDiatonically(steps steps: Int, isMajorKey: Bool = true, octaves: Int) {
         var transposeSteps = 0
         if isMajorKey {
-            transposeSteps = MAJOR_INTERVALS[Int(self.midiNoteMess.note % 12)]![6 + steps]
+            transposeSteps = MAJOR_INTERVALS[Int(self.noteValue)]![6 + steps]
             transposeSteps = transposeSteps + (octaves * 12)
             self.transposeNote(halfSteps: transposeSteps)
         } else {
-            transposeSteps = MINOR_INTERVALS[Int(self.midiNoteMess.note % 12)]![7 + steps]
+            transposeSteps = MINOR_INTERVALS[Int(self.noteValue)]![7 + steps]
             transposeSteps = transposeSteps + (octaves * 12)
             self.transposeNote(halfSteps: transposeSteps)
         }
     }
     
-    //  Returns an exact copy of the note. (MIDINoteMessage is a C pointer, so this is necessary to 
+    //  Returns an exact copy of the note. (MIDINoteMessage is a C pointer, so this is necessary to
     //      prevent the same instance from being passed around and altered.
     func getNoteCopy() -> MusicNote {
         return MusicNote(
@@ -165,10 +171,11 @@ class MusicNote: NSObject, NSCoding {
         return (Int(self.midiNoteMess.channel) + Int(self.midiNoteMess.note) + Int(self.midiNoteMess.velocity)).hashValue
     }
     
+    
+    //  For now, notes are equal if they have the same note number alone. (In the same octave)
     override func isEqual(object: AnyObject?) -> Bool {
         if let object = object as? MusicNote {
-            return self.midiNoteMess.note == object.midiNoteMess.note &&
-                self.midiNoteMess.duration == object.midiNoteMess.duration
+            return self.midiNoteMess.note == object.midiNoteMess.note
         } else {
             return false
         }

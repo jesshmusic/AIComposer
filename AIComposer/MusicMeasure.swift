@@ -33,10 +33,10 @@ class MusicMeasure: NSObject, NSCoding {
     internal private(set) var timeSignature: TimeSignature!
     var firstBeatTimeStamp: MusicTimeStamp!
     var notes: [MusicNote]!
-    var chord: String!
+    var chord: Chord!
     var keySig = 0        // from -7 to 7, will offset all notes when returning a sequence
     
-    init(tempo: Float64, timeSignature: TimeSignature, firstBeatTimeStamp: MusicTimeStamp, notes: [MusicNote], chord: String, key: Int = 0) {
+    init(tempo: Float64, timeSignature: TimeSignature, firstBeatTimeStamp: MusicTimeStamp, notes: [MusicNote], chord: Chord, key: Int = 0) {
         super.init()
         self.tempo = tempo
         self.timeSignature = timeSignature
@@ -53,7 +53,9 @@ class MusicMeasure: NSObject, NSCoding {
         self.timeSignature = TimeSignature(numberOfBeats: numberOfBeats, beatLength: beatLength)
         self.firstBeatTimeStamp = MusicTimeStamp(aDecoder.decodeDoubleForKey("First Beat Time Stamp"))
         self.notes = aDecoder.decodeObjectForKey("Notes") as! [MusicNote]
-        self.chord = aDecoder.decodeObjectForKey("Chord") as! String
+        let chordName = aDecoder.decodeObjectForKey("Chord") as! String
+        let chordWeight = aDecoder.decodeFloatForKey("Chord Weight")
+        self.chord = Chord(name: chordName, weight: chordWeight)
         self.keySig = aDecoder.decodeIntegerForKey("Key Sig")
         super.init()
     }
@@ -66,7 +68,10 @@ class MusicMeasure: NSObject, NSCoding {
         aCoder.encodeDouble(beatLength, forKey: "Beat Length")
         aCoder.encodeDouble(Double(self.firstBeatTimeStamp), forKey: "First Beat Time Stamp")
         aCoder.encodeObject(self.notes, forKey: "Notes")
-        aCoder.encodeObject(self.chord, forKey: "Chord")
+        let chordName = self.chord.name
+        let chordWeight = self.chord.weight
+        aCoder.encodeObject(chordName, forKey: "Chord")
+        aCoder.encodeFloat(chordWeight, forKey: "Chord Weight")
         aCoder.encodeInteger(self.keySig, forKey: "Key Sig")
     }
     
