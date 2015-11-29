@@ -12,7 +12,7 @@ import AudioToolbox
 
 
 /// The `Singleton` instance
-private let ComposerControllerInstance = ComposerController()
+//private let ComposerControllerInstance = ComposerController()
 
 struct CompositionGene {
     let composition: MusicComposition!
@@ -75,17 +75,20 @@ class ComposerController: NSObject {
     let maxAttempts = 100
     
     //  Returns the singleton instance
-    class var sharedInstance:ComposerController {
-        return ComposerControllerInstance
+    //    class var sharedInstance:ComposerController {
+    //        return ComposerControllerInstance
+    //    }
+    
+    init(musicDataSet: MusicDataSet) {
+        self.musicDataSet = musicDataSet
     }
     
     //  MARK: - Main composition creation method called to run the genetic algorithm
     /**
     Composes a new piece of music.
     */
-    func createComposition(musicDataSet: MusicDataSet) -> MusicDataSet {
+    func createComposition() -> MusicDataSet {
         
-        self.musicDataSet = musicDataSet
         
         if self.musicDataSet.musicSnippets.count != 0 {
             
@@ -116,19 +119,24 @@ class ComposerController: NSObject {
                 self.crossoverCompositions()                            //  Crossover
                 self.mutateCompositions()                               //  Mutation
                 self.checkCompositions()                                //  First Check
-                for compGene in self.compositionGenes {
-                    if compGene.fitness > bestFitness {
-                        bestFitness = compGene.fitness
-                    }
-//                    self.sendDataNotification("\t\t compGene - \(compGene.composition.name)... score: \(compGene.fitness)")
-                }
-//                self.sendDataNotification("Attempt \(currentGeneration): best fitness = \(bestFitness)")
+
                 currentGeneration++
             }
             self.musicDataSet.compositions.append(self.getCompositionWithBestFitness())
-            print("Complete, fitness score = \(bestFitness)")
         } else {
             self.sendDataNotification("FAIL. Please load music data.")
+        }
+        var bestFitness = 0.0
+        for compGene in self.compositionGenes {
+            if compGene.fitness > bestFitness {
+                bestFitness = compGene.fitness
+            }
+            dispatch_async(dispatch_get_main_queue()) {
+                self.sendDataNotification("\t\t compGene - \(compGene.composition.name)... score: \(compGene.fitness)")
+            }
+        }
+        dispatch_async(dispatch_get_main_queue()) {
+            self.sendDataNotification("\n\n\nCOMPLETE, fitness score = \(bestFitness)")
         }
         return self.musicDataSet
     }
@@ -137,6 +145,7 @@ class ComposerController: NSObject {
     //  Initialization
     private func initializeCompositions()
     {
+        self.sendDataNotification("Initializing \(self.numberOfGenes) compositions...")
         let randomName = self.getRandomName()           //  This is for fun.
         self.compositionGenes = [CompositionGene]()
         let presets = self.setInstrumentPresets()
@@ -167,6 +176,7 @@ class ComposerController: NSObject {
                 rhythmicFitness: 0.0)
             self.compositionGenes.append(newCompositionGene)
         }
+        self.sendDataNotification("Initialization complete.")
     }
     
     //  Selection
@@ -451,8 +461,9 @@ class ComposerController: NSObject {
         themeGenes = self.checkThemeFitness(themeGenes)
         var bestFitness = self.getThemeBestFitness(themeGenes)
         
-        
-        self.sendDataNotification("Initial main themes generated: Best fitness: \(bestFitness)\n")
+        dispatch_async(dispatch_get_main_queue()) {
+            self.sendDataNotification("Initial main themes generated: Best fitness: \(bestFitness)\n")
+        }
         
         var currentGeneration = 0
         while bestFitness <= fitnessGoal / 100.0 {
@@ -465,15 +476,13 @@ class ComposerController: NSObject {
             themeGenes = self.checkThemeFitness(themeGenes)
             bestFitness = self.getThemeBestFitness(themeGenes)
             currentGeneration++
-            
-//            self.sendDataNotification("THEME Generation attempt: \(currentGeneration): Best fitness: \(bestFitness)\n")
-//            
-//            for theme in themeGenes {
-//                self.sendDataNotification("\tTheme: \(theme.musicSnippet) \tfitness: \(theme.fitness)")
-//            }
+
         }
         let results = self.getBestFitThemeGene(themeGenes)
-        self.sendDataNotification("Main theme generated: Best fitness: \(bestFitness)\n")
+        
+        dispatch_async(dispatch_get_main_queue()) {
+            self.sendDataNotification("Main theme generated: Best fitness: \(bestFitness)\n")
+        }
         self.mainTheme = results.musicSnippet
     }
     
@@ -859,5 +868,6 @@ class ComposerController: NSObject {
         var userInfo = [String: String]()
         userInfo["Data String"] = dataString
         NSNotificationCenter.defaultCenter().postNotificationName("ComposerControllerData", object: self, userInfo: userInfo)
+        
     }
 }

@@ -12,7 +12,7 @@ class Document: NSDocument {
     
     var currentLoadedFile: String!
     var musicDataSet: MusicDataSet!
-    let composerController = ComposerController.sharedInstance
+//    let composerController = ComposerController.sharedInstance
     let midiManager = MIDIManager.sharedInstance
     
     @IBOutlet weak var clearDataButton: NSButtonCell!
@@ -25,6 +25,7 @@ class Document: NSDocument {
     
     @IBOutlet weak var deleteCompositionButton: NSButton!
     @IBOutlet var consoleTextView: NSTextView!
+    @IBOutlet weak var composeButton: NSButton!
     
     override init() {
         super.init()
@@ -49,6 +50,7 @@ class Document: NSDocument {
             self.playButton.enabled = false
         }
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "finishedPlaying", name: "Finished playing MIDI", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "compositionDataDisplay:", name: "ComposerControllerData", object: nil)
     }
     
     func finishedPlaying() {
@@ -56,9 +58,11 @@ class Document: NSDocument {
     }
     
     func compositionDataDisplay(notification: NSNotification) {
-        let userInfo = notification.userInfo as! [String: String]
-        self.consoleTextView.string = self.consoleTextView.string! + "\(userInfo["Data String"]!)\n"
-        self.consoleTextView.scrollRangeToVisible(NSRange(location: (self.consoleTextView.string!.characters.count), length: 0))
+        dispatch_async(dispatch_get_main_queue()) {
+            let userInfo = notification.userInfo as! [String: String]
+            self.consoleTextView.string = self.consoleTextView.string! + "\(userInfo["Data String"]!)\n"
+            self.consoleTextView.scrollRangeToVisible(NSRange(location: (self.consoleTextView.string!.characters.count), length: 0))
+        }
     }
     
     override class func autosavesInPlace() -> Bool {
@@ -166,13 +170,36 @@ class Document: NSDocument {
         }
     }
     @IBAction func createComposition(sender: AnyObject) {
-        self.consoleTextView.string = "Generating \(self.composerController.numberOfGenes) compositions...\n-------------------------------------\n"
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "compositionDataDisplay:", name: "ComposerControllerData", object: nil)
-        self.composerController.createComposition(self.musicDataSet)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: "compositionDataDisplay:", object: nil)
-        self.musicSnippetTableView.reloadData()
-        self.compositionsTableView.reloadData()
-        self.playButton.enabled = true
+        self.consoleTextView.string = "Generating compositions...\n-------------------------------------\n"
+        
+        self.composeButton.enabled = false
+        
+        self.createNewComposition(background: {
+            let composerController = ComposerController(musicDataSet: self.musicDataSet)
+            self.musicDataSet = composerController.createComposition()
+            },
+            completion: {
+                self.composeButton.enabled = true
+                self.musicSnippetTableView.reloadData()
+                self.compositionsTableView.reloadData()
+                self.playButton.enabled = true
+        })
+        
+    }
+    
+    func createNewComposition(delay: Double = 0.0, background:(() -> Void)? = nil, completion: (() -> Void)? = nil) {
+        dispatch_async(dispatch_get_global_queue(Int(QOS_CLASS_USER_INITIATED.rawValue), 0)) {
+            if(background != nil){ background!(); }
+            
+            let popTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC)))
+            dispatch_after(popTime, dispatch_get_main_queue()) {
+                if(completion != nil){ completion!(); }
+            }
+        }
+    }
+    
+    private func temp() {
+        
     }
     
     @IBAction func exportCompositionMIDIFile(sender: AnyObject) {

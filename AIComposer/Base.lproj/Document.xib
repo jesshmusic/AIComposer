@@ -8,6 +8,7 @@
             <connections>
                 <outlet property="chordProgressionTableView" destination="yPM-Ek-Q1w" id="E3C-gn-p9h"/>
                 <outlet property="clearDataButton" destination="czb-i3-6jU" id="ifM-hk-iaD"/>
+                <outlet property="composeButton" destination="9i0-Sf-TZ8" id="Hv7-7y-nmZ"/>
                 <outlet property="compositionsTableView" destination="4ld-pg-Gk7" id="dVF-u4-xkO"/>
                 <outlet property="consoleTextView" destination="feu-cV-bcK" id="Ya4-qB-kSy"/>
                 <outlet property="deleteCompositionButton" destination="aVW-gf-40n" id="H47-zM-PQf"/>
@@ -83,7 +84,7 @@
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <subviews>
                                                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="ctL-Cn-kTv">
-                                                                                <rect key="frame" x="198" y="51" width="556" height="43"/>
+                                                                                <rect key="frame" x="159" y="51" width="595" height="43"/>
                                                                                 <constraints>
                                                                                     <constraint firstAttribute="height" constant="43" id="TdU-eQ-hdi"/>
                                                                                 </constraints>
@@ -95,9 +96,9 @@
                                                                                 </textFieldCell>
                                                                             </textField>
                                                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Prf-Vr-6nt">
-                                                                                <rect key="frame" x="0.0" y="77" width="194" height="17"/>
+                                                                                <rect key="frame" x="0.0" y="77" width="155" height="17"/>
                                                                                 <constraints>
-                                                                                    <constraint firstAttribute="width" constant="190" id="XDp-7e-tdc"/>
+                                                                                    <constraint firstAttribute="width" constant="151" id="XDp-7e-tdc"/>
                                                                                 </constraints>
                                                                                 <animations/>
                                                                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="Title" id="iT0-Fz-jpB">
