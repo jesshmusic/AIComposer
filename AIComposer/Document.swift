@@ -173,6 +173,7 @@ class Document: NSDocument {
         self.consoleTextView.string = "Generating compositions...\n-------------------------------------\n"
         
         self.composeButton.enabled = false
+        self.composeButton.title = "Composing..."
         
         self.createNewComposition(background: {
             let composerController = ComposerController(musicDataSet: self.musicDataSet)
@@ -180,6 +181,7 @@ class Document: NSDocument {
             },
             completion: {
                 self.composeButton.enabled = true
+                self.composeButton.title = "Compose"
                 self.musicSnippetTableView.reloadData()
                 self.compositionsTableView.reloadData()
                 self.playButton.enabled = true

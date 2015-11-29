@@ -10,6 +10,8 @@
 		D70F71D41BF673BC007CD716 /* ComposerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D098161BF62D2700256B9C /* ComposerController.swift */; };
 		D726F0451C0A5E17003012C2 /* Melody-Bach.mid in Resources */ = {isa = PBXBuildFile; fileRef = D726F0441C0A5E17003012C2 /* Melody-Bach.mid */; };
 		D726F0461C0A5E17003012C2 /* Melody-Bach.mid in Resources */ = {isa = PBXBuildFile; fileRef = D726F0441C0A5E17003012C2 /* Melody-Bach.mid */; };
+		D7271BAF1C0B8E3C009FCBB1 /* words in Resources */ = {isa = PBXBuildFile; fileRef = D7271BAE1C0B8E3C009FCBB1 /* words */; };
+		D7271BB01C0B8E3C009FCBB1 /* words in Resources */ = {isa = PBXBuildFile; fileRef = D7271BAE1C0B8E3C009FCBB1 /* words */; };
 		D72C463E1BE511F5000E12B4 /* 32MbGMStereo.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = D72C46391BE511F5000E12B4 /* 32MbGMStereo.sf2 */; };
 		D72C463F1BE511F5000E12B4 /* 32MbGMStereo.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = D72C46391BE511F5000E12B4 /* 32MbGMStereo.sf2 */; };
 		D741D82C1BE3E93F003B3B00 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D741D82B1BE3E93F003B3B00 /* AppDelegate.swift */; };
@@ -67,6 +69,7 @@
 
 /* Begin PBXFileReference section */
 		D726F0441C0A5E17003012C2 /* Melody-Bach.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Melody-Bach.mid"; sourceTree = "<group>"; };
+		D7271BAE1C0B8E3C009FCBB1 /* words */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = words; sourceTree = "<group>"; };
 		D72C46391BE511F5000E12B4 /* 32MbGMStereo.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 32MbGMStereo.sf2; sourceTree = "<group>"; };
 		D741D8281BE3E93F003B3B00 /* AIComposer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AIComposer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D741D82B1BE3E93F003B3B00 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -121,6 +124,7 @@
 			children = (
 				D72C46391BE511F5000E12B4 /* 32MbGMStereo.sf2 */,
 				D726F0441C0A5E17003012C2 /* Melody-Bach.mid */,
+				D7271BAE1C0B8E3C009FCBB1 /* words */,
 				D7745EE11C08EF0800462E5E /* GeneticTest1.aicomp */,
 				D741D82A1BE3E93F003B3B00 /* AIComposer */,
 				D741D83F1BE3E93F003B3B00 /* AIComposerTests */,
@@ -272,6 +276,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D7271BAF1C0B8E3C009FCBB1 /* words in Resources */,
 				D726F0451C0A5E17003012C2 /* Melody-Bach.mid in Resources */,
 				D741D8331BE3E93F003B3B00 /* Assets.xcassets in Resources */,
 				D741D8311BE3E93F003B3B00 /* Document.xib in Resources */,
@@ -285,6 +290,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D7271BB01C0B8E3C009FCBB1 /* words in Resources */,
 				D726F0461C0A5E17003012C2 /* Melody-Bach.mid in Resources */,
 				D7745EE31C08EF0800462E5E /* GeneticTest1.aicomp in Resources */,
 				D72C463F1BE511F5000E12B4 /* 32MbGMStereo.sf2 in Resources */,

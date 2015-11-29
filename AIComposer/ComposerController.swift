@@ -119,7 +119,7 @@ class ComposerController: NSObject {
                 self.crossoverCompositions()                            //  Crossover
                 self.mutateCompositions()                               //  Mutation
                 self.checkCompositions()                                //  First Check
-
+                
                 currentGeneration++
             }
             self.musicDataSet.compositions.append(self.getCompositionWithBestFitness())
@@ -265,12 +265,13 @@ class ComposerController: NSObject {
                 }
             }
             compGene.composition.dynamicsFitness = dynamicsScore
-            if abs(rhythmicResult - self.desiredResults.rhythmicVariety) < self.desiredResults.marginForScoring {
-                rhythmicScore = (self.desiredResults.rhythmicVariety / rhythmicResult) * self.desiredResults.rhythmicScore
-                if rhythmicScore > self.desiredResults.rhythmicScore {
-                    rhythmicScore = self.desiredResults.rhythmicScore - (dynamicsScore % self.desiredResults.rhythmicScore)
-                }
-            }
+            rhythmicScore = self.desiredResults.rhythmicScore * rhythmicResult
+            //            if abs(rhythmicResult - self.desiredResults.rhythmicVariety) < self.desiredResults.marginForScoring {
+            //                rhythmicScore = (self.desiredResults.rhythmicVariety / rhythmicResult) * self.desiredResults.rhythmicScore
+            //                if rhythmicScore > self.desiredResults.rhythmicScore {
+            //                    rhythmicScore = self.desiredResults.rhythmicScore - (dynamicsScore % self.desiredResults.rhythmicScore)
+            //                }
+            //            }
             compGene.composition.rhythmicFitness = rhythmicScore
             overallFitness = overallFitness + silenceScore + chordDissScore + noteDissScore + dynamicsScore + rhythmicScore
             
@@ -476,7 +477,7 @@ class ComposerController: NSObject {
             themeGenes = self.checkThemeFitness(themeGenes)
             bestFitness = self.getThemeBestFitness(themeGenes)
             currentGeneration++
-
+            
         }
         let results = self.getBestFitThemeGene(themeGenes)
         
@@ -489,18 +490,18 @@ class ComposerController: NSObject {
     //  Generates a new MusicSnippet theme
     private func createNewMotive(snippet: MusicSnippet, chord: Chord) -> MusicSnippet {
         var musicSnippet = MusicSnippet()
-        for i in 0..<self.musicDataSet.musicSnippets.count {
-            if i != self.musicDataSet.musicSnippets.indexOf(snippet) {
-                let mergeSnippet = MusicSnippet(notes: self.musicDataSet.musicSnippets[i].musicNoteEvents)
-                mergeSnippet.transposeToChord(chord: chord, keyOffset: 0)
-                musicSnippet = snippet.mergeNotePassagesRhythmically(
-                    firstWeight: self.musicDataSet.compositionWeights.mainThemeWeight,
-                    chanceOfRest: self.musicDataSet.compositionWeights.chanceOfRest,
-                    secondSnippet: mergeSnippet,
-                    numberOfBeats: Double(self.timeSig.numberOfBeats))
-                break
-            }
+        let snippetIndex = self.musicDataSet.musicSnippets.indexOf(snippet)
+        var randomIndex = Int.random(0..<self.musicDataSet.musicSnippets.count)
+        while randomIndex == snippetIndex {
+            randomIndex = Int.random(0..<self.musicDataSet.musicSnippets.count)
         }
+        let mergeSnippet = MusicSnippet(notes: self.musicDataSet.musicSnippets[randomIndex].musicNoteEvents)
+        mergeSnippet.transposeToChord(chord: chord, keyOffset: 0)
+        musicSnippet = snippet.mergeNotePassagesRhythmically(
+            firstWeight: self.musicDataSet.compositionWeights.mainThemeWeight,
+            chanceOfRest: self.musicDataSet.compositionWeights.chanceOfRest,
+            secondSnippet: mergeSnippet,
+            numberOfBeats: Double(self.timeSig.numberOfBeats))
         if musicSnippet.count == 0 {
             return snippet
         } else {
@@ -859,8 +860,27 @@ class ComposerController: NSObject {
     //  MARK: - COMPOSITIONAL METHODS: Random name generation
     
     private func getRandomName() -> String {
-        let randomNames = ["Tapestry No. ", "Viginette No. ", "Evolved No. ", "Fantasy No. ", "Thing No. ", "Epiphany No. "]
-        return randomNames[Int.random(0..<randomNames.count)] + "\(Int.random(0..<20))"
+        var titleWord1 = ""
+        var titleWord2 = ""
+        if let wordsFilePath = NSBundle.mainBundle().pathForResource("words", ofType: nil) {
+            do {
+                let wordsString = try String(contentsOfFile: wordsFilePath)
+                
+                let wordLines = wordsString.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet())
+                
+                titleWord1 = wordLines[Int(arc4random_uniform(UInt32(wordLines.count)))]
+                titleWord1.replaceRange(titleWord1.startIndex...titleWord1.startIndex, with: String(titleWord1[titleWord1.startIndex]).capitalizedString)
+                titleWord2 = wordLines[Int(arc4random_uniform(UInt32(wordLines.count)))]
+                titleWord2.replaceRange(titleWord2.startIndex...titleWord2.startIndex, with: String(titleWord2[titleWord2.startIndex]).capitalizedString)
+                
+                //                print(randomLine)
+                
+            } catch { // contentsOfFile throws an error
+                print("Error: \(error)")
+            }
+        }
+        //        let randomNames = ["Tapestry No. ", "Viginette No. ", "Evolved No. ", "Fantasy No. ", "Thing No. ", "Epiphany No. "]
+        return "\(titleWord1) \(titleWord2)"
     }
     
     //  MARK: - Utility functions
