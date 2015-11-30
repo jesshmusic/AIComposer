@@ -632,10 +632,7 @@ class ComposerController: NSObject {
             themeGenes = self.checkThemeFitness(themeGenes)
             bestFitness = self.getThemeBestFitness(themeGenes)
             currentGeneration++
-//            print("THEME Generation attempt: \(currentGeneration): Best fitness: \(bestFitness)\n")
-//            for theme in themeGenes {
-//                print("\tTheme: \(theme.musicSnippet) \tfitness: \(theme.fitness)")
-//            }
+            
         }
         let results = self.getBestFitThemeGene(themeGenes)
         
