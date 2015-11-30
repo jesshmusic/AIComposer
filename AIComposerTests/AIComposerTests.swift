@@ -16,7 +16,7 @@ class AIComposerTests: XCTestCase {
     var testDataSet: MusicDataSet!
     var testMusicNotes = [MusicNote]()
     
-    let composerController = ComposerController()
+    var composerController:ComposerController!
     
     override func setUp() {
         super.setUp()
@@ -25,7 +25,7 @@ class AIComposerTests: XCTestCase {
         let filePath = NSBundle.mainBundle().URLForResource("Melody-Bach", withExtension: "mid")
         let filePathString = filePath?.path
         self.testDataSet.parseMusicSnippetsFromMIDIFile(filePathString!)
-        
+        self.composerController = ComposerController(musicDataSet: self.testDataSet)
         
         
         // Create a music snippet to test composition permutations (transposing, retrograde, etc)... C-quarter, E-eighth, F-eighth, F#-quarter, G-quarter
