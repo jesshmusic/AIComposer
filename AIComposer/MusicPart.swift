@@ -12,10 +12,14 @@ class MusicPart: NSObject, NSCoding {
     
     internal private(set) var measures: [MusicMeasure]!
     internal private(set) var soundPreset: UInt8!
+    internal private(set) var minNote: UInt8 = 48
+    internal private(set) var maxNote: UInt8 = 96
     
-    init(measures: [MusicMeasure], preset: UInt8) {
+    init(measures: [MusicMeasure], preset: (preset: UInt8, minNote: UInt8, maxNote: UInt8)) {
         self.measures = measures
-        self.soundPreset = preset
+        self.soundPreset = preset.preset
+        self.minNote = preset.minNote
+        self.maxNote = preset.maxNote
     }
     
     required init(coder aDecoder: NSCoder)  {
@@ -27,6 +31,10 @@ class MusicPart: NSObject, NSCoding {
     func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(self.measures, forKey: "Measures")
         aCoder.encodeInteger(Int(self.soundPreset), forKey: "Preset")
+    }
+    
+    func setMeasure(measureNum measureNum: Int, newMeasure: MusicMeasure) {
+        self.measures[measureNum] = newMeasure.getMeasureCopy()
     }
     
 }

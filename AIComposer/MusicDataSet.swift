@@ -19,18 +19,6 @@ enum Articulation: Int {
     case Tenuto
 }
 
-struct CompositionWeights {
-    var mainThemeWeight = 0.65
-    var permutationWeights = [0.2, 0.4, 0.5, 0.6, 1.0]
-    var chanceOfRest = 0.1
-    var chanceOfCrescendo = 0.5
-    var chanceOfArticulation = 0.5
-    var articulationWeights = [0.2, 0.8, 0.85, 0.95, 1.0]
-    
-    //  Genetic Algorithm parameters
-    var chanceOfMutation = 0.125
-}
-
 class MusicDataSet: NSObject, NSCoding {
     let midiManager = MIDIManager.sharedInstance
     
@@ -40,7 +28,8 @@ class MusicDataSet: NSObject, NSCoding {
     var chordProgressions = [MusicChordProgression]()
     var timeResolution: UInt32!
     var compositions: [MusicComposition]!
-    var compositionWeights = CompositionWeights()
+//    var compositionWeights = CompositionWeights()
+    var snippetCount = 0
     
     let chordsSet = [["C", "C", "G", "G"], ["C", "C", "G", "G"], ["C", "C", "G", "G"], ["C", "C", "G", "G"],
         ["C", "C", "F", "F", "G", "G"], ["C", "C", "F", "F", "G", "G"],
@@ -87,6 +76,7 @@ class MusicDataSet: NSObject, NSCoding {
             self.chordProgressions = [MusicChordProgression]()
         }
         self.compositions = aDecoder.decodeObjectForKey("Compositions") as! [MusicComposition]
+        self.snippetCount = self.musicSnippets.count
     }
     
     func encodeWithCoder(aCoder: NSCoder) {

@@ -16,17 +16,21 @@ import Cocoa
 
 class MusicChordProgression: NSObject, NSCoding {
     
-    internal private(set) var chords: [String]!
+    internal private(set) var chords: [Chord]!
     internal private(set) var weight = 0.0
     internal private(set) var numberOfOccurences = 1
     private var currentChordIndex: Int!
     
     override init() {
-        self.chords = [String]()
+        self.chords = [Chord]()
     }
     
     required init(coder aDecoder: NSCoder)  {
-        self.chords = aDecoder.decodeObjectForKey("Chords") as! [String]
+        self.chords = [Chord]()
+        let chordNames = aDecoder.decodeObjectForKey("Chords") as! [String]
+        for chordName in chordNames {
+            self.chords.append(Chord(name: chordName, weight: 1.0))
+        }
         self.weight = aDecoder.decodeDoubleForKey("Weight")
         self.numberOfOccurences = aDecoder.decodeIntegerForKey("Number of Occurences")
         if self.numberOfOccurences == 0 {
@@ -36,13 +40,17 @@ class MusicChordProgression: NSObject, NSCoding {
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
-        aCoder.encodeObject(self.chords, forKey: "Chords")
+        var chordNames = [String]()
+        for chord in self.chords {
+            chordNames.append(chord.name)
+        }
+        aCoder.encodeObject(chordNames, forKey: "Chords")
         aCoder.encodeDouble(self.weight, forKey: "Weight")
         aCoder.encodeInteger(self.numberOfOccurences, forKey: "Number of Occurences")
     }
     
     func addChord(name: String) {
-        self.chords.append(name)
+        self.chords.append(Chord(name: name, weight: 1.0))
         if self.chords.count == 1 {
             self.currentChordIndex = 0
         }
@@ -56,8 +64,8 @@ class MusicChordProgression: NSObject, NSCoding {
         self.weight = newWeight
     }
     
-    func getNextChord() -> String? {
-        var returnChord: String!
+    func getNextChord() -> Chord? {
+        var returnChord: Chord!
         if !self.chords.isEmpty {
             returnChord = self.chords[self.currentChordIndex]
             if self.chords.count > self.currentChordIndex + 1 {
@@ -74,9 +82,9 @@ class MusicChordProgression: NSObject, NSCoding {
         var returnString = ""
         for i in 0..<self.chords.count {
             if i + 1 == self.chords.count {
-                returnString = returnString + self.chords[i]
+                returnString = returnString + self.chords[i].name
             } else {
-                returnString = returnString + "\(self.chords[i]) ➝ "
+                returnString = returnString + "\(self.chords[i].name) ➝ "
             }
         }
         returnString = returnString + "\tWeight: \(self.weight)"
@@ -93,7 +101,7 @@ class MusicChordProgression: NSObject, NSCoding {
                 return false
             }
             for i in 0..<self.chords.count {
-                if progression.chords[i] != self.chords[i] {
+                if progression.chords[i].name != self.chords[i].name {
                     return false
                 }
             }

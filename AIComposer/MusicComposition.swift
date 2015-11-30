@@ -19,7 +19,13 @@ class MusicComposition: NSObject, NSCoding {
     internal private(set) var tempo: Int!
     internal private(set) var numberOfMeasures: Int!
     internal private(set) var numberOfParts: Int!
+    internal private(set) var chordProgressionString = ""
     var fitnessScore = 0.0
+    var silenceFitness = 0.0
+    var chordFitness = 0.0
+    var noteFitness = 0.0
+    var dynamicsFitness = 0.0
+    var rhythmicFitness = 0.0
     
     override init() {
         self.musicParts = [MusicPart]()
@@ -29,12 +35,38 @@ class MusicComposition: NSObject, NSCoding {
         super.init()
     }
     
+    //  Creates a fresh copy from a previous composition object
+    init(composition: MusicComposition) {
+        self.name = composition.name
+        self.tempo = composition.tempo
+        self.numberOfMeasures = composition.numberOfMeasures
+        self.numberOfParts = composition.numberOfParts
+        self.chordProgressionString = composition.chordProgressionString
+        self.fitnessScore = composition.fitnessScore
+        self.silenceFitness = composition.silenceFitness
+        self.chordFitness = composition.chordFitness
+        self.dynamicsFitness = composition.dynamicsFitness
+        self.rhythmicFitness = composition.rhythmicFitness
+        
+        self.musicParts = [MusicPart]()
+        for part in composition.musicParts {
+            var newMeasures = [MusicMeasure]()
+            for measure in part.measures {
+                newMeasures.append(measure.getMeasureCopy())
+            }
+            self.musicParts.append(MusicPart(measures: newMeasures, preset: (preset: part.soundPreset, minNote: part.minNote, maxNote: part.maxNote)))
+        }
+        super.init()
+        self.createMusicSequence()
+    }
+    
     init(name: String, musicParts: [MusicPart], numberOfMeasures: Int) {
         self.name = name
         self.musicParts = musicParts
         self.numberOfMeasures = numberOfMeasures
         super.init()
         self.createMusicSequence()
+        self.generateChordProgressionString()
     }
     
     required init(coder aDecoder: NSCoder)  {
@@ -42,8 +74,14 @@ class MusicComposition: NSObject, NSCoding {
         self.musicParts = aDecoder.decodeObjectForKey("Parts") as! [MusicPart]
         self.numberOfMeasures = aDecoder.decodeIntegerForKey("Number of Measures")
         self.fitnessScore = aDecoder.decodeDoubleForKey("Fitness Score")
+        self.silenceFitness = aDecoder.decodeDoubleForKey("Silence Fitness Score")
+        self.chordFitness = aDecoder.decodeDoubleForKey("Chord Fitness Score")
+        self.noteFitness = aDecoder.decodeDoubleForKey("Note Fitness Score")
+        self.dynamicsFitness = aDecoder.decodeDoubleForKey("Dynamics Fitness Score")
+        self.rhythmicFitness = aDecoder.decodeDoubleForKey("Rhythmic Fitness Score")
         super.init()
         self.createMusicSequence()
+        self.generateChordProgressionString()
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
@@ -51,6 +89,11 @@ class MusicComposition: NSObject, NSCoding {
         aCoder.encodeObject(self.musicParts, forKey: "Parts")
         aCoder.encodeInteger(self.numberOfMeasures, forKey: "Number of Measures")
         aCoder.encodeDouble(self.fitnessScore, forKey: "Fitness Score")
+        aCoder.encodeDouble(self.silenceFitness, forKey: "Silence Fitness Score")
+        aCoder.encodeDouble(self.chordFitness, forKey: "Chord Fitness Score")
+        aCoder.encodeDouble(self.noteFitness, forKey: "Note Fitness Score")
+        aCoder.encodeDouble(self.dynamicsFitness, forKey: "Dynamics Fitness Score")
+        aCoder.encodeDouble(self.rhythmicFitness, forKey: "Rhythmic Fitness Score")
     }
     
     private func createMusicSequence() {
@@ -103,6 +146,7 @@ class MusicComposition: NSObject, NSCoding {
                 midiNoteMessage.releaseVelocity = note.midiNoteMess.releaseVelocity
                 midiNoteMessage.velocity = note.midiNoteMess.velocity
                 MusicTrackNewMIDINoteEvent(nextTrack, note.timeStamp, &midiNoteMessage)
+                
             }
         }
         let lastMeasure = part.measures[part.measures.count - 1]
@@ -111,9 +155,33 @@ class MusicComposition: NSObject, NSCoding {
         MusicTrackNewMIDINoteEvent(nextTrack, lastTime + 3.0, &silentNoteForSpace)
     }
     
+    private func generateChordProgressionString() {
+        if self.musicParts.count != 0 {
+            for measure in self.musicParts[0].measures {
+                self.chordProgressionString = self.chordProgressionString + "\(measure.chord.name) ➝ "
+            }
+            self.chordProgressionString = self.chordProgressionString + "END"
+        }
+    }
+    
+    func exchangeMeasure(partNumber partNum: Int, measureNum: Int, newMeasure: MusicMeasure) -> MusicMeasure {
+        let returnMeasure = self.musicParts[partNum].measures[measureNum].getMeasureCopy()
+        self.musicParts[partNum].setMeasure(measureNum: measureNum, newMeasure: newMeasure)
+        return returnMeasure
+    }
+    
+    func finishComposition() {
+        for partIndex in 0..<self.musicParts.count {
+            for measureIndex in 0..<self.musicParts[partIndex].measures.count {
+                self.musicParts[partIndex].measures[measureIndex].humanizeNotes()
+            }
+        }
+    }
+    
     
     //  Returns a formatted String for display in the Table View
     var dataString: String {
-        return "Tempo: \(self.tempo)\t\(self.numberOfMeasures) measures\t\(self.numberOfParts) parts \t\tFitness score: \(self.fitnessScore)"
+        let fitnessString = String(format: "\t\tFitness score: %.3f\nSilence: %.3f\t Chord: %.3f\t Note:%.3f\t Dynamics: %.3f\t Rhythmic: %.3f", self.fitnessScore, self.silenceFitness, self.chordFitness, self.noteFitness, self.dynamicsFitness, self.rhythmicFitness)
+        return "Tempo: \(self.tempo)\t\(self.numberOfMeasures) measures\t\(self.numberOfParts) parts \(fitnessString)"
     }
 }

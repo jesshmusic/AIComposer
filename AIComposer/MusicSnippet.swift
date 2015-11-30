@@ -17,13 +17,12 @@ let C_MINOR = [0, 2, 3, 5, 7, 8, 10, 11]
 
 class MusicSnippet: NSObject, NSCoding {
     
-    private var musicChord = MusicChord.sharedInstance
-    
     internal private(set) var musicNoteEvents: [MusicNote]!
     internal private(set) var transposedNoteEvents: [MusicNote]!
     internal private(set) var count = 0
     internal private(set) var numberOfOccurences = 1
     internal private(set) var possibleChords: [Chord]!
+    var chord: Chord!
     var endTime: MusicTimeStamp = 0.0
     
     override init() {
@@ -42,17 +41,42 @@ class MusicSnippet: NSObject, NSCoding {
             self.addMusicNote(newNote)
         }
         self.zeroTransposeMusicSnippet()
+        self.chord = self.getHighestWeightChord()
         self.calculateEndTime()
     }
     
+    init(musicSnippet: MusicSnippet) {
+        super.init()
+        self.musicNoteEvents = [MusicNote]()
+        self.transposedNoteEvents = [MusicNote]()
+        self.possibleChords = [Chord]()
+        for note in musicSnippet.musicNoteEvents {
+            self.musicNoteEvents.append(note.getNoteCopy())
+        }
+        for note in musicSnippet.transposedNoteEvents {
+            self.transposedNoteEvents.append(note.getNoteCopy())
+        }
+        self.count = self.musicNoteEvents.count
+        self.numberOfOccurences = musicSnippet.numberOfOccurences
+        for chord in musicSnippet.possibleChords {
+            self.possibleChords.append(Chord(name: chord.name, weight: chord.weight))
+        }
+        self.chord = musicSnippet.chord
+        self.endTime = musicSnippet.endTime
+    }
+    
     required init(coder aDecoder: NSCoder)  {
+        
+        let musicChord = ChordController()
+        
         self.musicNoteEvents = aDecoder.decodeObjectForKey("MusicNoteEvents") as! [MusicNote]
         self.transposedNoteEvents = aDecoder.decodeObjectForKey("Transposed Music Note Events") as! [MusicNote]
         self.count = aDecoder.decodeIntegerForKey("Count")
         self.numberOfOccurences = aDecoder.decodeIntegerForKey("NumberOfOccurences")
-        self.possibleChords = musicChord.generatePossibleChordNames(self.transposedNoteEvents)
+        self.possibleChords = musicChord.generatePossibleChords(self.transposedNoteEvents)
         self.endTime = MusicTimeStamp(aDecoder.decodeDoubleForKey("End Time Stamp"))
         super.init()
+        self.chord = self.getHighestWeightChord()
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
@@ -65,13 +89,14 @@ class MusicSnippet: NSObject, NSCoding {
     
     func addMusicNote(newMusicNote: MusicNote) {
         //  I create a new MIDINoteMessage because I think it is a C pointer, and we need a separate value for transposed notes
-        let newMIDIMess = MIDINoteMessage(
-            channel: newMusicNote.midiNoteMess.channel,
-            note: newMusicNote.midiNoteMess.note,
-            velocity: UInt8(80),
-            releaseVelocity: newMusicNote.midiNoteMess.releaseVelocity,
-            duration: newMusicNote.midiNoteMess.duration)
-        let newTransposedNote = MusicNote(noteMessage: newMIDIMess, timeStamp: newMusicNote.timeStamp)
+        let newTransposedNote = newMusicNote.getNoteCopy()
+//        let newMIDIMess = MIDINoteMessage(
+//            channel: newMusicNote.midiNoteMess.channel,
+//            note: newMusicNote.midiNoteMess.note,
+//            velocity: UInt8(80),
+//            releaseVelocity: newMusicNote.midiNoteMess.releaseVelocity,
+//            duration: newMusicNote.midiNoteMess.duration)
+//        let newTransposedNote = MusicNote(noteMessage: newMIDIMess, timeStamp: newMusicNote.timeStamp)
         self.musicNoteEvents.append(newMusicNote)
         self.transposedNoteEvents.append(newTransposedNote)
         count++
@@ -106,7 +131,10 @@ class MusicSnippet: NSObject, NSCoding {
         }
         self.calculateEndTime()
         //  2: Get a weighted set of all of the possible chords this melody could be associated with.
-        self.possibleChords = musicChord.generatePossibleChordNames(self.transposedNoteEvents)
+        
+        let musicChord = ChordController()
+        self.possibleChords = musicChord.generatePossibleChords(self.transposedNoteEvents)
+        self.chord = self.getHighestWeightChord()
     }
     
     /**
@@ -149,39 +177,57 @@ class MusicSnippet: NSObject, NSCoding {
      
      - Parameters:
      - chord: String
+     
+     - Returns: `Bool`: true if successful
      */
-    func transposeToChord(chordName: String, keyOffset: Int) {
-        let highestWeightChord = self.getHighestWeightChord()
-        if highestWeightChord != "" {
-            let transposeOffset = musicChord.getDiatonicTransposeOffset(chord1: highestWeightChord, chord2: chordName)
-            if transposeOffset.isDiatonic && !transposeOffset.isSwitchingQuality {
-                var transposeSteps = transposeOffset.steps
-                if transposeSteps > 4 {
-                    transposeSteps = transposeSteps - 7
-                }
-                self.diatonicTranspose(steps: transposeSteps, octaves: 0)
-            } else if !transposeOffset.isDiatonic && transposeOffset.isSwitchingQuality {
-                if let chordNotes = musicChord.chordNotes[chordName] {
-                    self.chromaticTranspose(halfSteps: transposeOffset.steps)
-                    for note in self.musicNoteEvents {
-                        for chordNote in chordNotes {
-                            if Int(note.midiNoteMess.note % 12) - chordNote == 1 {
-                                note.midiNoteMess.note--
+    func transposeToChord(chord chord: Chord, keyOffset: Int) -> Bool {
+        
+        let chordCtrl = ChordController()
+        
+        //  Find the number of half steps to transpose
+        if let offset = chordCtrl.getOffsetBetweenChords(chord1: chord, chord2: self.chord) {
+            self.chromaticTranspose(halfSteps: offset)
+            var previousInterval = 0
+            var previousNoteNum = Int(self.musicNoteEvents[0].midiNoteMess.note)
+            if let newChordScale = chordCtrl.getScaleForChord(chord: chord) {
+                for i in 0..<self.musicNoteEvents.count {
+                    let noteValue = Int(self.musicNoteEvents[i].noteValue)
+                    let currentNoteNum = Int(self.musicNoteEvents[i].midiNoteMess.note)
+                    previousInterval = (previousNoteNum - currentNoteNum)
+                    if !newChordScale.contains(noteValue) {
+                        for j in 1..<newChordScale.count {
+                            if noteValue < newChordScale[j] && noteValue > newChordScale[j - 1] {
+                                let testNoteDown = Int(musicNoteEvents[i].getNoteCopy().midiNoteMess.note) - 1
+                                let testNoteUp = Int(musicNoteEvents[i].getNoteCopy().midiNoteMess.note) + 1
+                                let downInterval = previousNoteNum - testNoteDown
+                                let upInterval = previousNoteNum - testNoteUp
+                                if previousInterval >= 0 {
+                                    if downInterval < previousInterval || upInterval == 0 {
+                                        musicNoteEvents[i].transposeNote(halfSteps: -1)
+                                    } else {
+                                        musicNoteEvents[i].transposeNote(halfSteps: 1)
+                                    }
+                                } else {
+                                    if downInterval > previousInterval || upInterval == 0  {
+                                        musicNoteEvents[i].transposeNote(halfSteps: -1)
+                                    } else {
+                                        musicNoteEvents[i].transposeNote(halfSteps: 1)
+                                    }
+                                }
+                                break
                             }
                         }
                     }
+                    previousNoteNum = currentNoteNum
                 }
-            } else {
-                var chromSteps = transposeOffset.steps
-                if transposeOffset.steps > 6 {
-                    chromSteps = chromSteps - 12
-                }
-                self.chromaticTranspose(halfSteps: chromSteps)
+                
+                self.zeroTransposeMusicSnippet()
+                self.count = self.musicNoteEvents.count
+                return true
             }
-            self.chromaticTranspose(halfSteps: keyOffset)
-            self.zeroTransposeMusicSnippet()
-            self.count = self.musicNoteEvents.count
+            
         }
+        return false
     }
     
     /**
@@ -190,7 +236,7 @@ class MusicSnippet: NSObject, NSCoding {
      -Returns: `String`
      */
     
-    func getHighestWeightChord() -> String {
+    func getHighestWeightChord() -> Chord {
         var highestWeightChord = ""
         var highestWeight:Float = 0.0
         for nextChord in self.possibleChords {
@@ -199,7 +245,7 @@ class MusicSnippet: NSObject, NSCoding {
                 highestWeightChord = nextChord.name
             }
         }
-        return highestWeightChord
+        return Chord(name: highestWeightChord, weight: highestWeight)
     }
     /**
      Invert a set of notes chromatically around a pivot note
@@ -351,8 +397,8 @@ class MusicSnippet: NSObject, NSCoding {
      */
     func mergeNotePassages(firstWeight firstWeight: Double, secondSnippet: MusicSnippet) -> MusicSnippet {
         let returnSnippet = MusicSnippet()
-        let secSnippetCopy = MusicSnippet(notes: secondSnippet.musicNoteEvents)
-        secSnippetCopy.transposeToChord(self.getHighestWeightChord(), keyOffset: 0)
+        let secSnippetCopy = MusicSnippet(musicSnippet: secondSnippet)
+        secSnippetCopy.transposeToChord(chord: self.getHighestWeightChord(), keyOffset: 0)
         //  Get fragments from each MusicSnippet
         let maxCount = min(self.count, secSnippetCopy.count)
         let numberOfFirstWeightBits = Int(Double(maxCount) * firstWeight) - 1
@@ -408,8 +454,8 @@ class MusicSnippet: NSObject, NSCoding {
      */
     func mergeNotePassagesRhythmically(firstWeight firstWeight: Double, chanceOfRest: Double, secondSnippet: MusicSnippet, numberOfBeats: Double) -> MusicSnippet {
         let returnSnippet = MusicSnippet()
-        let secSnippetCopy = MusicSnippet(notes: secondSnippet.musicNoteEvents)
-        secSnippetCopy.transposeToChord(self.getHighestWeightChord(), keyOffset: 0)
+        let secSnippetCopy = MusicSnippet(musicSnippet: secondSnippet)
+        secSnippetCopy.transposeToChord(chord: self.getHighestWeightChord(), keyOffset: 0)
         let numberOfFirstWeightBits = Int(Double(numberOfBeats) * firstWeight) - 1
         let randomStartIndex = Int.random(0..<(Int(numberOfBeats) - numberOfFirstWeightBits))
         var bitmask = [Bool]()
@@ -427,8 +473,12 @@ class MusicSnippet: NSObject, NSCoding {
         for nextBit in bitmask {
             if nextBit {
                 for note in self.musicNoteEvents {
+                    
                     let newNote = note.getNoteCopy()
                     if newNote.timeStamp < currentEnd && newNote.timeStamp >= currentStart {
+                        if newNote.midiNoteMess.duration > 1.0 {
+                            newNote.midiNoteMess.duration = 1.0
+                        }
                         returnSnippet.addMusicNote(newNote)
                     }
                 }
@@ -436,6 +486,9 @@ class MusicSnippet: NSObject, NSCoding {
                 for note in secondSnippet.musicNoteEvents {
                     let newNote = note.getNoteCopy()
                     if newNote.timeStamp < currentEnd && newNote.timeStamp >= currentStart {
+                        if newNote.midiNoteMess.duration > 1.0 {
+                            newNote.midiNoteMess.duration = 1.0
+                        }
                         returnSnippet.addMusicNote(newNote)
                     }
                 }
@@ -457,6 +510,7 @@ class MusicSnippet: NSObject, NSCoding {
             }
         }
         returnSnippet.zeroTransposeMusicSnippet()
+        returnSnippet.chord = returnSnippet.getHighestWeightChord()
         returnSnippet.count = returnSnippet.musicNoteEvents.count
         return returnSnippet
     }
@@ -528,29 +582,6 @@ class MusicSnippet: NSObject, NSCoding {
         }
         self.zeroTransposeMusicSnippet()
         self.count = self.musicNoteEvents.count
-    }
-    
-    /**
-     Attempts to humanize the feel of a set of notes based on beat and bar
-     
-     */
-    func humanizeNotes() {
-        for note in self.musicNoteEvents {
-            if note.timeStamp % 1 == 0 {
-                note.midiNoteMess.velocity = note.midiNoteMess.velocity + UInt8(Int.random(10...20))
-                if note.midiNoteMess.velocity > 127 {
-                    note.midiNoteMess.velocity = 127
-                }
-            } else {
-                if note.midiNoteMess.velocity > 10 {
-                    note.midiNoteMess.velocity = UInt8(Int(note.midiNoteMess.velocity) + Int.random(-10...10))
-                    if note.midiNoteMess.velocity > 127 {
-                        note.midiNoteMess.velocity = 127
-                    }
-                }
-            }
-            note.timeStamp = note.timeStamp + MusicTimeStamp(Double.random() * 0.025)
-        }
     }
     
     /**
@@ -648,6 +679,7 @@ class MusicSnippet: NSObject, NSCoding {
     var infoString: String {
         var retString = "Notes: \(self.musicNoteEvents.count),  "
         if possibleChords != nil {
+            retString = retString + "CHORD: \(self.chord.name)\n"
             retString = retString + "Possible Chords: \n"
             for chord in self.possibleChords {
                 retString = retString + "\(chord.name): \(chord.weight)  "

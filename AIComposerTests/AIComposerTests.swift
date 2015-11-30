@@ -16,17 +16,16 @@ class AIComposerTests: XCTestCase {
     var testDataSet: MusicDataSet!
     var testMusicNotes = [MusicNote]()
     
-    let composerController = ComposerController.sharedInstance
-    let chordController = MusicChord.sharedInstance
+    var composerController:ComposerController!
     
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
         self.testDataSet = MusicDataSet()
-        let filePath = NSBundle.mainBundle().URLForResource("Bach-Melody-WithCC20", withExtension: "mid")
+        let filePath = NSBundle.mainBundle().URLForResource("Melody-Bach", withExtension: "mid")
         let filePathString = filePath?.path
         self.testDataSet.parseMusicSnippetsFromMIDIFile(filePathString!)
-        
+        self.composerController = ComposerController(musicDataSet: self.testDataSet)
         
         
         // Create a music snippet to test composition permutations (transposing, retrograde, etc)... C-quarter, E-eighth, F-eighth, F#-quarter, G-quarter
@@ -34,31 +33,26 @@ class AIComposerTests: XCTestCase {
         testMusicNotes.append(
             MusicNote(
                 noteMessage: MIDINoteMessage(channel: 1, note: 60, velocity: 64, releaseVelocity: 0, duration: 1.0),
-//                barBeatTime: CABarBeatTime(bar: 1, beat: 1, subbeat: 0, subbeatDivisor: 0, reserved: 0),
                 timeStamp: MusicTimeStamp(0.0))
         )
         testMusicNotes.append(
             MusicNote(
                 noteMessage: MIDINoteMessage(channel: 1, note: 64, velocity: 64, releaseVelocity: 0, duration: 0.5),
-//                barBeatTime: CABarBeatTime(bar: 1, beat: 2, subbeat: 0, subbeatDivisor: 0, reserved: 0),
                 timeStamp: MusicTimeStamp(1.0))
         )
         testMusicNotes.append(
             MusicNote(
                 noteMessage: MIDINoteMessage(channel: 1, note: 65, velocity: 64, releaseVelocity: 0, duration: 0.5),
-//                barBeatTime: CABarBeatTime(bar: 1, beat: 2, subbeat: 3, subbeatDivisor: 0, reserved: 0),
                 timeStamp: MusicTimeStamp(1.5))
         )
         testMusicNotes.append(
             MusicNote(
                 noteMessage: MIDINoteMessage(channel: 1, note: 66, velocity: 120, releaseVelocity: 0, duration: 1.0),
-//                barBeatTime: CABarBeatTime(bar: 1, beat: 3, subbeat: 0, subbeatDivisor: 0, reserved: 0),
                 timeStamp: MusicTimeStamp(2.0))
         )
         testMusicNotes.append(
             MusicNote(
                 noteMessage: MIDINoteMessage(channel: 1, note: 67, velocity: 64, releaseVelocity: 0, duration: 1.0),
-//                barBeatTime: CABarBeatTime(bar: 1, beat: 4, subbeat: 0, subbeatDivisor: 0, reserved: 0),
                 timeStamp: MusicTimeStamp(3.0))
         )
     }
@@ -82,7 +76,7 @@ class AIComposerTests: XCTestCase {
         let notes1 = [60, 62, 64, 65, 62, 64, 60]
         let transNotes1 = [0, 2, 4, 5, 2, 4, 0]
         let timeStamps1 = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75]
-        let chords1 = [(chordName:"F", weight: Float(0.461538)), (chordName:"C", weight: Float(0.307692)), (chordName:"Dm", weight: Float(0.230769))]
+        let chords1 = [Chord(name: "F", weight: 0.461538), Chord(name:"C", weight: 0.307692), Chord(name:"Dm", weight: 0.230769)]
         
         for nextNote in testSnippet1.musicNoteEvents {
             testNotes1.append(Int(nextNote.midiNoteMess.note))
@@ -95,11 +89,11 @@ class AIComposerTests: XCTestCase {
         XCTAssertEqual(testNotes1, notes1, "Note numbers are not equal")
         XCTAssertEqual(testTransNotes1, transNotes1, "Transposed Note numbers are not equal")
         XCTAssertEqual(testTimeStamps1, timeStamps1, "Time stamps are not equal")
-        XCTAssertEqual(testChords1[0].chordName, chords1[0].chordName, "Possible chord names are not equal")
+        XCTAssertEqual(testChords1[0].name, chords1[0].name, "Possible chord names are not equal")
         XCTAssertLessThan(abs(testChords1[0].weight - chords1[0].weight), 0.00001)
-        XCTAssertEqual(testChords1[1].chordName, chords1[1].chordName, "Possible chord names are not equal")
+        XCTAssertEqual(testChords1[1].name, chords1[1].name, "Possible chord names are not equal")
         XCTAssertLessThan(abs(testChords1[1].weight - chords1[1].weight), 0.00001)
-        XCTAssertEqual(testChords1[2].chordName, chords1[2].chordName, "Possible chord names are not equal")
+        XCTAssertEqual(testChords1[2].name, chords1[2].name, "Possible chord names are not equal")
         XCTAssertLessThan(abs(testChords1[2].weight - chords1[2].weight), 0.00001)
         
         let testSnippet2 = self.testDataSet.musicSnippets[7]
@@ -110,7 +104,7 @@ class AIComposerTests: XCTestCase {
         let notes2 = [72, 71, 69, 67, 66, 69, 67, 71]
         let transNotes2 = [0, 11, 9, 7, 6, 9, 7, 11]
         let timeStamps2 = [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75]
-        let chords2 = [(chordName:"D7", weight: Float(0.181818)), (chordName:"F#dim", weight: Float(0.363636))]
+        let chords2 = [Chord(name:"D7", weight: 0.181818), Chord(name:"F#dim", weight: 0.363636)]
         
         for nextNote in testSnippet2.musicNoteEvents {
             testNotes2.append(Int(nextNote.midiNoteMess.note))
@@ -123,9 +117,9 @@ class AIComposerTests: XCTestCase {
         XCTAssertEqual(testNotes2, notes2, "Note numbers are not equal")
         XCTAssertEqual(testTransNotes2, transNotes2, "Transposed Note numbers are not equal")
         XCTAssertEqual(testTimeStamps2, timeStamps2, "Time stamps are not equal")
-        XCTAssertEqual(testChords2[0].chordName, chords2[0].chordName, "Possible chord names are not equal")
+        XCTAssertEqual(testChords2[0].name, chords2[0].name, "Possible chord names are not equal")
         XCTAssertLessThan(abs(testChords2[0].weight - chords2[0].weight), 0.00001)
-        XCTAssertEqual(testChords2[1].chordName, chords2[1].chordName, "Possible chord names are not equal")
+        XCTAssertEqual(testChords2[1].name, chords2[1].name, "Possible chord names are not equal")
         XCTAssertLessThan(abs(testChords2[1].weight - chords2[1].weight), 0.00001)
     }
     
@@ -457,70 +451,55 @@ class AIComposerTests: XCTestCase {
         XCTAssertEqual(augmentedPassage.musicNoteEvents[4].midiNoteMess.duration, 0.5)
     }
     
-    func testCreateTestMIDIFile() {
-        composerController.createPermutationTestSequence(fileName: "TestMIDIFile1", musicSnippet: MusicSnippet(notes: self.testMusicNotes))
-//        let midiFilePlayer = MIDIFilePlayer.sharedInstance
-//        midiFilePlayer.playMIDIFile(fileName: "TestMIDIFile1.mid")
-        
-    }
-    
     func testTransposeFromChordToChord() {
         var tranposeSnippet = MusicSnippet(notes: self.testDataSet.musicSnippets[0].musicNoteEvents)
-        tranposeSnippet.transposeToChord("Am")
-        XCTAssertEqual(tranposeSnippet.musicNoteEvents[0].midiNoteMess.note, 64)
-        XCTAssertEqual(tranposeSnippet.musicNoteEvents[1].midiNoteMess.note, 65)
-        XCTAssertEqual(tranposeSnippet.musicNoteEvents[2].midiNoteMess.note, 67)
-        XCTAssertEqual(tranposeSnippet.musicNoteEvents[3].midiNoteMess.note, 69)
+        print(tranposeSnippet.dataString)
+        tranposeSnippet.transposeToChord(chord: Chord(name:"Am"), keyOffset: 0)
+        print("Transpose from C to Am: \n\(tranposeSnippet.dataString)\n---------------------------------")
+        
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[0].midiNoteMess.note, 57)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[1].midiNoteMess.note, 59)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[2].midiNoteMess.note, 60)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[3].midiNoteMess.note, 62)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[4].midiNoteMess.note, 59)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[5].midiNoteMess.note, 60)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[6].midiNoteMess.note, 57)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[7].midiNoteMess.note, 64)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[8].midiNoteMess.note, 69)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[9].midiNoteMess.note, 67)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[10].midiNoteMess.note, 69)
         
         tranposeSnippet = MusicSnippet(notes: self.testDataSet.musicSnippets[0].musicNoteEvents)
-        tranposeSnippet.transposeToChord("A")
-        XCTAssertEqual(tranposeSnippet.musicNoteEvents[0].midiNoteMess.note, 64)
-        XCTAssertEqual(tranposeSnippet.musicNoteEvents[1].midiNoteMess.note, 66)
-        XCTAssertEqual(tranposeSnippet.musicNoteEvents[2].midiNoteMess.note, 68)
-        XCTAssertEqual(tranposeSnippet.musicNoteEvents[3].midiNoteMess.note, 69)
+        tranposeSnippet.transposeToChord(chord: Chord(name:"A"), keyOffset: 0)
+        print("Transpose from C to A (V/ii): \n\(tranposeSnippet.dataString)\n---------------------------------")
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[0].midiNoteMess.note, 57)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[1].midiNoteMess.note, 59)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[2].midiNoteMess.note, 61)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[3].midiNoteMess.note, 62)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[4].midiNoteMess.note, 59)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[5].midiNoteMess.note, 61)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[6].midiNoteMess.note, 57)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[7].midiNoteMess.note, 64)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[8].midiNoteMess.note, 69)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[9].midiNoteMess.note, 67)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[10].midiNoteMess.note, 69)
         
-        let testSnippet2 = MusicSnippet(notes: self.testMusicNotes)
-        testSnippet2.transposeToChord("A")
-        XCTAssertEqual(testSnippet2.musicNoteEvents[0].midiNoteMess.note, 57)
-        XCTAssertEqual(testSnippet2.musicNoteEvents[1].midiNoteMess.note, 61)
-        XCTAssertEqual(testSnippet2.musicNoteEvents[2].midiNoteMess.note, 62)
-        XCTAssertEqual(testSnippet2.musicNoteEvents[3].midiNoteMess.note, 63)
-        XCTAssertEqual(testSnippet2.musicNoteEvents[4].midiNoteMess.note, 64)
-        
-        let testSnippet3 = MusicSnippet(notes: self.testMusicNotes)
-        testSnippet3.transposeToChord("Dm")
-        XCTAssertEqual(testSnippet3.musicNoteEvents[0].midiNoteMess.note, 62)
-        XCTAssertEqual(testSnippet3.musicNoteEvents[1].midiNoteMess.note, 65)
-        XCTAssertEqual(testSnippet3.musicNoteEvents[2].midiNoteMess.note, 67)
-        XCTAssertEqual(testSnippet3.musicNoteEvents[3].midiNoteMess.note, 68)
-        XCTAssertEqual(testSnippet3.musicNoteEvents[4].midiNoteMess.note, 69)
-        
-        let testSnippet4 = MusicSnippet(notes: self.testMusicNotes)
-        testSnippet4.transposeToChord("Fm")
-        XCTAssertEqual(testSnippet4.musicNoteEvents[0].midiNoteMess.note, 65)
-        XCTAssertEqual(testSnippet4.musicNoteEvents[1].midiNoteMess.note, 68)
-        XCTAssertEqual(testSnippet4.musicNoteEvents[2].midiNoteMess.note, 70)
-        XCTAssertEqual(testSnippet4.musicNoteEvents[3].midiNoteMess.note, 71)
-        XCTAssertEqual(testSnippet4.musicNoteEvents[4].midiNoteMess.note, 72)
-        
-        let testSnippet5 = MusicSnippet(notes: self.testMusicNotes)
-        testSnippet5.transposeToChord("Cm")
-        XCTAssertEqual(testSnippet5.musicNoteEvents[0].midiNoteMess.note, 60)
-        XCTAssertEqual(testSnippet5.musicNoteEvents[1].midiNoteMess.note, 63)
-        XCTAssertEqual(testSnippet5.musicNoteEvents[2].midiNoteMess.note, 65)
-        XCTAssertEqual(testSnippet5.musicNoteEvents[3].midiNoteMess.note, 66)
-        XCTAssertEqual(testSnippet5.musicNoteEvents[4].midiNoteMess.note, 67)
-        
-        let testSnippet6 = MusicSnippet(notes: self.testDataSet.musicSnippets[2].musicNoteEvents)
-        print(testSnippet6.dataString)
-        testSnippet6.transposeToChord("Gm")
-        XCTAssertEqual(testSnippet6.musicNoteEvents[0].midiNoteMess.note, 74)
-        XCTAssertEqual(testSnippet6.musicNoteEvents[1].midiNoteMess.note, 67)
-        XCTAssertEqual(testSnippet6.musicNoteEvents[2].midiNoteMess.note, 69)
-        XCTAssertEqual(testSnippet6.musicNoteEvents[3].midiNoteMess.note, 70)
-        XCTAssertEqual(testSnippet6.musicNoteEvents[4].midiNoteMess.note, 72)
-        XCTAssertEqual(testSnippet6.musicNoteEvents[5].midiNoteMess.note, 69)
-        XCTAssertEqual(testSnippet6.musicNoteEvents[6].midiNoteMess.note, 70)
+        tranposeSnippet = MusicSnippet(notes: self.testDataSet.musicSnippets[1].musicNoteEvents)
+        print("New Snippet chord is : \(tranposeSnippet.chord.name)\n\(tranposeSnippet.dataString)")
+        tranposeSnippet.transposeToChord(chord: Chord(name:"C"), keyOffset: 0)
+        print("Transpose from G to C: \n\(tranposeSnippet.dataString)\n---------------------------------")
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[0].midiNoteMess.note, 79)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[1].midiNoteMess.note, 72)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[2].midiNoteMess.note, 74)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[3].midiNoteMess.note, 76)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[4].midiNoteMess.note, 77)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[5].midiNoteMess.note, 74)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[6].midiNoteMess.note, 76)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[7].midiNoteMess.note, 72)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[8].midiNoteMess.note, 79)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[9].midiNoteMess.note, 84)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[10].midiNoteMess.note, 83)
+        XCTAssertEqual(tranposeSnippet.musicNoteEvents[11].midiNoteMess.note, 84)
     }
     
     func testPerformanceExample() {

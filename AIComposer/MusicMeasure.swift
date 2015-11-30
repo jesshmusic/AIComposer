@@ -33,10 +33,10 @@ class MusicMeasure: NSObject, NSCoding {
     internal private(set) var timeSignature: TimeSignature!
     var firstBeatTimeStamp: MusicTimeStamp!
     var notes: [MusicNote]!
-    var chord: String!
+    var chord: Chord!
     var keySig = 0        // from -7 to 7, will offset all notes when returning a sequence
     
-    init(tempo: Float64, timeSignature: TimeSignature, firstBeatTimeStamp: MusicTimeStamp, notes: [MusicNote], chord: String, key: Int = 0) {
+    init(tempo: Float64, timeSignature: TimeSignature, firstBeatTimeStamp: MusicTimeStamp, notes: [MusicNote], chord: Chord, key: Int = 0) {
         super.init()
         self.tempo = tempo
         self.timeSignature = timeSignature
@@ -53,7 +53,9 @@ class MusicMeasure: NSObject, NSCoding {
         self.timeSignature = TimeSignature(numberOfBeats: numberOfBeats, beatLength: beatLength)
         self.firstBeatTimeStamp = MusicTimeStamp(aDecoder.decodeDoubleForKey("First Beat Time Stamp"))
         self.notes = aDecoder.decodeObjectForKey("Notes") as! [MusicNote]
-        self.chord = aDecoder.decodeObjectForKey("Chord") as! String
+        let chordName = aDecoder.decodeObjectForKey("Chord") as! String
+        let chordWeight = aDecoder.decodeFloatForKey("Chord Weight")
+        self.chord = Chord(name: chordName, weight: chordWeight)
         self.keySig = aDecoder.decodeIntegerForKey("Key Sig")
         super.init()
     }
@@ -66,7 +68,10 @@ class MusicMeasure: NSObject, NSCoding {
         aCoder.encodeDouble(beatLength, forKey: "Beat Length")
         aCoder.encodeDouble(Double(self.firstBeatTimeStamp), forKey: "First Beat Time Stamp")
         aCoder.encodeObject(self.notes, forKey: "Notes")
-        aCoder.encodeObject(self.chord, forKey: "Chord")
+        let chordName = self.chord.name
+        let chordWeight = self.chord.weight
+        aCoder.encodeObject(chordName, forKey: "Chord")
+        aCoder.encodeFloat(chordWeight, forKey: "Chord Weight")
         aCoder.encodeInteger(self.keySig, forKey: "Key Sig")
     }
     
@@ -77,5 +82,35 @@ class MusicMeasure: NSObject, NSCoding {
             newNotes.append(note.getNoteCopy())
         }
         return MusicMeasure(tempo: self.tempo, timeSignature: self.timeSignature, firstBeatTimeStamp: self.firstBeatTimeStamp, notes: newNotes, chord: self.chord)
+    }
+    
+    /**
+     Attempts to humanize the feel of a set of notes based on beat and bar
+     
+     */
+    func humanizeNotes() {
+        if self.notes.count != 0 {
+            for noteIndex in 0..<self.notes.count {
+                if self.notes[noteIndex].timeStamp % 1 == 0 {
+                    self.notes[noteIndex].midiNoteMess.velocity = self.notes[noteIndex].midiNoteMess.velocity + UInt8(Int.random(15...25))
+                    if self.notes[noteIndex].midiNoteMess.velocity > 127 {
+                        self.notes[noteIndex].midiNoteMess.velocity = 127
+                    }
+                } else {
+                    if self.notes[noteIndex].midiNoteMess.velocity > 10 {
+                        var newVelocity = Int(self.notes[noteIndex].midiNoteMess.velocity) + Int.random(-15...0)
+                        if newVelocity < 25 {
+                            newVelocity = Int.random(25...35)
+                        }
+                        self.notes[noteIndex].midiNoteMess.velocity = UInt8(newVelocity)
+                        if self.notes[noteIndex].midiNoteMess.velocity > 127 {
+                            self.notes[noteIndex].midiNoteMess.velocity = 127
+                        }
+                    }
+                }
+                self.notes[noteIndex].timeStamp = self.notes[noteIndex].timeStamp + MusicTimeStamp(Double.random() * 0.01)
+                self.notes[noteIndex].midiNoteMess.duration = self.notes[noteIndex].midiNoteMess.duration + Float32((Double.random() * 0.02) - 0.01)
+            }
+        }
     }
 }

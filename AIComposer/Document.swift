@@ -12,7 +12,7 @@ class Document: NSDocument {
     
     var currentLoadedFile: String!
     var musicDataSet: MusicDataSet!
-    let composerController = ComposerController.sharedInstance
+//    let composerController = ComposerController.sharedInstance
     let midiManager = MIDIManager.sharedInstance
     
     @IBOutlet weak var clearDataButton: NSButtonCell!
@@ -23,8 +23,12 @@ class Document: NSDocument {
     @IBOutlet weak var chordProgressionTableView: NSTableView!
     @IBOutlet weak var compositionsTableView: NSTableView!
     
-    @IBOutlet weak var permuteTestButton: NSButton!
     @IBOutlet weak var deleteCompositionButton: NSButton!
+    @IBOutlet var consoleTextView: NSTextView!
+    @IBOutlet weak var composeButton: NSButton!
+    
+    @IBOutlet weak var numberOfGenesTextField: NSTextField!
+    @IBOutlet weak var maxGenerationsTextField: NSTextField!
     
     override init() {
         super.init()
@@ -49,10 +53,19 @@ class Document: NSDocument {
             self.playButton.enabled = false
         }
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "finishedPlaying", name: "Finished playing MIDI", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "compositionDataDisplay:", name: "ComposerControllerData", object: nil)
     }
     
     func finishedPlaying() {
         self.playButton.title = "PLAY"
+    }
+    
+    func compositionDataDisplay(notification: NSNotification) {
+        dispatch_async(dispatch_get_main_queue()) {
+            let userInfo = notification.userInfo as! [String: String]
+            self.consoleTextView.string = self.consoleTextView.string! + "\(userInfo["Data String"]!)\n"
+            self.consoleTextView.scrollRangeToVisible(NSRange(location: (self.consoleTextView.string!.characters.count), length: 0))
+        }
     }
     
     override class func autosavesInPlace() -> Bool {
@@ -135,7 +148,7 @@ class Document: NSDocument {
     }
     
     @IBAction func deleteSnippet(sender: AnyObject) {
-        let selectedRow = self.chordProgressionTableView.selectedRow
+        let selectedRow = self.musicSnippetTableView.selectedRow
         if selectedRow > -1 {
             self.musicDataSet.musicSnippets.removeAtIndex(selectedRow)
             self.musicSnippetTableView.reloadData()
@@ -159,11 +172,44 @@ class Document: NSDocument {
             self.chordProgressionTableView.removeRowsAtIndexes(NSIndexSet(index: self.chordProgressionTableView.selectedRow), withAnimation: NSTableViewAnimationOptions.SlideRight)
         }
     }
-    @IBAction func createTestFile(sender: AnyObject) {
-        self.composerController.createComposition(self.musicDataSet)
-            self.musicSnippetTableView.reloadData()
-            self.compositionsTableView.reloadData()
-            self.playButton.enabled = true
+    @IBAction func createComposition(sender: AnyObject) {
+        self.consoleTextView.string = "Generating compositions...\n-------------------------------------\n"
+        
+        self.composeButton.enabled = false
+        self.composeButton.title = "Composing..."
+        
+        self.createNewComposition(background: {
+            if self.numberOfGenesTextField.integerValue > 0 && self.maxGenerationsTextField.integerValue > 0 {
+                let composerController = ComposerController(musicDataSet: self.musicDataSet, numberOfGenes: self.numberOfGenesTextField.integerValue, maxGenerations: self.maxGenerationsTextField.integerValue)
+                self.musicDataSet = composerController.createComposition()
+            } else {
+                let composerController = ComposerController(musicDataSet: self.musicDataSet)
+                self.musicDataSet = composerController.createComposition()
+            }
+            },
+            completion: {
+                self.composeButton.enabled = true
+                self.composeButton.title = "Compose"
+                self.musicSnippetTableView.reloadData()
+                self.compositionsTableView.reloadData()
+                self.playButton.enabled = true
+        })
+        
+    }
+    
+    func createNewComposition(delay: Double = 0.0, background:(() -> Void)? = nil, completion: (() -> Void)? = nil) {
+        dispatch_async(dispatch_get_global_queue(Int(QOS_CLASS_USER_INITIATED.rawValue), 0)) {
+            if(background != nil){ background!(); }
+            
+            let popTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC)))
+            dispatch_after(popTime, dispatch_get_main_queue()) {
+                if(completion != nil){ completion!(); }
+            }
+        }
+    }
+    
+    private func temp() {
+        
     }
     
     @IBAction func exportCompositionMIDIFile(sender: AnyObject) {
@@ -262,6 +308,7 @@ extension Document: NSTableViewDataSource {
                     let nextCompositionFile = self.musicDataSet.compositions[row]
                     cellView.fileInfoTextField.stringValue = nextCompositionFile.dataString
                     cellView.fileTextField.stringValue = nextCompositionFile.name
+                    cellView.fileChordProgression.stringValue = nextCompositionFile.chordProgressionString
                     return cellView
                 }
             }

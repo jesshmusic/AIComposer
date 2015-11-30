@@ -12,6 +12,7 @@ class CompositionFileCellView: NSTableCellView {
     
     @IBOutlet weak var fileInfoTextField: NSTextField!
     @IBOutlet weak var fileTextField: NSTextField!
+    @IBOutlet weak var fileChordProgression: NSTextField!
 
     override func drawRect(dirtyRect: NSRect) {
         super.drawRect(dirtyRect)

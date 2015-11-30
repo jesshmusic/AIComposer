@@ -195,6 +195,17 @@ class MIDIManager: NSObject {
                 MusicSequenceBeatsToBarBeatTime(sequence, timestamp, timeResolution, &barBeatTime)
                 let noteMessage = UnsafePointer<MIDINoteMessage>(eventData).memory
                 notesForTrack.append((noteMessage, barBeatTime, timestamp))
+                
+                //  Check for corrupted duration values ??? 
+                for noteIndex in 0..<notesForTrack.count {
+                    if notesForTrack[noteIndex].midiNoteMessage.duration == 0.0 {
+                        if noteIndex < notesForTrack.count - 1 {
+                            notesForTrack[noteIndex].midiNoteMessage.duration = Float32(notesForTrack[noteIndex + 1].timeStamp - notesForTrack[noteIndex].timeStamp)
+                        } else {
+                            notesForTrack[noteIndex].midiNoteMessage.duration = 0.5
+                        }
+                    }
+                }
             } else if eventType == kMusicEventType_MIDIChannelMessage {
                 let channelMessage = UnsafePointer<MIDIChannelMessage>(eventData)
                 if channelMessage.memory.data1 == 20 {
