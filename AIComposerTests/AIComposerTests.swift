@@ -16,7 +16,7 @@ class AIComposerTests: XCTestCase {
     var testDataSet: MusicDataSet!
     var testMusicNotes = [MusicNote]()
     
-    let composerController = ComposerController.sharedInstance
+    let composerController = ComposerController()
     
     override func setUp() {
         super.setUp()

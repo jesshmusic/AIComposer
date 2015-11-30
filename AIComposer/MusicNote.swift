@@ -106,6 +106,7 @@ class MusicNote: NSObject, NSCoding {
         case .Tenuto:
             self.midiNoteMess.duration = self.midiNoteMess.duration + (self.midiNoteMess.duration / 4)
         }
+
     }
     
     /**

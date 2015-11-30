@@ -35,6 +35,31 @@ class MusicComposition: NSObject, NSCoding {
         super.init()
     }
     
+    //  Creates a fresh copy from a previous composition object
+    init(composition: MusicComposition) {
+        self.name = composition.name
+        self.tempo = composition.tempo
+        self.numberOfMeasures = composition.numberOfMeasures
+        self.numberOfParts = composition.numberOfParts
+        self.chordProgressionString = composition.chordProgressionString
+        self.fitnessScore = composition.fitnessScore
+        self.silenceFitness = composition.silenceFitness
+        self.chordFitness = composition.chordFitness
+        self.dynamicsFitness = composition.dynamicsFitness
+        self.rhythmicFitness = composition.rhythmicFitness
+        
+        self.musicParts = [MusicPart]()
+        for part in composition.musicParts {
+            var newMeasures = [MusicMeasure]()
+            for measure in part.measures {
+                newMeasures.append(measure.getMeasureCopy())
+            }
+            self.musicParts.append(MusicPart(measures: newMeasures, preset: (preset: part.soundPreset, minNote: part.minNote, maxNote: part.maxNote)))
+        }
+        super.init()
+        self.createMusicSequence()
+    }
+    
     init(name: String, musicParts: [MusicPart], numberOfMeasures: Int) {
         self.name = name
         self.musicParts = musicParts
@@ -121,6 +146,7 @@ class MusicComposition: NSObject, NSCoding {
                 midiNoteMessage.releaseVelocity = note.midiNoteMess.releaseVelocity
                 midiNoteMessage.velocity = note.midiNoteMess.velocity
                 MusicTrackNewMIDINoteEvent(nextTrack, note.timeStamp, &midiNoteMessage)
+                
             }
         }
         let lastMeasure = part.measures[part.measures.count - 1]
@@ -135,6 +161,20 @@ class MusicComposition: NSObject, NSCoding {
                 self.chordProgressionString = self.chordProgressionString + "\(measure.chord.name) ➝ "
             }
             self.chordProgressionString = self.chordProgressionString + "END"
+        }
+    }
+    
+    func exchangeMeasure(partNumber partNum: Int, measureNum: Int, newMeasure: MusicMeasure) -> MusicMeasure {
+        let returnMeasure = self.musicParts[partNum].measures[measureNum].getMeasureCopy()
+        self.musicParts[partNum].setMeasure(measureNum: measureNum, newMeasure: newMeasure)
+        return returnMeasure
+    }
+    
+    func finishComposition() {
+        for partIndex in 0..<self.musicParts.count {
+            for measureIndex in 0..<self.musicParts[partIndex].measures.count {
+                self.musicParts[partIndex].measures[measureIndex].humanizeNotes()
+            }
         }
     }
     

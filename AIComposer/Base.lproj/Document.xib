@@ -13,7 +13,9 @@
                 <outlet property="consoleTextView" destination="feu-cV-bcK" id="Ya4-qB-kSy"/>
                 <outlet property="deleteCompositionButton" destination="aVW-gf-40n" id="H47-zM-PQf"/>
                 <outlet property="deleteSnippetbutton" destination="HDh-Dd-k40" id="Zg7-BA-swN"/>
+                <outlet property="maxGenerationsTextField" destination="TCh-rr-lud" id="whw-16-fsY"/>
                 <outlet property="musicSnippetTableView" destination="XNs-wq-orN" id="fzb-JS-fA3"/>
+                <outlet property="numberOfGenesTextField" destination="FeT-4L-LpY" id="cWO-gq-xlg"/>
                 <outlet property="playButton" destination="kGR-4F-xmA" id="gTf-bq-Fzj"/>
                 <outlet property="window" destination="xOd-HO-29H" id="JIz-fz-R2o"/>
             </connections>
@@ -240,6 +242,26 @@
                                                 <action selector="playButton:" target="-2" id="Nqo-uy-OfU"/>
                                             </connections>
                                         </button>
+                                        <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TCh-rr-lud">
+                                            <rect key="frame" x="591" y="17" width="118" height="22"/>
+                                            <animations/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Max Generations" drawsBackground="YES" id="OE4-lv-FxX">
+                                                <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="Rbh-bJ-Gni"/>
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FeT-4L-LpY">
+                                            <rect key="frame" x="453" y="17" width="132" height="22"/>
+                                            <animations/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Number of Genes" drawsBackground="YES" id="Fva-W6-u30">
+                                                <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="v2i-GA-WsM"/>
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="gfR-fo-ccn" firstAttribute="leading" secondItem="1IW-wM-sBE" secondAttribute="leading" constant="17" id="0zV-Jv-VNH"/>

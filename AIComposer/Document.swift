@@ -27,6 +27,9 @@ class Document: NSDocument {
     @IBOutlet var consoleTextView: NSTextView!
     @IBOutlet weak var composeButton: NSButton!
     
+    @IBOutlet weak var numberOfGenesTextField: NSTextField!
+    @IBOutlet weak var maxGenerationsTextField: NSTextField!
+    
     override init() {
         super.init()
         // Add your subclass-specific initialization here.
@@ -176,8 +179,13 @@ class Document: NSDocument {
         self.composeButton.title = "Composing..."
         
         self.createNewComposition(background: {
-            let composerController = ComposerController(musicDataSet: self.musicDataSet)
-            self.musicDataSet = composerController.createComposition()
+            if self.numberOfGenesTextField.integerValue > 0 && self.maxGenerationsTextField.integerValue > 0 {
+                let composerController = ComposerController(musicDataSet: self.musicDataSet, numberOfGenes: self.numberOfGenesTextField.integerValue, maxGenerations: self.maxGenerationsTextField.integerValue)
+                self.musicDataSet = composerController.createComposition()
+            } else {
+                let composerController = ComposerController(musicDataSet: self.musicDataSet)
+                self.musicDataSet = composerController.createComposition()
+            }
             },
             completion: {
                 self.composeButton.enabled = true

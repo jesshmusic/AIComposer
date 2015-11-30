@@ -300,17 +300,17 @@ class ChordController: NSObject {
     func getScaleForChord(chord chord: Chord) -> [Int]? {
         var chordScales = [String: [Int]]()
         chordScales["C"] =     [0, 2, 4, 5, 7, 9, 11]
-        chordScales["Db"] =    [0, 1, 3, 5, 7, 8, 10]
+        chordScales["Db"] =    [0, 1, 3, 5, 6, 8, 10]
         chordScales["D"] =     [0, 2, 4, 6, 7, 9, 11]
         chordScales["Eb"] =    [0, 2, 3, 5, 7, 8, 10]
-        chordScales["E"] =     [0, 2, 4, 5, 8, 9, 11]
+        chordScales["E"] =     [1, 2, 4, 6, 8, 9, 11]
         chordScales["F"] =     [0, 2, 4, 5, 7, 9, 11]
-        chordScales["F#"] =    [1, 2, 4, 6, 8, 10, 11]
+        chordScales["F#"] =    [1, 3, 4, 6, 8, 10, 11]
         chordScales["G"] =     [0, 2, 4, 5, 7, 9, 11]
         chordScales["Ab"] =    [0, 1, 3, 5, 7, 8, 10]
-        chordScales["A"] =     [1, 2, 4, 5, 7, 9, 10]
+        chordScales["A"] =     [1, 2, 4, 6, 8, 9, 11]
         chordScales["Bb"] =    [0, 2, 3, 5, 7, 9, 10]
-        chordScales["B"] =     [0, 3, 4, 6, 7, 9, 11]
+        chordScales["B"] =     [1, 3, 4, 6, 7, 9, 11]
         
         chordScales["Cm"] =    [0, 2, 3, 5, 7, 8, 10]
         chordScales["Dbm"] =   [1, 3, 4, 6, 8, 9, 11]

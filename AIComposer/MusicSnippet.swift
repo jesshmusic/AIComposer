@@ -45,6 +45,26 @@ class MusicSnippet: NSObject, NSCoding {
         self.calculateEndTime()
     }
     
+    init(musicSnippet: MusicSnippet) {
+        super.init()
+        self.musicNoteEvents = [MusicNote]()
+        self.transposedNoteEvents = [MusicNote]()
+        self.possibleChords = [Chord]()
+        for note in musicSnippet.musicNoteEvents {
+            self.musicNoteEvents.append(note.getNoteCopy())
+        }
+        for note in musicSnippet.transposedNoteEvents {
+            self.transposedNoteEvents.append(note.getNoteCopy())
+        }
+        self.count = self.musicNoteEvents.count
+        self.numberOfOccurences = musicSnippet.numberOfOccurences
+        for chord in musicSnippet.possibleChords {
+            self.possibleChords.append(Chord(name: chord.name, weight: chord.weight))
+        }
+        self.chord = musicSnippet.chord
+        self.endTime = musicSnippet.endTime
+    }
+    
     required init(coder aDecoder: NSCoder)  {
         
         let musicChord = ChordController()
@@ -69,13 +89,14 @@ class MusicSnippet: NSObject, NSCoding {
     
     func addMusicNote(newMusicNote: MusicNote) {
         //  I create a new MIDINoteMessage because I think it is a C pointer, and we need a separate value for transposed notes
-        let newMIDIMess = MIDINoteMessage(
-            channel: newMusicNote.midiNoteMess.channel,
-            note: newMusicNote.midiNoteMess.note,
-            velocity: UInt8(80),
-            releaseVelocity: newMusicNote.midiNoteMess.releaseVelocity,
-            duration: newMusicNote.midiNoteMess.duration)
-        let newTransposedNote = MusicNote(noteMessage: newMIDIMess, timeStamp: newMusicNote.timeStamp)
+        let newTransposedNote = newMusicNote.getNoteCopy()
+//        let newMIDIMess = MIDINoteMessage(
+//            channel: newMusicNote.midiNoteMess.channel,
+//            note: newMusicNote.midiNoteMess.note,
+//            velocity: UInt8(80),
+//            releaseVelocity: newMusicNote.midiNoteMess.releaseVelocity,
+//            duration: newMusicNote.midiNoteMess.duration)
+//        let newTransposedNote = MusicNote(noteMessage: newMIDIMess, timeStamp: newMusicNote.timeStamp)
         self.musicNoteEvents.append(newMusicNote)
         self.transposedNoteEvents.append(newTransposedNote)
         count++
@@ -113,6 +134,7 @@ class MusicSnippet: NSObject, NSCoding {
         
         let musicChord = ChordController()
         self.possibleChords = musicChord.generatePossibleChords(self.transposedNoteEvents)
+        self.chord = self.getHighestWeightChord()
     }
     
     /**
@@ -206,38 +228,6 @@ class MusicSnippet: NSObject, NSCoding {
             
         }
         return false
-        
-//        let highestWeightChord = self.getHighestWeightChord()
-//        if highestWeightChord != "" {
-//            let transposeOffset = musicChord.getDiatonicTransposeOffset(chord1: highestWeightChord, chord2: chordName)
-//            if transposeOffset.isDiatonic && !transposeOffset.isSwitchingQuality {
-//                var transposeSteps = transposeOffset.steps
-//                if transposeSteps > 4 {
-//                    transposeSteps = transposeSteps - 7
-//                }
-//                self.diatonicTranspose(steps: transposeSteps, octaves: 0)
-//            } else if !transposeOffset.isDiatonic && transposeOffset.isSwitchingQuality {
-//                if let chordNotes = musicChord.chordNotes[chordName] {
-//                    self.chromaticTranspose(halfSteps: transposeOffset.steps)
-//                    for note in self.musicNoteEvents {
-//                        for chordNote in chordNotes {
-//                            if Int(note.midiNoteMess.note % 12) - chordNote == 1 {
-//                                note.midiNoteMess.note--
-//                            }
-//                        }
-//                    }
-//                }
-//            } else {
-//                var chromSteps = transposeOffset.steps
-//                if transposeOffset.steps > 6 {
-//                    chromSteps = chromSteps - 12
-//                }
-//                self.chromaticTranspose(halfSteps: chromSteps)
-//            }
-//            self.chromaticTranspose(halfSteps: keyOffset)
-//            self.zeroTransposeMusicSnippet()
-//            self.count = self.musicNoteEvents.count
-//        }
     }
     
     /**
@@ -407,7 +397,7 @@ class MusicSnippet: NSObject, NSCoding {
      */
     func mergeNotePassages(firstWeight firstWeight: Double, secondSnippet: MusicSnippet) -> MusicSnippet {
         let returnSnippet = MusicSnippet()
-        let secSnippetCopy = MusicSnippet(notes: secondSnippet.musicNoteEvents)
+        let secSnippetCopy = MusicSnippet(musicSnippet: secondSnippet)
         secSnippetCopy.transposeToChord(chord: self.getHighestWeightChord(), keyOffset: 0)
         //  Get fragments from each MusicSnippet
         let maxCount = min(self.count, secSnippetCopy.count)
@@ -464,7 +454,7 @@ class MusicSnippet: NSObject, NSCoding {
      */
     func mergeNotePassagesRhythmically(firstWeight firstWeight: Double, chanceOfRest: Double, secondSnippet: MusicSnippet, numberOfBeats: Double) -> MusicSnippet {
         let returnSnippet = MusicSnippet()
-        let secSnippetCopy = MusicSnippet(notes: secondSnippet.musicNoteEvents)
+        let secSnippetCopy = MusicSnippet(musicSnippet: secondSnippet)
         secSnippetCopy.transposeToChord(chord: self.getHighestWeightChord(), keyOffset: 0)
         let numberOfFirstWeightBits = Int(Double(numberOfBeats) * firstWeight) - 1
         let randomStartIndex = Int.random(0..<(Int(numberOfBeats) - numberOfFirstWeightBits))
@@ -483,8 +473,12 @@ class MusicSnippet: NSObject, NSCoding {
         for nextBit in bitmask {
             if nextBit {
                 for note in self.musicNoteEvents {
+                    
                     let newNote = note.getNoteCopy()
                     if newNote.timeStamp < currentEnd && newNote.timeStamp >= currentStart {
+                        if newNote.midiNoteMess.duration > 1.0 {
+                            newNote.midiNoteMess.duration = 1.0
+                        }
                         returnSnippet.addMusicNote(newNote)
                     }
                 }
@@ -492,6 +486,9 @@ class MusicSnippet: NSObject, NSCoding {
                 for note in secondSnippet.musicNoteEvents {
                     let newNote = note.getNoteCopy()
                     if newNote.timeStamp < currentEnd && newNote.timeStamp >= currentStart {
+                        if newNote.midiNoteMess.duration > 1.0 {
+                            newNote.midiNoteMess.duration = 1.0
+                        }
                         returnSnippet.addMusicNote(newNote)
                     }
                 }
@@ -585,29 +582,6 @@ class MusicSnippet: NSObject, NSCoding {
         }
         self.zeroTransposeMusicSnippet()
         self.count = self.musicNoteEvents.count
-    }
-    
-    /**
-     Attempts to humanize the feel of a set of notes based on beat and bar
-     
-     */
-    func humanizeNotes() {
-        for note in self.musicNoteEvents {
-            if note.timeStamp % 1 == 0 {
-                note.midiNoteMess.velocity = note.midiNoteMess.velocity + UInt8(Int.random(10...20))
-                if note.midiNoteMess.velocity > 127 {
-                    note.midiNoteMess.velocity = 127
-                }
-            } else {
-                if note.midiNoteMess.velocity > 10 {
-                    note.midiNoteMess.velocity = UInt8(Int(note.midiNoteMess.velocity) + Int.random(-10...10))
-                    if note.midiNoteMess.velocity > 127 {
-                        note.midiNoteMess.velocity = 127
-                    }
-                }
-            }
-            note.timeStamp = note.timeStamp + MusicTimeStamp(Double.random() * 0.025)
-        }
     }
     
     /**
@@ -705,6 +679,7 @@ class MusicSnippet: NSObject, NSCoding {
     var infoString: String {
         var retString = "Notes: \(self.musicNoteEvents.count),  "
         if possibleChords != nil {
+            retString = retString + "CHORD: \(self.chord.name)\n"
             retString = retString + "Possible Chords: \n"
             for chord in self.possibleChords {
                 retString = retString + "\(chord.name): \(chord.weight)  "

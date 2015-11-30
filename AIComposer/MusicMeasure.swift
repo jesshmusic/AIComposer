@@ -83,4 +83,34 @@ class MusicMeasure: NSObject, NSCoding {
         }
         return MusicMeasure(tempo: self.tempo, timeSignature: self.timeSignature, firstBeatTimeStamp: self.firstBeatTimeStamp, notes: newNotes, chord: self.chord)
     }
+    
+    /**
+     Attempts to humanize the feel of a set of notes based on beat and bar
+     
+     */
+    func humanizeNotes() {
+        if self.notes.count != 0 {
+            for noteIndex in 0..<self.notes.count {
+                if self.notes[noteIndex].timeStamp % 1 == 0 {
+                    self.notes[noteIndex].midiNoteMess.velocity = self.notes[noteIndex].midiNoteMess.velocity + UInt8(Int.random(15...25))
+                    if self.notes[noteIndex].midiNoteMess.velocity > 127 {
+                        self.notes[noteIndex].midiNoteMess.velocity = 127
+                    }
+                } else {
+                    if self.notes[noteIndex].midiNoteMess.velocity > 10 {
+                        var newVelocity = Int(self.notes[noteIndex].midiNoteMess.velocity) + Int.random(-15...0)
+                        if newVelocity < 25 {
+                            newVelocity = Int.random(25...35)
+                        }
+                        self.notes[noteIndex].midiNoteMess.velocity = UInt8(newVelocity)
+                        if self.notes[noteIndex].midiNoteMess.velocity > 127 {
+                            self.notes[noteIndex].midiNoteMess.velocity = 127
+                        }
+                    }
+                }
+                self.notes[noteIndex].timeStamp = self.notes[noteIndex].timeStamp + MusicTimeStamp(Double.random() * 0.01)
+                self.notes[noteIndex].midiNoteMess.duration = self.notes[noteIndex].midiNoteMess.duration + Float32((Double.random() * 0.02) - 0.01)
+            }
+        }
+    }
 }
