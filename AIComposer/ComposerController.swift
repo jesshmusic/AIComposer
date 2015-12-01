@@ -9,6 +9,12 @@
 import Cocoa
 import AudioToolbox
 
+let EXPECTED_FITNESS = 85.0
+let EXPECTED_SILENCE = 5.0
+let EXPECTED_CHORD_DISSONANCE = 35.0
+let EXPECTED_NOTE_DISSONANCE = 45.0
+let EXPECTED_DYNAMICS = 5.0
+let EXPECTED_RHYTHMIC_VAR = 10.0
 
 
 //  Holds a composition and all of its fitness scores.
@@ -60,19 +66,10 @@ struct MainThemeGene {
 //  These are the values used in computing fitness for a composition gene
 struct DesiredResults {
     var silenceRatio = 0.1
-    var chordDissonanceRatio = 0.4
+    var chordDissonanceRatio = 0.25
     var noteDissonanceRatio = 0.1
     var dynamicsResult = 0.1
     var rhythmicVariety = 0.3
-    
-    var silenceScore = 10.0
-    var chordDissScore = 35.0
-    var noteDissScore = 35.0
-    var dynamicScore = 5.0
-    var rhythmicScore = 15.0
-    
-    //  This would make a perfect score 100.0
-    
 }
 
 //  These weights are used in generating the compositions AND creating permutations during the algorithm.
@@ -80,8 +77,8 @@ struct CompositionWeights {
     var mainThemeWeight = 0.65
     var permutationWeights = [0.06, 0.12, 0.2, 0.3, 0.5, 0.55, 0.6, 0.7, 1.0]
     var chanceOfRest = 0.1
-    var chanceOfCrescendo = 0.5
-    var chanceOfArticulation = 0.5
+    var chanceOfCrescendo = 0.65
+    var chanceOfArticulation = 0.65
     var articulationWeights = [0.2, 0.8, 0.85, 0.95, 1.0]
     
     //  Genetic Algorithm parameters
@@ -117,7 +114,6 @@ class ComposerController: NSObject {
     //  MARK: Genetic algorithm variables
     //  These can be adjusted to hopefully get better results.
     var numberOfGenes = 16
-    let fitnessGoal = 80.0
     let desiredResults = DesiredResults()
     var maxAttempts = 200
     var compositionWeights = CompositionWeights()
@@ -166,7 +162,7 @@ class ComposerController: NSObject {
             
             //  Genetic processes
             
-            while bestFitness < fitnessGoal
+            while bestFitness < EXPECTED_FITNESS
             {
                 if currentGeneration > maxAttempts {
                     break
@@ -347,7 +343,7 @@ class ComposerController: NSObject {
                                         newMeasure = self.applyRandomPermutationToMeasure(oldMeasure)
                                         self.compositionGenes[geneIndex].composition.musicParts[partIndex].setMeasure(measureNum: measureIndex, newMeasure: newMeasure)
                                     } else {
-//                                        let octaveOffset = Int(oldMeasure.notes[0].midiNoteMess.note / 12) * 12 + 12
+                                        //                                        let octaveOffset = Int(oldMeasure.notes[0].midiNoteMess.note / 12) * 12 + 12
                                         let newSnippet = self.createNewMotive(self.mainTheme, chord: oldMeasure.chord)
                                         let mutatedMeasureData = self.generateMeasureForChord(
                                             channel: partIndex,
@@ -374,48 +370,59 @@ class ComposerController: NSObject {
     {
         for compGene in self.compositionGenes {
             
-            var overallFitness = 0.0        //  Using a single result number for now
-            var silenceRatio = 0.0
-            var chordDissonanceRatio = 0.0
-            var noteDissonanceRatio = 0.0
-            var dynamicsResult = 0.0
-            var rhythmicResult = 0.0
+            let results = self.checkIndividualComposition(compGene.composition)
             
-            silenceRatio = self.checkSilenceRatio(compGene.composition)
-            let dissCheck = self.checkDissonanceRatio(compGene.composition)
-            chordDissonanceRatio = dissCheck.chordDissonanceRatio
-            noteDissonanceRatio = dissCheck.noteDissonanceRatio
-            dynamicsResult = self.checkDynamicSmoothness(compGene.composition)
-            rhythmicResult = self.checkRhythmicVariety(compGene.composition)
+            compGene.composition.silenceFitness = results.silenceFitness
             
-            var silenceScore = 0.0
-            var chordDissScore = 0.0
-            var noteDissScore = 0.0
-            var dynamicsScore = 0.0
-            var rhythmicScore = 0.0
+            compGene.composition.chordFitness = results.chordDissFitness
             
-            silenceScore = (min(silenceRatio, self.desiredResults.silenceRatio) / max(silenceRatio, self.desiredResults.silenceRatio)) * self.desiredResults.silenceScore
-            compGene.composition.silenceFitness = silenceScore
+            compGene.composition.noteFitness = results.noteDissFitness
             
-            chordDissScore = (min(chordDissonanceRatio, self.desiredResults.chordDissonanceRatio) / max(chordDissonanceRatio, self.desiredResults.chordDissonanceRatio)) * self.desiredResults.chordDissScore
-            compGene.composition.chordFitness = chordDissScore
+            compGene.composition.dynamicsFitness = results.dynamicsFitness
             
-            noteDissScore = (min(noteDissonanceRatio, self.desiredResults.noteDissonanceRatio) / max(noteDissonanceRatio, self.desiredResults.noteDissonanceRatio)) * self.desiredResults.noteDissScore
-            compGene.composition.noteFitness = noteDissScore
+            compGene.composition.rhythmicFitness = results.rhythmicFitness
             
-            dynamicsScore = (min(dynamicsResult, self.desiredResults.dynamicsResult) / max(dynamicsResult, self.desiredResults.dynamicsResult)) * self.desiredResults.dynamicScore
-            compGene.composition.dynamicsFitness = dynamicsScore
-            
-            rhythmicScore = (min(rhythmicResult, self.desiredResults.rhythmicVariety) / max(rhythmicResult, self.desiredResults.rhythmicVariety)) * self.desiredResults.rhythmicScore
-            compGene.composition.rhythmicFitness = rhythmicScore
-            
-            overallFitness = overallFitness + silenceScore + chordDissScore + noteDissScore + dynamicsScore + rhythmicScore
-            compGene.composition.fitnessScore = overallFitness
+            compGene.composition.fitnessScore = results.fitness
         }
         
         for i in 0..<self.compositionGenes.count {
             self.compositionGenes[i].fitness = self.compositionGenes[i].composition.fitnessScore
         }
+    }
+    
+    private func checkIndividualComposition(composition: MusicComposition) -> (fitness: Double, silenceFitness: Double, chordDissFitness: Double, noteDissFitness: Double, dynamicsFitness: Double, rhythmicFitness: Double) {
+        
+        var overallFitness = 0.0        //  Using a single result number for now
+        var silenceRatio = 0.0
+        var chordDissonanceRatio = 0.0
+        var noteDissonanceRatio = 0.0
+        var dynamicsResult = 0.0
+        var rhythmicResult = 0.0
+        
+        silenceRatio = self.checkSilenceRatio(composition)
+        let dissCheck = self.checkDissonanceRatio(composition)
+        chordDissonanceRatio = dissCheck.chordDissonanceRatio
+        noteDissonanceRatio = dissCheck.noteDissonanceRatio
+        dynamicsResult = self.checkDynamicSmoothness(composition)
+        rhythmicResult = self.checkRhythmicVariety(composition)
+        
+        var silenceScore = 0.0
+        var chordDissScore = 0.0
+        var noteDissScore = 0.0
+        var dynamicsScore = 0.0
+        var rhythmicScore = 0.0
+        silenceScore = (min(silenceRatio, self.desiredResults.silenceRatio) / max(silenceRatio, self.desiredResults.silenceRatio)) * EXPECTED_SILENCE
+        
+        chordDissScore = (min(chordDissonanceRatio, self.desiredResults.chordDissonanceRatio) / max(chordDissonanceRatio, self.desiredResults.chordDissonanceRatio)) * EXPECTED_CHORD_DISSONANCE
+        
+        noteDissScore = (min(noteDissonanceRatio, self.desiredResults.noteDissonanceRatio) / max(noteDissonanceRatio, self.desiredResults.noteDissonanceRatio)) * EXPECTED_NOTE_DISSONANCE
+        
+        dynamicsScore = (min(dynamicsResult, self.desiredResults.dynamicsResult) / max(dynamicsResult, self.desiredResults.dynamicsResult)) * EXPECTED_DYNAMICS
+        
+        rhythmicScore = (min(rhythmicResult, self.desiredResults.rhythmicVariety) / max(rhythmicResult, self.desiredResults.rhythmicVariety)) * EXPECTED_RHYTHMIC_VAR
+        
+        overallFitness = overallFitness + silenceScore + chordDissScore + noteDissScore + dynamicsScore + rhythmicScore
+        return (overallFitness, silenceScore, chordDissScore, noteDissScore, dynamicsScore, rhythmicScore)
     }
     
     //  After the genetic algorithm, gets the best fit composition
@@ -465,17 +472,14 @@ class ComposerController: NSObject {
      */
     private func checkSilenceRatio(comp: MusicComposition) -> Double {
         var silentMeasures = 0.0
-        var musicMeasures = 0.0
         for i in 0..<comp.numberOfMeasures {
             for part in comp.musicParts {
                 if part.measures[i].notes.count == 0 {
                     silentMeasures++
-                } else {
-                    musicMeasures++
                 }
             }
         }
-        return silentMeasures / musicMeasures
+        return silentMeasures / Double(comp.numberOfMeasures)
     }
     
     /**
@@ -513,30 +517,39 @@ class ComposerController: NSObject {
         //  FIXME:  Not sure the dissonances between notes are being properly checked.
         var consonnantNotes = 0.0
         var totalNotes = 0.0
-        for mNum in 0..<comp.numberOfMeasures {
-            for (var j: MusicTimeStamp = 1; j < 5; j++) {
-                var notesInBeat: Set = Set<UInt8>()
-                for part in comp.musicParts {
-                    for note in part.measures[mNum].notes {
-                        totalNotes++
-                        if note.timeStamp < j {
-                            notesInBeat.insert(note.noteValue)
-                        } else {
-                            break
+        for measureIndex in 0..<comp.numberOfMeasures {
+            var partNoteSets = [(partNum: Int, notes:[NoteSpan])]()
+            for partIndex in 0..<comp.musicParts.count {
+                var noteSpans = [NoteSpan]()
+                for note in comp.musicParts[partIndex].measures[measureIndex].notes {
+                    let startNoteTime = note.timeStamp
+                    let endNoteTime = note.timeStamp + MusicTimeStamp(note.midiNoteMess.duration)
+                    noteSpans.append(NoteSpan(part: partIndex, noteValue: note.noteValue, start: startNoteTime, end: endNoteTime))
+                }
+                noteSpans.sortInPlace({$0.start < $1.start})
+                partNoteSets.append((partNum: partIndex, notes:noteSpans))
+            }
+            for partNoteSetIndex in 0..<partNoteSets.count {
+//                print("Measure \(measureIndex + 1) Part: \(partNoteSets[partNoteSetIndex].partNum)")
+                for note in partNoteSets[partNoteSetIndex].notes {
+                    // print(note.description)
+                    for checkPartIndex in 0..<partNoteSets.count {
+                        if checkPartIndex != partNoteSetIndex {
+                            for noteToCheck in partNoteSets[checkPartIndex].notes {
+                                if noteToCheck.start >= note.start && noteToCheck.end < note.end {
+                                    let interval = Int(noteToCheck.noteValue) - Int(note.noteValue)
+                                    switch interval {
+                                    case 1, 2, 6, 10, 11:
+                                        break
+                                    default:
+                                        consonnantNotes++
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                for nextNote in notesInBeat {
-                    for compareNote in notesInBeat {
-                        let interval = abs(Int(nextNote) - Int(compareNote))
-                        switch interval {
-                        case 1, 2, 5, 6, 10, 11:
-                            break
-                        default:
-                            consonnantNotes++
-                        }
-                    }
-                }
+                totalNotes = totalNotes + Double(partNoteSets[partNoteSetIndex].notes.count)
             }
         }
         return ((dissonantDuration / consonantDuration), (consonnantNotes / totalNotes))
@@ -571,22 +584,30 @@ class ComposerController: NSObject {
     private func checkRhythmicVariety(comp: MusicComposition) -> Double {
         
         var rhythmicVarietyScore = 0.0
-        var totalChecks = 0.0
+        var totalNumberOfNotes = 0.0
         //  Get the time stamps from the main theme
         var timeStamps = [MusicTimeStamp]()
-        for nextNote in self.mainTheme.musicNoteEvents {
-            timeStamps.append(nextNote.timeStamp)
+        
+        //  Find the first measure with notes in Part 0. (This will be the main theme.
+        if self.mainTheme.musicNoteEvents.count == 0 {
+            var measureIndexToCheck = 0
+            while comp.musicParts[0].measures[measureIndexToCheck].notes.count == 0 {
+                measureIndexToCheck++
+            }
+            for nextNote in comp.musicParts[0].measures[measureIndexToCheck].notes {
+                timeStamps.append(nextNote.timeStamp)
+            }
+        } else {
+            for nextNote in self.mainTheme.musicNoteEvents {
+                timeStamps.append(nextNote.timeStamp)
+            }
         }
         
         for part in comp.musicParts {
             for measure in part.measures {
-                totalChecks++
-                if measure.notes.count != timeStamps.count {
-                    rhythmicVarietyScore++
-                }
+                totalNumberOfNotes = totalNumberOfNotes + Double(measure.notes.count)
                 let numberOfNotes = min(measure.notes.count, timeStamps.count)
                 for i in 0..<numberOfNotes {
-                    totalChecks++
                     let musicNoteTimeStamp = (measure.notes[i].timeStamp % MusicTimeStamp(self.timeSig.numberOfBeats))
                     if abs(timeStamps[i] - musicNoteTimeStamp) > 0.02 {
                         rhythmicVarietyScore = rhythmicVarietyScore + 1.0
@@ -594,7 +615,7 @@ class ComposerController: NSObject {
                 }
             }
         }
-        rhythmicVarietyScore = rhythmicVarietyScore / totalChecks
+        rhythmicVarietyScore = rhythmicVarietyScore / totalNumberOfNotes
         return rhythmicVarietyScore
     }
     
@@ -622,7 +643,7 @@ class ComposerController: NSObject {
         }
         
         var currentGeneration = 0
-        while bestFitness <= fitnessGoal / 100.0 {
+        while bestFitness <= EXPECTED_FITNESS / 100.0 {
             if currentGeneration > maxAttempts {
                 break
             }
@@ -857,9 +878,9 @@ class ComposerController: NSObject {
             let minNote = baseNote - UInt8(Int.random(10...20))
             let maxNote = baseNote + UInt8(Int.random(10...20))
             let randomPreset:UInt8 = presetList[Int.random(0..<presetList.count)]
-//            while presets.contains(randomPreset) {
-//                randomPreset = presetList[Int.random(0..<presetList.count)]
-//            }
+            //            while presets.contains(randomPreset) {
+            //                randomPreset = presetList[Int.random(0..<presetList.count)]
+            //            }
             presets.append((preset: randomPreset, minNote: minNote, maxNote: maxNote))
             if baseNote > 20 {
                 baseNote = baseNote - 18
@@ -1131,5 +1152,30 @@ class ComposerController: NSObject {
         userInfo["Data String"] = dataString
         NSNotificationCenter.defaultCenter().postNotificationName("ComposerControllerData", object: self, userInfo: userInfo)
         
+    }
+    
+    func recalculateFitnessForComposition(composition: MusicComposition) -> MusicComposition {
+        let results = self.checkIndividualComposition(composition)
+        composition.silenceFitness = results.silenceFitness
+        composition.chordFitness = results.chordDissFitness
+        composition.noteFitness = results.noteDissFitness
+        composition.dynamicsFitness = results.dynamicsFitness
+        composition.rhythmicFitness = results.rhythmicFitness
+        composition.fitnessScore = results.fitness
+        return composition
+    }
+}
+
+
+//  This is used for checking note-against-note intervals
+struct NoteSpan {
+    var part: Int!
+    var noteValue: UInt8!
+    var start: MusicTimeStamp!
+    var end: MusicTimeStamp!
+    
+    var description: String {
+        let returnString = String(format: "Part: %d\tnote: %d\tstart time: %.2f\tend time: %.2f", part, noteValue, start, end)
+        return returnString
     }
 }

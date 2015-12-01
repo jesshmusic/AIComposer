@@ -42,6 +42,7 @@ class Document: NSDocument {
             //            self.textOutputView.string = self.musicDataSet!.getDataString()
             self.musicSnippetTableView.reloadData()
             if self.musicDataSet.compositions.count > 0 {
+                self.updateMusicFitnessScores()
                 self.playButton.enabled = true
                 self.playButton.title = "PLAY"
             } else {
@@ -93,6 +94,9 @@ class Document: NSDocument {
         self.musicDataSet = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? MusicDataSet
         
         if let _ = self.musicDataSet {
+            if self.musicDataSet.compositions.count > 0 {
+                self.updateMusicFitnessScores()
+            }
             return
         }
         
@@ -100,6 +104,13 @@ class Document: NSDocument {
             NSLocalizedDescriptionKey: NSLocalizedString("Could not read file.", comment: "Read error description"),
             NSLocalizedFailureReasonErrorKey: NSLocalizedString("File was in an invalid format.", comment: "Read failure reason")
             ])
+    }
+    
+    private func updateMusicFitnessScores() {
+        let compCtrl = ComposerController(musicDataSet: self.musicDataSet)
+        for compIndex in 0..<self.musicDataSet.compositions.count {
+            self.musicDataSet.compositions[compIndex] = compCtrl.recalculateFitnessForComposition(self.musicDataSet.compositions[compIndex])
+        }
     }
     
     @IBAction func loadMIDIFile(sender: AnyObject) {
