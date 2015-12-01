@@ -181,7 +181,13 @@ class MusicComposition: NSObject, NSCoding {
     
     //  Returns a formatted String for display in the Table View
     var dataString: String {
-        let fitnessString = String(format: "\t\tFitness score: %.3f\nSilence: %.3f\t Chord: %.3f\t Note:%.3f\t Dynamics: %.3f\t Rhythmic: %.3f", self.fitnessScore, self.silenceFitness, self.chordFitness, self.noteFitness, self.dynamicsFitness, self.rhythmicFitness)
+        var fitnessString = String(format: "\t\tFitness score: %.1f /%.0f", self.fitnessScore, EXPECTED_FITNESS)
+        fitnessString = fitnessString + String(format: "\nSilence: %.1f /%.0f", self.silenceFitness, EXPECTED_SILENCE)
+        fitnessString = fitnessString + String(format: " ... Chord: %.1f /%.0f", self.chordFitness, EXPECTED_CHORD_DISSONANCE)
+        fitnessString = fitnessString + String(format: " ... Note: %.1f /%.0f", self.noteFitness, EXPECTED_NOTE_DISSONANCE)
+        fitnessString = fitnessString + String(format: " ... Dynamics: %.1f /%.0f", self.dynamicsFitness, EXPECTED_DYNAMICS)
+        fitnessString = fitnessString + String(format: " ... Rhythmic: %.1f /%.0f", self.rhythmicFitness, EXPECTED_RHYTHMIC_VAR)
+
         return "Tempo: \(self.tempo)\t\(self.numberOfMeasures) measures\t\(self.numberOfParts) parts \(fitnessString)"
     }
 }
