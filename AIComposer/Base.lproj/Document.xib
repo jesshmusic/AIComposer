@@ -26,7 +26,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="689" y="557" width="800" height="800"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1440"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="900"/>
             <value key="minSize" type="size" width="600" height="600"/>
             <view key="contentView" id="gIp-Ho-8D9">
                 <rect key="frame" x="0.0" y="0.0" width="800" height="800"/>
@@ -43,7 +43,10 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gYJ-7p-il1">
-                                            <rect key="frame" x="11" y="10" width="136" height="32"/>
+                                            <rect key="frame" x="11" y="10" width="162" height="32"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="150" id="d0r-6a-nlI"/>
+                                            </constraints>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Export MIDI File" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mQr-Wb-rWU">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -173,7 +176,7 @@
                                             </tableHeaderView>
                                         </scrollView>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aVW-gf-40n">
-                                            <rect key="frame" x="147" y="10" width="160" height="32"/>
+                                            <rect key="frame" x="173" y="10" width="160" height="32"/>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="Delete Composition" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="w82-j5-C1y">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -232,7 +235,10 @@
                                             </scroller>
                                         </scrollView>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kGR-4F-xmA">
-                                            <rect key="frame" x="711" y="10" width="72" height="32"/>
+                                            <rect key="frame" x="623" y="10" width="160" height="32"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="148" id="fAJ-Ew-X5O"/>
+                                            </constraints>
                                             <animations/>
                                             <buttonCell key="cell" type="push" title="PLAY" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="c8C-aw-504">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -242,21 +248,27 @@
                                                 <action selector="playButton:" target="-2" id="Nqo-uy-OfU"/>
                                             </connections>
                                         </button>
-                                        <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TCh-rr-lud">
-                                            <rect key="frame" x="591" y="17" width="118" height="22"/>
+                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="FeT-4L-LpY">
+                                            <rect key="frame" x="453" y="17" width="80" height="22"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="80" id="qQA-nK-FJt"/>
+                                            </constraints>
                                             <animations/>
-                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Max Generations" drawsBackground="YES" id="OE4-lv-FxX">
-                                                <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="Rbh-bJ-Gni"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Genes" drawsBackground="YES" id="Fva-W6-u30">
+                                                <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="v2i-GA-WsM"/>
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FeT-4L-LpY">
-                                            <rect key="frame" x="453" y="17" width="132" height="22"/>
+                                        <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TCh-rr-lud">
+                                            <rect key="frame" x="541" y="17" width="80" height="22"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="80" id="VPF-ne-Pyg"/>
+                                            </constraints>
                                             <animations/>
-                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Number of Genes" drawsBackground="YES" id="Fva-W6-u30">
-                                                <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="v2i-GA-WsM"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Generations" drawsBackground="YES" id="OE4-lv-FxX">
+                                                <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="Rbh-bJ-Gni"/>
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -267,18 +279,22 @@
                                         <constraint firstItem="gfR-fo-ccn" firstAttribute="leading" secondItem="1IW-wM-sBE" secondAttribute="leading" constant="17" id="0zV-Jv-VNH"/>
                                         <constraint firstItem="9i0-Sf-TZ8" firstAttribute="centerX" secondItem="1IW-wM-sBE" secondAttribute="centerX" id="1Xr-I2-kRh"/>
                                         <constraint firstItem="gfR-fo-ccn" firstAttribute="top" secondItem="1IW-wM-sBE" secondAttribute="top" constant="364" id="2Ab-Mz-fzn"/>
-                                        <constraint firstItem="9i0-Sf-TZ8" firstAttribute="leading" secondItem="aVW-gf-40n" secondAttribute="trailing" constant="34" id="2UC-8C-dL7"/>
+                                        <constraint firstItem="9i0-Sf-TZ8" firstAttribute="leading" secondItem="aVW-gf-40n" secondAttribute="trailing" constant="8" id="2UC-8C-dL7"/>
                                         <constraint firstItem="aVW-gf-40n" firstAttribute="leading" secondItem="gYJ-7p-il1" secondAttribute="trailing" constant="12" id="8VU-h1-FOi"/>
                                         <constraint firstItem="J2f-EU-JF3" firstAttribute="leading" secondItem="1IW-wM-sBE" secondAttribute="leading" constant="17" id="8sC-3a-wwv"/>
                                         <constraint firstItem="J2f-EU-JF3" firstAttribute="top" secondItem="1IW-wM-sBE" secondAttribute="top" constant="12" id="9cH-6J-OX4"/>
                                         <constraint firstAttribute="bottom" secondItem="kGR-4F-xmA" secondAttribute="bottom" constant="17" id="C9L-Ei-gTU"/>
                                         <constraint firstItem="gYJ-7p-il1" firstAttribute="leading" secondItem="1IW-wM-sBE" secondAttribute="leading" constant="17" id="JaB-UB-jud"/>
+                                        <constraint firstItem="kGR-4F-xmA" firstAttribute="leading" secondItem="TCh-rr-lud" secondAttribute="trailing" constant="8" id="OQ4-pG-Ogd"/>
+                                        <constraint firstAttribute="bottom" secondItem="TCh-rr-lud" secondAttribute="bottom" constant="17" id="Y4n-ra-lba"/>
                                         <constraint firstAttribute="bottom" secondItem="9i0-Sf-TZ8" secondAttribute="bottom" constant="11" id="ZXe-5e-jr6"/>
+                                        <constraint firstItem="TCh-rr-lud" firstAttribute="leading" secondItem="FeT-4L-LpY" secondAttribute="trailing" constant="8" id="akw-Zk-n0y"/>
                                         <constraint firstAttribute="bottom" secondItem="aVW-gf-40n" secondAttribute="bottom" constant="17" id="bty-K1-97Q"/>
                                         <constraint firstAttribute="trailing" secondItem="J2f-EU-JF3" secondAttribute="trailing" constant="3" id="cP1-o8-I8J"/>
                                         <constraint firstAttribute="bottom" secondItem="gfR-fo-ccn" secondAttribute="bottom" constant="58" id="epL-XD-oFY"/>
                                         <constraint firstAttribute="trailing" secondItem="gfR-fo-ccn" secondAttribute="trailing" constant="3" id="jyo-6e-rUd"/>
                                         <constraint firstAttribute="trailing" secondItem="kGR-4F-xmA" secondAttribute="trailing" constant="3" id="nlB-Sy-uyx"/>
+                                        <constraint firstAttribute="bottom" secondItem="FeT-4L-LpY" secondAttribute="bottom" constant="17" id="u72-DU-uLs"/>
                                         <constraint firstAttribute="bottom" secondItem="gYJ-7p-il1" secondAttribute="bottom" constant="17" id="wkV-4T-ODK"/>
                                     </constraints>
                                     <animations/>

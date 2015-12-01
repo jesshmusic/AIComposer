@@ -60,16 +60,16 @@ struct MainThemeGene {
 //  These are the values used in computing fitness for a composition gene
 struct DesiredResults {
     var silenceRatio = 0.1
-    var chordDissonanceRatio = 0.4
+    var chordDissonanceRatio = 0.25
     var noteDissonanceRatio = 0.1
     var dynamicsResult = 0.1
     var rhythmicVariety = 0.3
     
-    var silenceScore = 10.0
+    var silenceScore = 5.0
     var chordDissScore = 35.0
-    var noteDissScore = 35.0
+    var noteDissScore = 45.0
     var dynamicScore = 5.0
-    var rhythmicScore = 15.0
+    var rhythmicScore = 10.0
     
     //  This would make a perfect score 100.0
     
@@ -80,8 +80,8 @@ struct CompositionWeights {
     var mainThemeWeight = 0.65
     var permutationWeights = [0.06, 0.12, 0.2, 0.3, 0.5, 0.55, 0.6, 0.7, 1.0]
     var chanceOfRest = 0.1
-    var chanceOfCrescendo = 0.5
-    var chanceOfArticulation = 0.5
+    var chanceOfCrescendo = 0.65
+    var chanceOfArticulation = 0.65
     var articulationWeights = [0.2, 0.8, 0.85, 0.95, 1.0]
     
     //  Genetic Algorithm parameters
@@ -117,7 +117,7 @@ class ComposerController: NSObject {
     //  MARK: Genetic algorithm variables
     //  These can be adjusted to hopefully get better results.
     var numberOfGenes = 16
-    let fitnessGoal = 80.0
+    let fitnessGoal = 85.0
     let desiredResults = DesiredResults()
     var maxAttempts = 200
     var compositionWeights = CompositionWeights()
@@ -347,7 +347,7 @@ class ComposerController: NSObject {
                                         newMeasure = self.applyRandomPermutationToMeasure(oldMeasure)
                                         self.compositionGenes[geneIndex].composition.musicParts[partIndex].setMeasure(measureNum: measureIndex, newMeasure: newMeasure)
                                     } else {
-//                                        let octaveOffset = Int(oldMeasure.notes[0].midiNoteMess.note / 12) * 12 + 12
+                                        //                                        let octaveOffset = Int(oldMeasure.notes[0].midiNoteMess.note / 12) * 12 + 12
                                         let newSnippet = self.createNewMotive(self.mainTheme, chord: oldMeasure.chord)
                                         let mutatedMeasureData = self.generateMeasureForChord(
                                             channel: partIndex,
@@ -513,30 +513,39 @@ class ComposerController: NSObject {
         //  FIXME:  Not sure the dissonances between notes are being properly checked.
         var consonnantNotes = 0.0
         var totalNotes = 0.0
-        for mNum in 0..<comp.numberOfMeasures {
-            for (var j: MusicTimeStamp = 1; j < 5; j++) {
-                var notesInBeat: Set = Set<UInt8>()
-                for part in comp.musicParts {
-                    for note in part.measures[mNum].notes {
-                        totalNotes++
-                        if note.timeStamp < j {
-                            notesInBeat.insert(note.noteValue)
-                        } else {
-                            break
+        for measureIndex in 0..<comp.numberOfMeasures {
+            var partNoteSets = [(partNum: Int, notes:[NoteSpan])]()
+            for partIndex in 0..<comp.musicParts.count {
+                var noteSpans = [NoteSpan]()
+                for note in comp.musicParts[partIndex].measures[measureIndex].notes {
+                    let startNoteTime = note.timeStamp
+                    let endNoteTime = note.timeStamp + MusicTimeStamp(note.midiNoteMess.duration)
+                    noteSpans.append(NoteSpan(part: partIndex, noteValue: note.noteValue, start: startNoteTime, end: endNoteTime))
+                }
+                noteSpans.sortInPlace({$0.start < $1.start})
+                partNoteSets.append((partNum: partIndex, notes:noteSpans))
+            }
+            for partNoteSetIndex in 0..<partNoteSets.count {
+//                print("Measure \(measureIndex + 1) Part: \(partNoteSets[partNoteSetIndex].partNum)")
+                for note in partNoteSets[partNoteSetIndex].notes {
+                    // print(note.description)
+                    for checkPartIndex in 0..<partNoteSets.count {
+                        if checkPartIndex != partNoteSetIndex {
+                            for noteToCheck in partNoteSets[checkPartIndex].notes {
+                                if noteToCheck.start >= note.start && noteToCheck.end < note.end {
+                                    let interval = Int(noteToCheck.noteValue) - Int(note.noteValue)
+                                    switch interval {
+                                    case 1, 2, 6, 10, 11:
+                                        break
+                                    default:
+                                        consonnantNotes++
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                for nextNote in notesInBeat {
-                    for compareNote in notesInBeat {
-                        let interval = abs(Int(nextNote) - Int(compareNote))
-                        switch interval {
-                        case 1, 2, 5, 6, 10, 11:
-                            break
-                        default:
-                            consonnantNotes++
-                        }
-                    }
-                }
+                totalNotes = totalNotes + Double(partNoteSets[partNoteSetIndex].notes.count)
             }
         }
         return ((dissonantDuration / consonantDuration), (consonnantNotes / totalNotes))
@@ -857,9 +866,9 @@ class ComposerController: NSObject {
             let minNote = baseNote - UInt8(Int.random(10...20))
             let maxNote = baseNote + UInt8(Int.random(10...20))
             let randomPreset:UInt8 = presetList[Int.random(0..<presetList.count)]
-//            while presets.contains(randomPreset) {
-//                randomPreset = presetList[Int.random(0..<presetList.count)]
-//            }
+            //            while presets.contains(randomPreset) {
+            //                randomPreset = presetList[Int.random(0..<presetList.count)]
+            //            }
             presets.append((preset: randomPreset, minNote: minNote, maxNote: maxNote))
             if baseNote > 20 {
                 baseNote = baseNote - 18
@@ -1131,5 +1140,19 @@ class ComposerController: NSObject {
         userInfo["Data String"] = dataString
         NSNotificationCenter.defaultCenter().postNotificationName("ComposerControllerData", object: self, userInfo: userInfo)
         
+    }
+}
+
+
+//  This is used for checking note-against-note intervals
+struct NoteSpan {
+    var part: Int!
+    var noteValue: UInt8!
+    var start: MusicTimeStamp!
+    var end: MusicTimeStamp!
+    
+    var description: String {
+        let returnString = String(format: "Part: %d\tnote: %d\tstart time: %.2f\tend time: %.2f", part, noteValue, start, end)
+        return returnString
     }
 }
