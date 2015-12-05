@@ -52,7 +52,7 @@ class MusicComposition: NSObject, NSCoding {
         for part in composition.musicParts {
             var newMeasures = [MusicMeasure]()
             for measure in part.measures {
-                newMeasures.append(measure.getMeasureCopy())
+                newMeasures.append(MusicMeasure(musicMeasure: measure))
             }
             self.musicParts.append(MusicPart(measures: newMeasures, preset: (preset: part.soundPreset, minNote: part.minNote, maxNote: part.maxNote)))
         }
@@ -164,8 +164,14 @@ class MusicComposition: NSObject, NSCoding {
         }
     }
     
+    func exchangeMusicPart(partNumber partNum: Int, newPart: MusicPart) -> MusicPart {
+        let returnPart = MusicPart(musicPart: self.musicParts[partNum])
+        self.musicParts[partNum] = MusicPart(musicPart: newPart)
+        return returnPart
+    }
+    
     func exchangeMeasure(partNumber partNum: Int, measureNum: Int, newMeasure: MusicMeasure) -> MusicMeasure {
-        let returnMeasure = self.musicParts[partNum].measures[measureNum].getMeasureCopy()
+        let returnMeasure = MusicMeasure(musicMeasure: self.musicParts[partNum].measures[measureNum])
         self.musicParts[partNum].setMeasure(measureNum: measureNum, newMeasure: newMeasure)
         return returnMeasure
     }

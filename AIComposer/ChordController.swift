@@ -46,6 +46,20 @@ class ChordController: NSObject {
             [0,3,6]:"Cdim", [1,4,7]:"Dbdim", [2,5,8]:"Ddim", [3,6,9]:"Ebdim", [4,7,10]:"Edim", [5,8,11]:"Fdim",
             [0,6,9]:"F#dim", [1,7,10]:"Gdim", [2,8,11]:"Abdim", [0,3,9]:"Adim", [1,4,10]:"Bbdim", [2,5,11]:"Bdim"
         ]
+        
+//        let romanNumerals = [
+//            [0,4,7]:"I", [1,5,8]:"N6", [2,6,9]:"V/V", [3,7,10]:"III", [4,8,11]:"V/vi", [0,5,9]:"IV",
+//            [2,7,11]:"V", [0,3,8]:"bVI", [1,4,9]:"V/ii", [2,5,10]:"bVII", [3,6,11]:"V/iii",
+//            
+//            [0,3,7]:"i", [2,5,9]:"ii", [4,7,11]:"iii", [0,5,8]:"iv",
+//            [2,7,10]:"ii/IV", [0,4,9]:"vi", [2,6,11]:"ii/vi",
+//            
+//            [1,4,7]:"viio/ii", [4,7,10]:"viio/IV",
+//            [0,6,9]:"viio/V", [2,8,11]:"viio/vi", [2,5,11]:"viio",
+//            
+//            [0, 4, 7, 10]:"V7/IV", [0, 2, 6, 9]:"V7/V", [2, 4, 8, 11]:"V7/vi", [0, 3, 5, 9]:"V7/bVII",
+//            [2, 5, 7, 11]:"V7", [1, 4, 7, 9]:"V7/ii", [3, 6, 9, 11]:"V7/iii"
+//        ]
         var noteNums = [Int]()
         for note in notes {
             noteNums.append(Int(note.midiNoteMess.note))
@@ -76,6 +90,20 @@ class ChordController: NSObject {
             10: [Chord(name: "Bb", weight: 0.5), Chord(name: "Gm", weight: 0.2), Chord(name: "Eb", weight: 0.3)],
             11: [Chord(name: "Bdim", weight: 0.5), Chord(name: "G", weight: 0.2), Chord(name: "Em", weight: 0.3)]
         ]
+//        let singleNoteAnalysisPossibles = [
+//            0: [Chord(name: "I", weight: 0.6), Chord(name: "vi", weight: 0.2), Chord(name: "IV", weight: 0.2)],
+//            1: [Chord(name: "V/ii", weight: 0.9), Chord(name: "viio/ii", weight: 0.1)],
+//            2: [Chord(name: "ii", weight: 0.3), Chord(name: "V", weight: 0.6), Chord(name: "viio", weight: 0.1)],
+//            3: [Chord(name: "i", weight: 0.5), Chord(name: "bIII", weight: 0.2), Chord(name: "bVI", weight: 0.3)],
+//            4: [Chord(name: "I", weight: 0.5), Chord(name: "iii", weight: 0.4), Chord(name: "vi", weight: 0.1)],
+//            5: [Chord(name: "IV", weight: 0.6), Chord(name: "ii", weight: 0.3), Chord(name: "viio", weight: 0.1)],
+//            6: [Chord(name: "V/V", weight: 0.9), Chord(name: "viio/V", weight: 0.1)],
+//            7: [Chord(name: "V", weight: 0.7), Chord(name: "I", weight: 0.2), Chord(name: "iii", weight: 0.1)],
+//            8: [Chord(name: "V/vi", weight: 0.75), Chord(name: "viio/vi", weight: 0.2), Chord(name: "bVI", weight: 0.05)],
+//            9: [Chord(name: "vi", weight: 0.5), Chord(name: "IV", weight: 0.4), Chord(name: "ii", weight: 0.1)],
+//            10: [Chord(name: "bVII", weight: 0.8), Chord(name: "ii/IV", weight: 0.2)],
+//            11: [Chord(name: "V", weight: 0.75), Chord(name: "viio", weight: 0.2), Chord(name: "iii", weight: 0.05)]
+//        ]
         return singleNoteChordPossibles[noteNum]!
     }
     
@@ -95,6 +123,20 @@ class ChordController: NSObject {
             "Cdim": [0,3,6], "Dbdim":[1,4,7], "Ddim":[2,5,8], "Ebdim":[3,6,9], "Edim":[4,7,10], "Fdim":[5,8,11],
             "F#dim":[0,6,9], "Gdim":[1,7,10], "Abdim":[2,8,11], "Adim":[0,3,9], "Bbdim":[1,4,10], "Bdim":[2,5,11]
         ]
+        // This is for a later version:
+//        let romanNumeralNotes = [
+//            "I":[0,4,7], "N6":[1,5,8], "V/V":[2,6,9], "bIII":[3,7,10], "V/vi":[4,8,11], "IV":[0,5,9],
+//            "V":[2,7,11], "bVI":[0,3,8], "V/ii":[1,4,9], "bVII":[2,5,10], "V/iii":[3,6,11],
+//            
+//            "i":[0,3,7], "ii":[2,5,9], "iii":[4,7,11], "iv":[0,5,8],
+//            "ii/IV":[2,7,10], "vi":[0,4,9], "ii/vi":[2,6,11],
+//            
+//            "viio/ii":[1,4,7], "viio/IV":[4,7,10],
+//            "viio/V":[0,6,9], "viio/vi":[2,8,11], "viio":[2,5,11],
+//            
+//            "V7/IV":[0, 4, 7, 10], "V7/V":[0, 2, 6, 9], "V7/vi":[2, 4, 8, 11], "V7/bVII":[0, 3, 5, 9],
+//            "V7":[2, 5, 7, 11], "V7/ii":[1, 4, 7, 9], "V7/iii":[3, 6, 9, 11]
+//        ]
         if let noteNums = chordNotes[chord.name] {
             var returnNotes = [MusicNote]()
             for noteNum in noteNums {
@@ -232,6 +274,9 @@ class ChordController: NSObject {
         for note in noteArray {
             noteNumberSet.insert(Int(note.midiNoteMess.note))
         }
+        if chordSet.contains(Int(noteArray[0].midiNoteMess.note)) {
+            weight = weight + noteArray[0].midiNoteMess.duration
+        }
         if chordSet.isSubsetOf(noteNumberSet) {
             var chordArray = Array<Int>(chordSet)
             chordArray = chordArray.sort()
@@ -303,12 +348,12 @@ class ChordController: NSObject {
         chordScales["Db"] =    [0, 1, 3, 5, 6, 8, 10]
         chordScales["D"] =     [0, 2, 4, 6, 7, 9, 11]
         chordScales["Eb"] =    [0, 2, 3, 5, 7, 8, 10]
-        chordScales["E"] =     [1, 2, 4, 6, 8, 9, 11]
+        chordScales["E"] =     [0, 2, 4, 6, 8, 9, 11]
         chordScales["F"] =     [0, 2, 4, 5, 7, 9, 11]
         chordScales["F#"] =    [1, 3, 4, 6, 8, 10, 11]
         chordScales["G"] =     [0, 2, 4, 5, 7, 9, 11]
-        chordScales["Ab"] =    [0, 1, 3, 5, 7, 8, 10]
-        chordScales["A"] =     [1, 2, 4, 6, 8, 9, 11]
+        chordScales["Ab"] =    [0, 2, 3, 5, 7, 8, 10]
+        chordScales["A"] =     [1, 2, 4, 5, 7, 9, 11]
         chordScales["Bb"] =    [0, 2, 3, 5, 7, 9, 10]
         chordScales["B"] =     [1, 3, 4, 6, 7, 9, 11]
         
@@ -337,6 +382,41 @@ class ChordController: NSObject {
         chordScales["Adim"] =  [0, 2, 3, 5, 7, 9, 10]
         chordScales["Bbdim"] = [1, 3, 4, 6, 8, 10, 11]
         chordScales["Bdim"] =  [0, 2, 4, 5, 7, 9, 11]
+//        
+//        var romanNumberScales = [String: [Int]]()
+//        romanNumberScales["I"] =     [0, 2, 4, 5, 7, 9, 11]
+//        romanNumberScales["N6"] =    [0, 1, 3, 5, 6, 8, 10]
+//        romanNumberScales["V/V"] =     [0, 2, 4, 6, 7, 9, 11]
+//        romanNumberScales["bIII"] =    [0, 2, 3, 5, 7, 8, 10]
+//        romanNumberScales["V/vi"] =     [0, 2, 4, 6, 8, 9, 11]
+//        romanNumberScales["IV"] =     [0, 2, 4, 5, 7, 9, 11]
+//        romanNumberScales["V"] =     [0, 2, 4, 5, 7, 9, 11]
+//        romanNumberScales["bVI"] =    [0, 2, 3, 5, 7, 8, 10]
+//        romanNumberScales["V/ii"] =     [1, 2, 4, 5, 7, 9, 11]
+//        romanNumberScales["bVII"] =    [0, 2, 3, 5, 7, 9, 10]
+//        romanNumberScales["V/iii"] =     [1, 3, 4, 6, 7, 9, 11]
+//        
+//        romanNumberScales["i"] =    [0, 2, 3, 5, 7, 8, 10]
+//        romanNumberScales["ii"] =    [0, 2, 4, 5, 7, 9, 11]
+//        romanNumberScales["iii"] =    [0, 2, 4, 5, 7, 9, 11]
+//        romanNumberScales["iv"] =    [0, 2, 3, 5, 7, 8, 10]
+//        romanNumberScales["ii/IV"] =    [0, 2, 3, 5, 7, 9, 10]
+//        romanNumberScales["vi"] =    [0, 2, 4, 5, 7, 9, 11]
+//        romanNumberScales["ii/vi"] =    [1, 2, 4, 6, 7, 9, 11]
+//        
+//        romanNumberScales["viio/ii"] = [1, 2, 4, 6, 7, 9, 11]
+//        romanNumberScales["viio/IV"] =  [0, 2, 4, 5, 7, 9, 10]
+//        romanNumberScales["viio/V"] = [0, 2, 4, 6, 7, 9, 11]
+//        romanNumberScales["viio/vi"] = [1, 2, 4, 6, 8, 9, 11]
+//        romanNumberScales["viio"] =  [0, 2, 4, 5, 7, 9, 11]
+//        
+//        romanNumberScales["V7/IV"] = [0, 2, 4, 5, 7, 9, 10]
+//        romanNumberScales["V7/V"] = [0, 2, 4, 6, 7, 9, 11]
+//        romanNumberScales["V7/vi"] = [0, 2, 4, 6, 8, 9, 11]
+//        romanNumberScales["V7/bVII"] = [0, 2, 3, 5, 7, 9, 10]
+//        romanNumberScales["V7"] = [0, 2, 4, 5, 7, 9, 11]
+//        romanNumberScales["V7/ii"] = [1, 2, 4, 5, 7, 9, 11]
+//        romanNumberScales["V7/iii"] = [1, 3, 4, 6, 7, 9, 11]
         
         if let scale = chordScales[chord.name] {
             return scale

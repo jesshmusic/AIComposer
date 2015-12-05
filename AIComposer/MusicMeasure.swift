@@ -46,6 +46,18 @@ class MusicMeasure: NSObject, NSCoding {
         self.keySig = key
     }
     
+    init(musicMeasure: MusicMeasure) {
+        self.notes = [MusicNote]()
+        for note in musicMeasure.notes {
+            self.notes.append(note.getNoteCopy())
+        }
+        self.firstBeatTimeStamp = musicMeasure.firstBeatTimeStamp
+        self.tempo = musicMeasure.tempo
+        self.timeSignature = musicMeasure.timeSignature
+        self.chord = musicMeasure.chord
+        self.keySig = musicMeasure.keySig
+    }
+    
     required init(coder aDecoder: NSCoder)  {
         self.tempo = Float64(aDecoder.decodeFloatForKey("Tempo"))
         let numberOfBeats = aDecoder.decodeIntegerForKey("Number of Beats")
@@ -73,15 +85,6 @@ class MusicMeasure: NSObject, NSCoding {
         aCoder.encodeObject(chordName, forKey: "Chord")
         aCoder.encodeFloat(chordWeight, forKey: "Chord Weight")
         aCoder.encodeInteger(self.keySig, forKey: "Key Sig")
-    }
-    
-    //  Returns a fresh copy of this measure
-    func getMeasureCopy() -> MusicMeasure {
-        var newNotes = [MusicNote]()
-        for note in self.notes {
-            newNotes.append(note.getNoteCopy())
-        }
-        return MusicMeasure(tempo: self.tempo, timeSignature: self.timeSignature, firstBeatTimeStamp: self.firstBeatTimeStamp, notes: newNotes, chord: self.chord)
     }
     
     /**
