@@ -89,12 +89,12 @@ class MusicNote: NSObject, NSCoding {
     func applyArticulation(articulation:Articulation) {
         switch articulation {
         case .Accent:
-            self.midiNoteMess.velocity = self.midiNoteMess.velocity + (self.midiNoteMess.velocity / 3)
+            self.midiNoteMess.velocity = UInt8(Double(self.midiNoteMess.velocity) * 1.2)
             if self.midiNoteMess.velocity > 127 {
                 self.midiNoteMess.velocity = 127
             }
         case .Marcato:
-            self.midiNoteMess.velocity = self.midiNoteMess.velocity + (self.midiNoteMess.velocity / 3)
+            self.midiNoteMess.velocity = UInt8(Double(self.midiNoteMess.velocity) * 1.2)
             if self.midiNoteMess.velocity > 127 {
                 self.midiNoteMess.velocity = 127
             }

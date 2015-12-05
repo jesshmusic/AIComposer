@@ -108,8 +108,16 @@ class Document: NSDocument {
     
     private func updateMusicFitnessScores() {
         let compCtrl = ComposerController(musicDataSet: self.musicDataSet)
-        for compIndex in 0..<self.musicDataSet.compositions.count {
-            self.musicDataSet.compositions[compIndex] = compCtrl.recalculateFitnessForComposition(self.musicDataSet.compositions[compIndex])
+        for composition in self.musicDataSet.compositions {
+            if composition.fitnessScore == 0.0 {
+                let scores = compCtrl.recalculateFitnessForComposition(composition)
+                composition.fitnessScore = scores.fitness
+                composition.silenceFitness = scores.silenceFitness
+                composition.chordFitness = scores.chordDissFitness
+                composition.noteFitness = scores.noteDissFitness
+                composition.dynamicsFitness = scores.dynamicsFitness
+                composition.rhythmicFitness = scores.rhythmicFitness
+            }
         }
     }
     

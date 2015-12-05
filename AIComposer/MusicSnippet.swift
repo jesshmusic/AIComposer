@@ -67,13 +67,13 @@ class MusicSnippet: NSObject, NSCoding {
     
     required init(coder aDecoder: NSCoder)  {
         
-        let musicChord = ChordController()
+        let chordCtrl = ChordController()
         
         self.musicNoteEvents = aDecoder.decodeObjectForKey("MusicNoteEvents") as! [MusicNote]
         self.transposedNoteEvents = aDecoder.decodeObjectForKey("Transposed Music Note Events") as! [MusicNote]
         self.count = aDecoder.decodeIntegerForKey("Count")
         self.numberOfOccurences = aDecoder.decodeIntegerForKey("NumberOfOccurences")
-        self.possibleChords = musicChord.generatePossibleChords(self.transposedNoteEvents)
+        self.possibleChords = chordCtrl.generatePossibleChords(self.transposedNoteEvents)
         self.endTime = MusicTimeStamp(aDecoder.decodeDoubleForKey("End Time Stamp"))
         super.init()
         self.chord = self.getHighestWeightChord()
@@ -132,8 +132,8 @@ class MusicSnippet: NSObject, NSCoding {
         self.calculateEndTime()
         //  2: Get a weighted set of all of the possible chords this melody could be associated with.
         
-        let musicChord = ChordController()
-        self.possibleChords = musicChord.generatePossibleChords(self.transposedNoteEvents)
+        let ChordCtrl = ChordController()
+        self.possibleChords = ChordCtrl.generatePossibleChords(self.transposedNoteEvents)
         self.chord = self.getHighestWeightChord()
     }
     
