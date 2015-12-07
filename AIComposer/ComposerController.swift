@@ -101,7 +101,7 @@ class ComposerController: NSObject {
     //  These can be adjusted to hopefully get better results.
     var numberOfGenes: Int!
     let desiredResults = DesiredResults()
-    var maxAttempts: Int!
+    var numberOfGenerations: Int!
     var compositionWeights = CompositionWeights()
     
     
@@ -109,7 +109,7 @@ class ComposerController: NSObject {
     init(musicDataSet: MusicDataSet, numberOfGenes: Int = 8, maxGenerations: Int = 100) {
         self.musicDataSet = musicDataSet
         self.numberOfGenes = numberOfGenes
-        self.maxAttempts = maxGenerations
+        self.numberOfGenerations = maxGenerations
     }
     
     //  MARK: - Main composition creation method called to run the genetic algorithm
@@ -150,7 +150,7 @@ class ComposerController: NSObject {
             
             while bestFitness < EXPECTED_FITNESS
             {
-                if currentGeneration > maxAttempts {
+                if currentGeneration > numberOfGenerations {
                     break
                 }
                 self.selectFitCompositions()                            //  Selection
@@ -161,7 +161,7 @@ class ComposerController: NSObject {
                     if compGene.fitnessScore > bestFitness {
                         bestFitness = compGene.fitnessScore
                     }
-                    //                    print("\t\t compGene - \(compGene.composition.name)... score: \(compGene.fitness)")
+                    compGene.numberOfGenerations = currentGeneration
                 }
                 
                 //  Sends an info string to the main thread.
@@ -226,6 +226,7 @@ class ComposerController: NSObject {
                 parts.append(newPart.part)
             }
             let newCompositionGene = MusicComposition(name: randomName, musicParts: parts, numberOfMeasures: numberOfMeasures)
+            newCompositionGene.numberOfCompositionGenes = self.numberOfGenes
             self.compositionGenes.append(newCompositionGene)
         }
         //  Sends an info string to the main thread.
@@ -602,7 +603,7 @@ class ComposerController: NSObject {
         
         var currentGeneration = 0
         while bestFitness <= EXPECTED_FITNESS {
-            if currentGeneration > maxAttempts {
+            if currentGeneration > numberOfGenerations {
                 break
             }
             themeGenes = self.selectionForThemes(themeGenes)
