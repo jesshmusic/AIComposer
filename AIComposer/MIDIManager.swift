@@ -15,7 +15,8 @@ private let MIDIManagerInstance = MIDIManager()
 
 class MIDIManager: NSObject {
     
-    var soundBank = NSBundle.mainBundle().URLForResource("32MbGMStereo", withExtension: "sf2")
+    var soundBank = NSBundle.mainBundle().URLForResource("32MbGMStereo", withExtension: "sf2") 
+//    var soundBank = NSBundle.mainBundle().URLForResource("GeneralUser GS MuseScore v1.442", withExtension: "sf2")
     var musicPlayer: AVMIDIPlayer!
     internal private(set) var isPlaying = false
     

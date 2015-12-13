@@ -39,10 +39,10 @@ struct DesiredResults {
     
     // Composition Ratios
     var silenceRatio = 0.1
-    var chordDissonanceRatio = 0.4
-    var noteDissonanceRatio = 0.1
+    var chordDissonanceRatio = 0.5
+    var noteDissonanceRatio = 0.3
     var averageVelocityRange = 3.0
-    var rhythmicVariety = 0.3
+    var rhythmicVariety = 0.5
     
     // Theme Ratios
     var themeChordRatio = 0.75
@@ -58,19 +58,19 @@ struct DesiredResults {
 
 //  These weights are used in generating the compositions AND creating permutations during the algorithm.
 struct CompositionWeights {
-    var mainThemeWeight = 0.65
-    var permutationWeights = [0.1, 0.2, 0.3, 0.35, 0.5, 0.6, 0.8, 1.0]
-    var chanceOfRest = 0.1
+    var mainThemeWeight = 0.5
+    var permutationWeights = [0.1, 0.2, 0.25, 0.3, 0.35, 0.6, 0.8, 1.0]
+    var chanceOfRest = 0.2
     var chanceOfCrescendo = 0.65
-    var chanceOfArticulation = 0.65
+    var chanceOfArticulation = 0.4
     var articulationWeights = [0.2, 0.8, 0.85, 0.95, 1.0]
     
     //  Genetic Algorithm parameters
-    var chanceOfMutation = 0.125
-    var chanceOfCrossover = 0.4
+    var chanceOfMutation = 0.2
+    var chanceOfCrossover = 0.5
     
     //  Mutation replace vs permute
-    var permuteMutation = 0.5
+    var permuteMutation = 0.75
 }
 
 class ComposerController: NSObject {
@@ -101,7 +101,7 @@ class ComposerController: NSObject {
     //  These can be adjusted to hopefully get better results.
     var numberOfGenes: Int!
     let desiredResults = DesiredResults()
-    var maxAttempts: Int!
+    var numberOfGenerations: Int!
     var compositionWeights = CompositionWeights()
     
     
@@ -109,7 +109,7 @@ class ComposerController: NSObject {
     init(musicDataSet: MusicDataSet, numberOfGenes: Int = 8, maxGenerations: Int = 100) {
         self.musicDataSet = musicDataSet
         self.numberOfGenes = numberOfGenes
-        self.maxAttempts = maxGenerations
+        self.numberOfGenerations = maxGenerations
     }
     
     //  MARK: - Main composition creation method called to run the genetic algorithm
@@ -120,7 +120,7 @@ class ComposerController: NSObject {
     */
     func createComposition() -> MusicDataSet {
         
-        self.numberOfParts = Int.random(2...4)
+        self.numberOfParts = Int.random(3...5)
         
         dispatch_async(dispatch_get_main_queue()) {
             self.sendDataNotification("GENETIC ALGORITHM STARTING... \n\tInitializing compositions with \(self.numberOfParts) parts.\n-----------------------------\n")
@@ -150,7 +150,7 @@ class ComposerController: NSObject {
             
             while bestFitness < EXPECTED_FITNESS
             {
-                if currentGeneration > maxAttempts {
+                if currentGeneration > numberOfGenerations {
                     break
                 }
                 self.selectFitCompositions()                            //  Selection
@@ -161,7 +161,7 @@ class ComposerController: NSObject {
                     if compGene.fitnessScore > bestFitness {
                         bestFitness = compGene.fitnessScore
                     }
-                    //                    print("\t\t compGene - \(compGene.composition.name)... score: \(compGene.fitness)")
+                    compGene.numberOfGenerations = currentGeneration
                 }
                 
                 //  Sends an info string to the main thread.
@@ -226,6 +226,7 @@ class ComposerController: NSObject {
                 parts.append(newPart.part)
             }
             let newCompositionGene = MusicComposition(name: randomName, musicParts: parts, numberOfMeasures: numberOfMeasures)
+            newCompositionGene.numberOfCompositionGenes = self.numberOfGenes
             self.compositionGenes.append(newCompositionGene)
         }
         //  Sends an info string to the main thread.
@@ -602,7 +603,7 @@ class ComposerController: NSObject {
         
         var currentGeneration = 0
         while bestFitness <= EXPECTED_FITNESS {
-            if currentGeneration > maxAttempts {
+            if currentGeneration > numberOfGenerations {
                 break
             }
             themeGenes = self.selectionForThemes(themeGenes)
@@ -654,9 +655,6 @@ class ComposerController: NSObject {
         for themeGene in themeGenes {
             var fitScore = 0.0
             var previousNote = themeGene.musicSnippet.musicNoteEvents[0]
-//            var totalHalfSteps = 0
-//            var lowestNote = Int(previousNote.midiNoteMess.note)
-//            var highestNote = Int(previousNote.midiNoteMess.note)
             var totalDurationsInChord = 0.0
             var totalDurations = 0.0
             let chordMusicNotes = chordCtrl.getChordNotesForChord(themeGene.chord)
@@ -682,8 +680,6 @@ class ComposerController: NSObject {
                 totalLeaps = totalLeaps + abs(Double(currentNote.midiNoteMess.note) - Double(previousNote.midiNoteMess.note))
                 previousNote = currentNote
             }
-            
-//  (min(chordDissonanceRatio, self.desiredResults.chordDissonanceRatio) / max(chordDissonanceRatio,self.desiredResults.chordDissonanceRatio)) * EXPECTED_CHORD_DISSONANCE
             let averageTotalDuration = totalDurations / totalNotes
             let averageLeap = totalLeaps / totalNotes
             let ratioOfChordNotes = totalDurationsInChord / totalNotes
@@ -700,78 +696,6 @@ class ComposerController: NSObject {
             }
             
             fitScore = averageTotalDurationScore + averageLeapScore + ratioOfChordNotesScore
-            
-//            for i in 1..<themeGene.musicSnippet.musicNoteEvents.count {
-//                let currentNote = themeGene.musicSnippet.musicNoteEvents[i]
-//                let noteNum = Int(currentNote.midiNoteMess.note)
-//                if  noteNum > highestNote {
-//                    highestNote = noteNum
-//                }
-//                if noteNum < lowestNote {
-//                    lowestNote = noteNum
-//                }
-//                let testNote = currentNote.getNoteCopy()
-//                testNote.midiNoteMess.note = testNote.noteValue
-//                if chordNotes!.contains(testNote) {
-//                    totalDurationsInChord = totalDurationsInChord + Double(currentNote.midiNoteMess.duration)
-//                }
-//                if self.tempo > 130.0 {
-//                    if currentNote.midiNoteMess.duration >= 0.33 {
-//                        durationResult = durationResult + 0.2
-//                    }
-//                } else if self.tempo < 130.0 && self.tempo > 100.0  {
-//                    if currentNote.midiNoteMess.duration >= 0.25 {
-//                        durationResult = durationResult + 0.2
-//                    }
-//                } else if self.tempo <= 100.0 && self.tempo > 66.0 {
-//                    if currentNote.midiNoteMess.duration >= 0.125 {
-//                        durationResult = durationResult + 0.2
-//                    }
-//                } else if self.tempo <= 66.0 {
-//                    if currentNote.midiNoteMess.duration <= 2.1 {
-//                        durationResult = durationResult + 0.2
-//                    }
-//                } else {
-//                    durationResult = durationResult + 0.2
-//                }
-//                totalDurations = totalDurations + Double(currentNote.midiNoteMess.duration)
-//                totalHalfSteps = totalHalfSteps + (noteNum - Int(previousNote.midiNoteMess.note))
-//                
-//                previousNote = currentNote
-//            }
-//            
-//            let averageLeap = Double(totalHalfSteps / themeGene.musicSnippet.musicNoteEvents.count)
-//            var leapScore = 0.0
-//            if averageLeap > 1.0 && averageLeap < 5.0 {
-//                leapScore = pow(0.125, averageLeap)
-//            }
-//            
-//            let totalRange = Double(highestNote - lowestNote)
-//            var rangeScore = 0.0
-//            if totalRange > 4 && totalRange < 16 {
-//                rangeScore = ((1.0/(2.0 * sqrt(2 * M_PI))) * pow(M_E, ((-pow(totalRange - 10.0, 2))/(2 * 4.0))))
-//                rangeScore = rangeScore <= 0.125 ? rangeScore : 0.125
-//            }
-//            
-//            
-//            let ratioOfChordNotes = totalDurationsInChord / totalDurations
-//            var chordNoteRatioScore = 0.0
-//            if ratioOfChordNotes >= 0.5 && ratioOfChordNotes < 0.85 {
-//                chordNoteRatioScore = chordNoteRatioScore + 0.1
-//            }
-//            if ratioOfChordNotes >= 0.6 && ratioOfChordNotes < 0.85 {
-//                chordNoteRatioScore = chordNoteRatioScore + 0.1
-//            }
-//            if ratioOfChordNotes >= 0.6 && ratioOfChordNotes < 0.75 {
-//                chordNoteRatioScore = chordNoteRatioScore + 0.2
-//            }
-//            if ratioOfChordNotes >= 0.65 && ratioOfChordNotes < 0.7 {
-//                chordNoteRatioScore = chordNoteRatioScore + 0.2
-//            }
-//            
-//            let durationScore = durationResult / Double(themeGene.musicSnippet.musicNoteEvents.count)
-            
-//            fitScore = leapScore + rangeScore + chordNoteRatioScore + durationScore
             
             //  Add to return themes
             returnThemes.append(MainThemeGene(musicSnippet: themeGene.musicSnippet, chord: themeGene.chord, fitness: fitScore))
@@ -868,16 +792,18 @@ class ComposerController: NSObject {
     //  Set the instruments for each part
     private func setInstrumentPresets() -> [(preset: UInt8, minNote: UInt8, maxNote: UInt8)] {
         var presets = [(preset: UInt8, minNote: UInt8, maxNote: UInt8)]()
+        var usedPresetNums = [UInt8]()
         var baseNote: UInt8 = 92
         for _ in 0..<self.numberOfParts {
             let minNote = baseNote - UInt8(Int.random(10...20))
             let maxNote = baseNote + UInt8(Int.random(10...20))
-            let randomPreset:UInt8 = presetList[Int.random(0..<presetList.count)]
-            //            while presets.contains(randomPreset) {
-            //                randomPreset = presetList[Int.random(0..<presetList.count)]
-            //            }
-            presets.append((preset: randomPreset, minNote: minNote, maxNote: maxNote))
-            if baseNote > 20 {
+            var randomPreset = (preset:presetList[Int.random(0..<presetList.count)], minNote: minNote, maxNote: maxNote)
+            usedPresetNums.append(randomPreset.preset)
+            while usedPresetNums.contains(randomPreset.preset) {
+                randomPreset = (preset:presetList[Int.random(0..<presetList.count)], minNote: minNote, maxNote: maxNote)
+            }
+            presets.append(randomPreset)
+            if baseNote > 40 {
                 baseNote = baseNote - 18
             }
         }
@@ -975,7 +901,6 @@ class ComposerController: NSObject {
         let newMergeSnippet = self.createNewMotive(musicSnippet, chord: chord)
         
         let snippet1 = self.getSnippetWithRandomPermutation(newMergeSnippet, chord: chord)
-        snippet1.transposeToChord(chord: chord, keyOffset: 0)
         var nextVel = currentVelocity
         for note in snippet1.musicNoteEvents {
             note.timeStamp = note.timeStamp + startTimeStamp
@@ -1007,8 +932,6 @@ class ComposerController: NSObject {
     {
         let chordController = ChordController()
         let chordNotes = chordController.getChordNotesForChord(chord)
-        //        let note = chordNotes![Int.random(0..<chordNotes!.count)]
-        //        if previousNote != nil {
         let prevNoteVal = previousNote.noteValue
         var distanceFromChordNote = 127
         var currentChordNote = UInt8(250)
@@ -1075,8 +998,8 @@ class ComposerController: NSObject {
             newSnippet.applyRetrograde()
             newSnippet.applyDiatonicInversion(pivotNoteNumber: newSnippet.musicNoteEvents[0].midiNoteMess.note)
         case 5:
-            //  Generate a brand new snippet
-            newSnippet = self.createNewMotive(newSnippet, chord: chord)
+            //  Randomly move notes by step in the chord scale
+            newSnippet.randomAdjustNotesByStep()
         case 6:
             //  Change the articulation for the snippet
             let start = Int.random(0..<newSnippet.count)

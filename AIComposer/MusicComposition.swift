@@ -26,6 +26,8 @@ class MusicComposition: NSObject, NSCoding {
     var noteFitness = 0.0
     var dynamicsFitness = 0.0
     var rhythmicFitness = 0.0
+    var numberOfGenerations = 0
+    var numberOfCompositionGenes = 0
     
     override init() {
         self.musicParts = [MusicPart]()
@@ -47,6 +49,8 @@ class MusicComposition: NSObject, NSCoding {
         self.chordFitness = composition.chordFitness
         self.dynamicsFitness = composition.dynamicsFitness
         self.rhythmicFitness = composition.rhythmicFitness
+        self.numberOfGenerations = composition.numberOfGenerations
+        self.numberOfCompositionGenes = composition.numberOfCompositionGenes
         
         self.musicParts = [MusicPart]()
         for part in composition.musicParts {
@@ -79,6 +83,8 @@ class MusicComposition: NSObject, NSCoding {
         self.noteFitness = aDecoder.decodeDoubleForKey("Note Fitness Score")
         self.dynamicsFitness = aDecoder.decodeDoubleForKey("Dynamics Fitness Score")
         self.rhythmicFitness = aDecoder.decodeDoubleForKey("Rhythmic Fitness Score")
+        self.numberOfGenerations = aDecoder.decodeIntegerForKey("Number of Generations")
+        self.numberOfCompositionGenes = aDecoder.decodeIntegerForKey("Number of Composition Genes")
         super.init()
         self.createMusicSequence()
         self.generateChordProgressionString()
@@ -94,6 +100,8 @@ class MusicComposition: NSObject, NSCoding {
         aCoder.encodeDouble(self.noteFitness, forKey: "Note Fitness Score")
         aCoder.encodeDouble(self.dynamicsFitness, forKey: "Dynamics Fitness Score")
         aCoder.encodeDouble(self.rhythmicFitness, forKey: "Rhythmic Fitness Score")
+        aCoder.encodeInteger(self.numberOfGenerations, forKey: "Number of Generations")
+        aCoder.encodeInteger(self.numberOfCompositionGenes, forKey: "Number of Composition Genes")
     }
     
     private func createMusicSequence() {
@@ -115,8 +123,8 @@ class MusicComposition: NSObject, NSCoding {
                     previousTempo = measure.tempo
                 }
             }
-            for part in self.musicParts {
-                self.addPartToSequence(part)
+            for partIndex in 0..<self.musicParts.count {
+                self.addPartToSequence(self.musicParts[partIndex], partNumber: UInt8(partIndex))
             }
             
             //  Update info variables
@@ -125,16 +133,17 @@ class MusicComposition: NSObject, NSCoding {
         }
     }
     
-    func addPartToSequence(part: MusicPart) {
+    func addPartToSequence(part: MusicPart, partNumber: UInt8) {
         var nextTrack = MusicTrack()
         MusicSequenceNewTrack(self.musicSequence, &nextTrack)
+        
         
         //  Set sound preset
         var chanmess = MIDIChannelMessage(status: 0xB0, data1: 0, data2: 0, reserved: 0)
         MusicTrackNewMIDIChannelEvent(nextTrack, 0.0, &chanmess)
         chanmess = MIDIChannelMessage(status: 0xB0, data1: 32, data2: 0, reserved: 0)
         MusicTrackNewMIDIChannelEvent(nextTrack, 0, &chanmess)
-        chanmess = MIDIChannelMessage(status: 0xC0, data1: part.soundPreset, data2: 0, reserved: 0)
+        chanmess = MIDIChannelMessage(status: 0xC0 + partNumber, data1: part.soundPreset, data2: 0, reserved: 0)
         MusicTrackNewMIDIChannelEvent(nextTrack, 0, &chanmess)
         
         for measure in part.measures {
@@ -193,6 +202,7 @@ class MusicComposition: NSObject, NSCoding {
         fitnessString = fitnessString + String(format: " ... Note: %.1f /%.0f", self.noteFitness, EXPECTED_NOTE_DISSONANCE)
         fitnessString = fitnessString + String(format: " ... Dynamics: %.1f /%.0f", self.dynamicsFitness, EXPECTED_DYNAMICS)
         fitnessString = fitnessString + String(format: " ... Rhythmic: %.1f /%.0f", self.rhythmicFitness, EXPECTED_RHYTHMIC_VAR)
+        fitnessString = fitnessString + "\nGenerations: \(self.numberOfGenerations)\t\t\tGenes: \(self.numberOfCompositionGenes)"
 
         return "Tempo: \(self.tempo)\t\(self.numberOfMeasures) measures\t\(self.numberOfParts) parts \(fitnessString)"
     }

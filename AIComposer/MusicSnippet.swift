@@ -90,13 +90,13 @@ class MusicSnippet: NSObject, NSCoding {
     func addMusicNote(newMusicNote: MusicNote) {
         //  I create a new MIDINoteMessage because I think it is a C pointer, and we need a separate value for transposed notes
         let newTransposedNote = newMusicNote.getNoteCopy()
-//        let newMIDIMess = MIDINoteMessage(
-//            channel: newMusicNote.midiNoteMess.channel,
-//            note: newMusicNote.midiNoteMess.note,
-//            velocity: UInt8(80),
-//            releaseVelocity: newMusicNote.midiNoteMess.releaseVelocity,
-//            duration: newMusicNote.midiNoteMess.duration)
-//        let newTransposedNote = MusicNote(noteMessage: newMIDIMess, timeStamp: newMusicNote.timeStamp)
+        //        let newMIDIMess = MIDINoteMessage(
+        //            channel: newMusicNote.midiNoteMess.channel,
+        //            note: newMusicNote.midiNoteMess.note,
+        //            velocity: UInt8(80),
+        //            releaseVelocity: newMusicNote.midiNoteMess.releaseVelocity,
+        //            duration: newMusicNote.midiNoteMess.duration)
+        //        let newTransposedNote = MusicNote(noteMessage: newMIDIMess, timeStamp: newMusicNote.timeStamp)
         self.musicNoteEvents.append(newMusicNote)
         self.transposedNoteEvents.append(newTransposedNote)
         count++
@@ -383,6 +383,48 @@ class MusicSnippet: NSObject, NSCoding {
             retroNotes.append(currentNote)
         }
         self.musicNoteEvents = retroNotes
+        self.zeroTransposeMusicSnippet()
+        self.count = self.musicNoteEvents.count
+    }
+    
+    /**
+     Moves some notes to other notes in the chord scale by step
+     
+     */
+    func randomAdjustNotesByStep() {
+        let chordCtrl = ChordController()
+        let chordScale = chordCtrl.getScaleForChord(chord: self.chord)
+        let chordNotes = chordCtrl.getChordNotesForChord(self.chord)
+        for note in self.musicNoteEvents {
+            var newNotes = [MusicNote]()
+            for chordScaleValue in chordScale! {
+                let noteDiff = Int(note.noteValue) - chordScaleValue
+                if noteDiff == 0 {
+                    let newNote = note.getNoteCopy()
+                    newNotes.append(newNote)
+                } else if noteDiff < 3 &&  noteDiff > -3 {
+                    let newNote = note.getNoteCopy()
+                    newNote.midiNoteMess.note = UInt8(Int(newNote.midiNoteMess.note) - noteDiff)
+                    newNotes.append(newNote)
+                } else if noteDiff < -9 {
+                    let newNote = note.getNoteCopy()
+                    newNote.midiNoteMess.note = UInt8(Int(newNote.midiNoteMess.note) - (noteDiff + 12))
+                }
+            }
+            for chordNote in chordNotes! {
+                let chordNoteValue = Int(chordNote.noteValue)
+                let noteDiff = Int(note.noteValue) - chordNoteValue
+                if noteDiff == 0 {
+                    let newNote = note.getNoteCopy()
+                    newNotes.append(newNote)
+                } else {
+                    let newNote = note.getNoteCopy()
+                    newNote.midiNoteMess.note = UInt8(Int(newNote.midiNoteMess.note) - noteDiff)
+                    newNotes.append(newNote)
+                }
+            }
+            note.midiNoteMess = newNotes[Int.random(0..<newNotes.count)].midiNoteMess
+        }
         self.zeroTransposeMusicSnippet()
         self.count = self.musicNoteEvents.count
     }
